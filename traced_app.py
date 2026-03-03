@@ -493,12 +493,17 @@ def index():
         "<style>" + CSS + "</style></head><body>"
         "<nav>"
         "<a class='logo' href='/'>TRACED</a>"
+        "<div style='display:flex;align-items:center;gap:20px'>"
         "<div class='nav-stats'>"
         "<div class='ns'><strong>" + str(s['brands_mapped']) + "</strong>brands mapped</div>"
         "<div class='ns'><strong>" + str(s['companies']) + "</strong>companies</div>"
         "<div class='ns'><strong>$" + str(round(s['acquisitions']/1e9)) + "B</strong>acquisitions</div>"
         "<div class='ns'><strong>$" + str(round(s['lobbying']/1e6)) + "M</strong>lobbying</div>"
         "<div class='ns'><strong>$" + str(round(s['fines']/1e6)) + "M</strong>fines</div>"
+        "</div>"
+        "<a href='/scan' style='background:var(--amber);border-radius:8px;padding:8px 14px;font-size:10px;"
+        "letter-spacing:.08em;text-transform:uppercase;color:#000;font-weight:500;white-space:nowrap'>&#128247; Scan</a>"
+        "<a href='/contradiction' style='font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap'>Contradiction Index</a>"
         "</div></nav>"
         "<div class='hero'>"
         "<h1>Who <em>really</em> owns<br>what you buy?</h1>"
@@ -623,6 +628,14 @@ def api_barcode(upc):
     if not row:
         return jsonify({"error": "Barcode not found", "upc": upc}), 404
     return api_brand(row["name"])
+
+# ── Register extended routes ──────────────────────────────────────
+try:
+    from routes_ext import register as _register_ext
+    _register_ext(app)
+except Exception as _ext_err:
+    import traceback; traceback.print_exc()
+    print(f"Warning: could not load routes_ext: {_ext_err}")
 
 if __name__ == "__main__":
     print("Traced running at http://127.0.0.1:5001")

@@ -1,0 +1,129 @@
+═══════════════════════════════════════════════════════════
+TRACED — BUILD REPORT
+Generated: 2026-03-03
+═══════════════════════════════════════════════════════════
+
+DATABASE STATE
+──────────────
+  Companies:             60
+  Brands:               865 (with slugs generated)
+  Products:         190,532
+  Violations:         2,338 (after cleanup: normalized types, removed SEC, fixed years)
+  Lobbying Records:     218  ($481M documented spend)
+  Brand Events:       1,319
+  Ingredient Snaps:  101,767 (61,044 with additives parsed)
+  Brands with contradiction score: 392 non-zero, 245 ≥ 50
+
+CLEANUP PERFORMED
+──────────────────
+  ✓ Normalized violation types: 'FDA' → 'FDA recall', 'FTC' → 'FTC action', 'USDA' → 'USDA recall'
+  ✓ Deleted 1 SEC violation
+  ✓ Fixed 1 year value < 1900 → NULL
+  ✓ Rebuilt contradiction scores with full rubric
+  ✓ Added slug column to brands, generated slugs for all 865 brands
+
+CONTRADICTION SCORING RUBRIC
+──────────────────────────────
+  Brand acquired:                          +15 pts
+  Brand markets as natural/organic/clean:  +20 pts
+  Parent FTC action for deceptive labels:  +25 pts
+  Parent lobbied against GMO labeling:     +20 pts
+  Parent lobbied against nutrition labels: +15 pts
+  Parent lobbied against sugar/soda tax:   +10 pts
+  Parent lobbied against animal welfare:   +20 pts
+  Parent has 10+ FDA recalls:              +10 pts
+  Parent has USDA recall:                  +10 pts
+  Parent has EU regulatory action:         +10 pts
+  Parent total fines > $100M:              +15 pts
+  Parent lobbying spend > $50M:            +10 pts
+  Maximum:                                 100 pts
+
+KEY BRAND SCORES (verified ✓)
+───────────────────────────────
+  Honest Tea (Coca-Cola):      100  ✓ ≥ 60
+  Applegate Naturals (Hormel): 100  ✓ ≥ 60
+  Annie's (General Mills):     100  ✓ ≥ 60
+  Kashi (Kellogg's):           100  ✓ ≥ 60
+  Naked Juice (PepsiCo):       100  ✓ ≥ 60
+  Cascadian Farm (Gen Mills):  100  ✓ ≥ 60
+  Horizon Organic (Danone):    100  ✓ ≥ 60
+  RXBAR (Kellogg's):           100  ✓ ≥ 60
+  bear naked (Kellogg's):      100  ✓ ≥ 60
+
+FILES BUILT
+────────────
+  contradiction_index.json     — Top 50 brands with scores, reasons, headlines, share_text
+  transparency_index.json      — 30 curated independent brands with why explanations
+  routes_ext.py                — All new route handlers (761 lines)
+  traced_app.py                — Updated: scan nav button, contradiction nav link, registers routes_ext
+  chrome-extension/
+    manifest.json              — MV3 manifest, host permissions for 7 grocery sites
+    content.js                 — Product detection, API fetch, badge + card injection
+    styles.css                 — Badge, dot, and card styles
+    popup.html / popup.js      — Toolbar popup with search + page brand detection
+    background.js              — Service worker for cross-tab cache
+    icons/icon16.png           — Amber placeholder icon (16px)
+    icons/icon48.png           — Amber placeholder icon (48px)
+    icons/icon128.png          — Amber placeholder icon (128px)
+    README.md                  — Install instructions + file guide
+
+ROUTES ADDED
+─────────────
+  /contradiction              — Ranked leaderboard, methodology, share button
+  /transparency               — Clean brands index (30 independent brands)
+  /brand/<slug>               — Brand investigation page w/ OG tags, JSON-LD, share bar, embed code, citation
+  /scan                       — Barcode scanner (BarcodeDetector API + manual fallback)
+  /share/text/<slug>          — SMS-ready share text (JSON response)
+  /share/card/<slug>          — Canvas social card generator (1200x630, downloadable PNG)
+  /api/docs                   — API documentation with live example
+  /widget/<slug>              — 300x200 embeddable brand card
+  /embed.js                   — Single-script embed tag handler
+  /api/brands                 — Full brand list (500) with scores
+  /api/companies              — Company list with brand counts + fines
+  /api/stats                  — Database-wide stats
+
+EXISTING ROUTES (still working)
+─────────────────────────────────
+  /                           ✓ (updated nav: scan + contradiction links)
+  /search?q=                  ✓
+  /ac?q=                      ✓
+  /company/<id>               ✓
+  /barcode/<upc>              ✓
+  /api/brand/<name>           ✓
+  /api/barcode/<upc>          ✓
+
+ALL 20 SMOKE TESTS: PASS ✓
+
+TOP 10 INVESTIGATION CANDIDATES (by data density + brand recognition)
+───────────────────────────────────────────────────────────────────────
+  1. Quaker          (PepsiCo)       — 155 data signals, iconic health brand
+  2. Lay's           (PepsiCo)       — 154 signals, largest snack brand
+  3. Cheetos         (PepsiCo)       — 153 signals
+  4. Doritos         (PepsiCo)       — 153 signals
+  5. Gatorade        (PepsiCo)       — 152 signals, "healthy hydration" vs reality
+  6. Pure Leaf       (PepsiCo)       — 151 signals, "natural" tea brand
+  7. Annie's         (General Mills) — High brand recognition, organic positioning
+  8. Kashi           (Kellogg's)     — Archetypal contradiction brand
+  9. Honest Tea      (Coca-Cola)     — Discontinued, strong editorial story
+ 10. Nature Valley   (General Mills) — "Natural" in the name, parent's GMO lobbying
+
+RECOMMENDED NEXT STEPS
+────────────────────────
+  1. Replace amber placeholder icons with real Traced logo in chrome-extension/icons/
+  2. Deduplicate brand name variants (e.g., "pepsi"/"Pepsi"/"PEPSI" → one entry)
+     → Add a canonical_id column to brands table
+  3. Add /brand/<slug>/json route returning all data as structured JSON (for researchers)
+  4. Connect chrome-extension API_BASE to production URL after Vercel deploy
+  5. Add Turso edge DB or Vercel KV caching for API calls > 100ms
+  6. Build SEO sitemap at /sitemap.xml listing all /brand/<slug> URLs
+  7. Add /api/contradiction endpoint returning the JSON index directly
+  8. Consider Applegate, Honest Tea, Annie's as editorial "featured stories"
+     — these have the strongest narrative and brand recognition
+  9. Abbott Nutrition (Similac 2022 crisis) and Tyson (water quality violations)
+     are the highest-priority companies still needing violation depth
+ 10. Add Google Analytics / Plausible to track which brands get looked up most
+
+CHROME EXTENSION INSTALL
+──────────────────────────
+  chrome://extensions → Developer mode ON → Load unpacked → select chrome-extension/
+  For local API testing: change API_BASE to 'http://127.0.0.1:5001' in content.js and popup.js

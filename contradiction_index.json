@@ -1,0 +1,906 @@
+{
+  "generated": "2026-03-03",
+  "count": 50,
+  "brands": [
+    {
+      "rank": 1,
+      "brand": "Coca-Cola",
+      "slug": "coca-cola",
+      "parent": "Coca-Cola",
+      "parent_id": "coca-cola",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 60710000,
+      "headline_finding": "Coca-Cola was fined by the FTC for deceptive labeling \u2014 and still owns Coca-Cola",
+      "share_text": "\ud83d\udd0d Coca-Cola on @TracedHealth:\n\u2022 Owned by Coca-Cola\n\u2022 Coca-Cola lobbied against GMO labeling\ntracedhealth.com/brand/coca-cola"
+    },
+    {
+      "rank": 2,
+      "brand": "AQUAFINA",
+      "slug": "aquafina",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns AQUAFINA",
+      "share_text": "\ud83d\udd0d AQUAFINA on @TracedHealth:\n\u2022 Owned by PepsiCo\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/aquafina"
+    },
+    {
+      "rank": 3,
+      "brand": "pepsi",
+      "slug": "pepsi",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns pepsi",
+      "share_text": "\ud83d\udd0d pepsi on @TracedHealth:\n\u2022 Owned by PepsiCo\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/pepsi"
+    },
+    {
+      "rank": 4,
+      "brand": "Quaker",
+      "slug": "quaker",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": 2001,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2001",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns Quaker",
+      "share_text": "\ud83d\udd0d Quaker on @TracedHealth:\n\u2022 Owned by PepsiCo since 2001\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/quaker"
+    },
+    {
+      "rank": 5,
+      "brand": "General Mills",
+      "slug": "general-mills",
+      "parent": "General Mills",
+      "parent_id": "general-mills",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against stricter nutrition labeling rules"
+      ],
+      "parent_fines_total": 8500000,
+      "parent_lobbying_total": 26020000,
+      "headline_finding": "General Mills was fined by the FTC for deceptive labeling \u2014 and still owns General Mills",
+      "share_text": "\ud83d\udd0d General Mills on @TracedHealth:\n\u2022 Owned by General Mills\n\u2022 General Mills lobbied against GMO labeling\ntracedhealth.com/brand/general-mills"
+    },
+    {
+      "rank": 6,
+      "brand": "KIND",
+      "slug": "kind",
+      "parent": "Mars Inc.",
+      "parent_id": "mars",
+      "acquired_year": 2020,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Brand markets itself as \"kind\" despite conglomerate ownership",
+        "Acquired by parent in 2020",
+        "Parent company has FTC action for deceptive food labeling"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 11020000,
+      "headline_finding": "KIND sells itself as \"kind\" while Mars Inc. spent millions lobbying to keep GMO ingredients unlabeled",
+      "share_text": "\ud83d\udd0d KIND on @TracedHealth:\n\u2022 Owned by Mars Inc. since 2020\n\u2022 Mars Inc. lobbied against GMO labeling\ntracedhealth.com/brand/kind"
+    },
+    {
+      "rank": 7,
+      "brand": "THE COCA-COLA COMPANY",
+      "slug": "the-coca-cola-company",
+      "parent": "Coca-Cola",
+      "parent_id": "coca-cola",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 60710000,
+      "headline_finding": "Coca-Cola was fined by the FTC for deceptive labeling \u2014 and still owns THE COCA-COLA COMPANY",
+      "share_text": "\ud83d\udd0d THE COCA-COLA COMPANY on @TracedHealth:\n\u2022 Owned by Coca-Cola\n\u2022 Coca-Cola lobbied against GMO labeling\ntracedhealth.com/brand/the-coca-cola-company"
+    },
+    {
+      "rank": 8,
+      "brand": "Cadbury",
+      "slug": "cadbury",
+      "parent": "Mondel\u0113z",
+      "parent_id": "mondelez",
+      "acquired_year": 2010,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2010",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 22240000,
+      "headline_finding": "Mondel\u0113z was fined by the FTC for deceptive labeling \u2014 and still owns Cadbury",
+      "share_text": "\ud83d\udd0d Cadbury on @TracedHealth:\n\u2022 Owned by Mondel\u0113z since 2010\n\u2022 Mondel\u0113z lobbied against GMO labeling\ntracedhealth.com/brand/cadbury"
+    },
+    {
+      "rank": 9,
+      "brand": "Nature Valley",
+      "slug": "nature-valley",
+      "parent": "General Mills",
+      "parent_id": "general-mills",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against stricter nutrition labeling rules"
+      ],
+      "parent_fines_total": 8500000,
+      "parent_lobbying_total": 26020000,
+      "headline_finding": "General Mills was fined by the FTC for deceptive labeling \u2014 and still owns Nature Valley",
+      "share_text": "\ud83d\udd0d Nature Valley on @TracedHealth:\n\u2022 Owned by General Mills\n\u2022 General Mills lobbied against GMO labeling\ntracedhealth.com/brand/nature-valley"
+    },
+    {
+      "rank": 10,
+      "brand": "Lay's",
+      "slug": "lays",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns Lay's",
+      "share_text": "\ud83d\udd0d Lay's on @TracedHealth:\n\u2022 Owned by PepsiCo\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/lays"
+    },
+    {
+      "rank": 11,
+      "brand": "Pepperidge Farm",
+      "slug": "pepperidge-farm",
+      "parent": "Campbell's",
+      "parent_id": "campbell",
+      "acquired_year": 1961,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Brand markets itself as \"farm\" despite conglomerate ownership",
+        "Acquired by parent in 1961",
+        "Parent company has FTC action for deceptive food labeling"
+      ],
+      "parent_fines_total": 1500000,
+      "parent_lobbying_total": 11800000,
+      "headline_finding": "Pepperidge Farm sells itself as \"farm\" while Campbell's spent millions lobbying to keep GMO ingredients unlabeled",
+      "share_text": "\ud83d\udd0d Pepperidge Farm on @TracedHealth:\n\u2022 Owned by Campbell's since 1961\n\u2022 Campbell's lobbied against GMO labeling\ntracedhealth.com/brand/pepperidge-farm"
+    },
+    {
+      "rank": 12,
+      "brand": "RXBAR",
+      "slug": "rxbar",
+      "parent": "Kellogg's",
+      "parent_id": "kelloggs",
+      "acquired_year": 2017,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2017",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 7500000,
+      "parent_lobbying_total": 20212500,
+      "headline_finding": "Kellogg's was fined by the FTC for deceptive labeling \u2014 and still owns RXBAR",
+      "share_text": "\ud83d\udd0d RXBAR on @TracedHealth:\n\u2022 Owned by Kellogg's since 2017\n\u2022 Kellogg's lobbied against GMO labeling\ntracedhealth.com/brand/rxbar"
+    },
+    {
+      "rank": 13,
+      "brand": "Premier Protein",
+      "slug": "premier-protein",
+      "parent": "Post Holdings",
+      "parent_id": "post-holdings",
+      "acquired_year": 2013,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2013",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 4080000,
+      "headline_finding": "Post Holdings was fined by the FTC for deceptive labeling \u2014 and still owns Premier Protein",
+      "share_text": "\ud83d\udd0d Premier Protein on @TracedHealth:\n\u2022 Owned by Post Holdings since 2013\n\u2022 Post Holdings lobbied against GMO labeling\ntracedhealth.com/brand/premier-protein"
+    },
+    {
+      "rank": 14,
+      "brand": "Skippy",
+      "slug": "skippy",
+      "parent": "Unilever",
+      "parent_id": "unilever",
+      "acquired_year": 2013,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2013",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 20000000,
+      "parent_lobbying_total": 28460000,
+      "headline_finding": "Unilever was fined by the FTC for deceptive labeling \u2014 and still owns Skippy",
+      "share_text": "\ud83d\udd0d Skippy on @TracedHealth:\n\u2022 Owned by Unilever since 2013\n\u2022 $20M in documented fines\ntracedhealth.com/brand/skippy"
+    },
+    {
+      "rank": 15,
+      "brand": "Gatorade",
+      "slug": "gatorade",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": 2001,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2001",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns Gatorade",
+      "share_text": "\ud83d\udd0d Gatorade on @TracedHealth:\n\u2022 Owned by PepsiCo since 2001\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/gatorade"
+    },
+    {
+      "rank": 16,
+      "brand": "Doritos",
+      "slug": "doritos",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns Doritos",
+      "share_text": "\ud83d\udd0d Doritos on @TracedHealth:\n\u2022 Owned by PepsiCo\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/doritos"
+    },
+    {
+      "rank": 17,
+      "brand": "Annie's",
+      "slug": "annies",
+      "parent": "General Mills",
+      "parent_id": "general-mills",
+      "acquired_year": 2014,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2014",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 8500000,
+      "parent_lobbying_total": 26020000,
+      "headline_finding": "General Mills was fined by the FTC for deceptive labeling \u2014 and still owns Annie's",
+      "share_text": "\ud83d\udd0d Annie's on @TracedHealth:\n\u2022 Owned by General Mills since 2014\n\u2022 General Mills lobbied against GMO labeling\ntracedhealth.com/brand/annies"
+    },
+    {
+      "rank": 18,
+      "brand": "Kashi",
+      "slug": "kashi",
+      "parent": "Kellogg's",
+      "parent_id": "kelloggs",
+      "acquired_year": 2000,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2000",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 7500000,
+      "parent_lobbying_total": 20212500,
+      "headline_finding": "Kellogg's was fined by the FTC for deceptive labeling \u2014 and still owns Kashi",
+      "share_text": "\ud83d\udd0d Kashi on @TracedHealth:\n\u2022 Owned by Kellogg's since 2000\n\u2022 Kellogg's lobbied against GMO labeling\ntracedhealth.com/brand/kashi"
+    },
+    {
+      "rank": 19,
+      "brand": "Progresso",
+      "slug": "progresso",
+      "parent": "General Mills",
+      "parent_id": "general-mills",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against stricter nutrition labeling rules"
+      ],
+      "parent_fines_total": 8500000,
+      "parent_lobbying_total": 26020000,
+      "headline_finding": "General Mills was fined by the FTC for deceptive labeling \u2014 and still owns Progresso",
+      "share_text": "\ud83d\udd0d Progresso on @TracedHealth:\n\u2022 Owned by General Mills\n\u2022 General Mills lobbied against GMO labeling\ntracedhealth.com/brand/progresso"
+    },
+    {
+      "rank": 20,
+      "brand": "Primal Kitchen",
+      "slug": "primal-kitchen",
+      "parent": "Kraft Heinz",
+      "parent_id": "kraft-heinz",
+      "acquired_year": 2019,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2019",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 23310000,
+      "headline_finding": "Kraft Heinz was fined by the FTC for deceptive labeling \u2014 and still owns Primal Kitchen",
+      "share_text": "\ud83d\udd0d Primal Kitchen on @TracedHealth:\n\u2022 Owned by Kraft Heinz since 2019\n\u2022 Kraft Heinz lobbied against GMO labeling\ntracedhealth.com/brand/primal-kitchen"
+    },
+    {
+      "rank": 21,
+      "brand": "Tostitos",
+      "slug": "tostitos",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns Tostitos",
+      "share_text": "\ud83d\udd0d Tostitos on @TracedHealth:\n\u2022 Owned by PepsiCo\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/tostitos"
+    },
+    {
+      "rank": 22,
+      "brand": "fairlife",
+      "slug": "fairlife",
+      "parent": "Coca-Cola",
+      "parent_id": "coca-cola",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 60710000,
+      "headline_finding": "Coca-Cola was fined by the FTC for deceptive labeling \u2014 and still owns fairlife",
+      "share_text": "\ud83d\udd0d fairlife on @TracedHealth:\n\u2022 Owned by Coca-Cola\n\u2022 Coca-Cola lobbied against GMO labeling\ntracedhealth.com/brand/fairlife"
+    },
+    {
+      "rank": 23,
+      "brand": "Gerber",
+      "slug": "gerber",
+      "parent": "Nestl\u00e9",
+      "parent_id": "nestle",
+      "acquired_year": 2007,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2007",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 32890000,
+      "headline_finding": "Nestl\u00e9 was fined by the FTC for deceptive labeling \u2014 and still owns Gerber",
+      "share_text": "\ud83d\udd0d Gerber on @TracedHealth:\n\u2022 Owned by Nestl\u00e9 since 2007\n\u2022 Nestl\u00e9 lobbied against GMO labeling\ntracedhealth.com/brand/gerber"
+    },
+    {
+      "rank": 24,
+      "brand": "Tropicana",
+      "slug": "tropicana",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": 1998,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 1998",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns Tropicana",
+      "share_text": "\ud83d\udd0d Tropicana on @TracedHealth:\n\u2022 Owned by PepsiCo since 1998\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/tropicana"
+    },
+    {
+      "rank": 25,
+      "brand": "Sun Chips",
+      "slug": "sun-chips",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns Sun Chips",
+      "share_text": "\ud83d\udd0d Sun Chips on @TracedHealth:\n\u2022 Owned by PepsiCo\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/sun-chips"
+    },
+    {
+      "rank": 26,
+      "brand": "Cascadian Farm",
+      "slug": "cascadian-farm",
+      "parent": "General Mills",
+      "parent_id": "general-mills",
+      "acquired_year": 1999,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Brand markets itself as \"farm\" despite conglomerate ownership",
+        "Acquired by parent in 1999",
+        "Parent company has FTC action for deceptive food labeling"
+      ],
+      "parent_fines_total": 8500000,
+      "parent_lobbying_total": 26020000,
+      "headline_finding": "Cascadian Farm sells itself as \"farm\" while General Mills spent millions lobbying to keep GMO ingredients unlabeled",
+      "share_text": "\ud83d\udd0d Cascadian Farm on @TracedHealth:\n\u2022 Owned by General Mills since 1999\n\u2022 General Mills lobbied against GMO labeling\ntracedhealth.com/brand/cascadian-farm"
+    },
+    {
+      "rank": 27,
+      "brand": "Bolthouse Farms",
+      "slug": "bolthouse-farms",
+      "parent": "Campbell's",
+      "parent_id": "campbell",
+      "acquired_year": 2012,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Brand markets itself as \"farm\" despite conglomerate ownership",
+        "Acquired by parent in 2012",
+        "Parent company has FTC action for deceptive food labeling"
+      ],
+      "parent_fines_total": 1500000,
+      "parent_lobbying_total": 11800000,
+      "headline_finding": "Bolthouse Farms sells itself as \"farm\" while Campbell's spent millions lobbying to keep GMO ingredients unlabeled",
+      "share_text": "\ud83d\udd0d Bolthouse Farms on @TracedHealth:\n\u2022 Owned by Campbell's since 2012\n\u2022 Campbell's lobbied against GMO labeling\ntracedhealth.com/brand/bolthouse-farms"
+    },
+    {
+      "rank": 28,
+      "brand": "Pillsbury",
+      "slug": "pillsbury",
+      "parent": "General Mills",
+      "parent_id": "general-mills",
+      "acquired_year": 2001,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2001",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 8500000,
+      "parent_lobbying_total": 26020000,
+      "headline_finding": "General Mills was fined by the FTC for deceptive labeling \u2014 and still owns Pillsbury",
+      "share_text": "\ud83d\udd0d Pillsbury on @TracedHealth:\n\u2022 Owned by General Mills since 2001\n\u2022 General Mills lobbied against GMO labeling\ntracedhealth.com/brand/pillsbury"
+    },
+    {
+      "rank": 29,
+      "brand": "Cheetos",
+      "slug": "cheetos",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns Cheetos",
+      "share_text": "\ud83d\udd0d Cheetos on @TracedHealth:\n\u2022 Owned by PepsiCo\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/cheetos"
+    },
+    {
+      "rank": 30,
+      "brand": "Larabar",
+      "slug": "larabar",
+      "parent": "General Mills",
+      "parent_id": "general-mills",
+      "acquired_year": 2008,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2008",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 8500000,
+      "parent_lobbying_total": 26020000,
+      "headline_finding": "General Mills was fined by the FTC for deceptive labeling \u2014 and still owns Larabar",
+      "share_text": "\ud83d\udd0d Larabar on @TracedHealth:\n\u2022 Owned by General Mills since 2008\n\u2022 General Mills lobbied against GMO labeling\ntracedhealth.com/brand/larabar"
+    },
+    {
+      "rank": 31,
+      "brand": "Cheerios",
+      "slug": "cheerios",
+      "parent": "General Mills",
+      "parent_id": "general-mills",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against stricter nutrition labeling rules"
+      ],
+      "parent_fines_total": 8500000,
+      "parent_lobbying_total": 26020000,
+      "headline_finding": "General Mills was fined by the FTC for deceptive labeling \u2014 and still owns Cheerios",
+      "share_text": "\ud83d\udd0d Cheerios on @TracedHealth:\n\u2022 Owned by General Mills\n\u2022 General Mills lobbied against GMO labeling\ntracedhealth.com/brand/cheerios"
+    },
+    {
+      "rank": 32,
+      "brand": "Betty Crocker",
+      "slug": "betty-crocker",
+      "parent": "General Mills",
+      "parent_id": "general-mills",
+      "acquired_year": 1928,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 1928",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 8500000,
+      "parent_lobbying_total": 26020000,
+      "headline_finding": "General Mills was fined by the FTC for deceptive labeling \u2014 and still owns Betty Crocker",
+      "share_text": "\ud83d\udd0d Betty Crocker on @TracedHealth:\n\u2022 Owned by General Mills since 1928\n\u2022 General Mills lobbied against GMO labeling\ntracedhealth.com/brand/betty-crocker"
+    },
+    {
+      "rank": 33,
+      "brand": "Quaker Oats",
+      "slug": "quaker-oats",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns Quaker Oats",
+      "share_text": "\ud83d\udd0d Quaker Oats on @TracedHealth:\n\u2022 Owned by PepsiCo\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/quaker-oats"
+    },
+    {
+      "rank": 34,
+      "brand": "Oscar Mayer",
+      "slug": "oscar-mayer",
+      "parent": "Kraft Heinz",
+      "parent_id": "kraft-heinz",
+      "acquired_year": 1981,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 1981",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 23310000,
+      "headline_finding": "Kraft Heinz was fined by the FTC for deceptive labeling \u2014 and still owns Oscar Mayer",
+      "share_text": "\ud83d\udd0d Oscar Mayer on @TracedHealth:\n\u2022 Owned by Kraft Heinz since 1981\n\u2022 Kraft Heinz lobbied against GMO labeling\ntracedhealth.com/brand/oscar-mayer"
+    },
+    {
+      "rank": 35,
+      "brand": "Old El Paso",
+      "slug": "old-el-paso",
+      "parent": "General Mills",
+      "parent_id": "general-mills",
+      "acquired_year": 1995,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 1995",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 8500000,
+      "parent_lobbying_total": 26020000,
+      "headline_finding": "General Mills was fined by the FTC for deceptive labeling \u2014 and still owns Old El Paso",
+      "share_text": "\ud83d\udd0d Old El Paso on @TracedHealth:\n\u2022 Owned by General Mills since 1995\n\u2022 General Mills lobbied against GMO labeling\ntracedhealth.com/brand/old-el-paso"
+    },
+    {
+      "rank": 36,
+      "brand": "Naked",
+      "slug": "naked",
+      "parent": "Kellogg's",
+      "parent_id": "kelloggs",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Brand markets itself as \"naked\" despite conglomerate ownership",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 7500000,
+      "parent_lobbying_total": 20212500,
+      "headline_finding": "Naked sells itself as \"naked\" while Kellogg's spent millions lobbying to keep GMO ingredients unlabeled",
+      "share_text": "\ud83d\udd0d Naked on @TracedHealth:\n\u2022 Owned by Kellogg's\n\u2022 Kellogg's lobbied against GMO labeling\ntracedhealth.com/brand/naked"
+    },
+    {
+      "rank": 37,
+      "brand": "Jimmy Dean",
+      "slug": "jimmy-dean",
+      "parent": "Tyson Foods",
+      "parent_id": "tyson",
+      "acquired_year": 2003,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2003",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied against stricter nutrition labeling rules"
+      ],
+      "parent_fines_total": 5250000,
+      "parent_lobbying_total": 27040000,
+      "headline_finding": "Tyson Foods was fined by the FTC for deceptive labeling \u2014 and still owns Jimmy Dean",
+      "share_text": "\ud83d\udd0d Jimmy Dean on @TracedHealth:\n\u2022 Owned by Tyson Foods since 2003\n\u2022 $5M in documented fines\ntracedhealth.com/brand/jimmy-dean"
+    },
+    {
+      "rank": 38,
+      "brand": "Yoplait",
+      "slug": "yoplait",
+      "parent": "General Mills",
+      "parent_id": "general-mills",
+      "acquired_year": 2011,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2011",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 8500000,
+      "parent_lobbying_total": 26020000,
+      "headline_finding": "General Mills was fined by the FTC for deceptive labeling \u2014 and still owns Yoplait",
+      "share_text": "\ud83d\udd0d Yoplait on @TracedHealth:\n\u2022 Owned by General Mills since 2011\n\u2022 General Mills lobbied against GMO labeling\ntracedhealth.com/brand/yoplait"
+    },
+    {
+      "rank": 39,
+      "brand": "Birds Eye",
+      "slug": "birds-eye",
+      "parent": "Conagra Brands",
+      "parent_id": "conagra",
+      "acquired_year": 1996,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 1996",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 5200000,
+      "parent_lobbying_total": 17160000,
+      "headline_finding": "Conagra Brands was fined by the FTC for deceptive labeling \u2014 and still owns Birds Eye",
+      "share_text": "\ud83d\udd0d Birds Eye on @TracedHealth:\n\u2022 Owned by Conagra Brands since 1996\n\u2022 Conagra Brands lobbied against GMO labeling\ntracedhealth.com/brand/birds-eye"
+    },
+    {
+      "rank": 40,
+      "brand": "Justin's",
+      "slug": "justins",
+      "parent": "Hormel Foods",
+      "parent_id": "hormel",
+      "acquired_year": 2016,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2016",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied against stricter nutrition labeling rules"
+      ],
+      "parent_fines_total": 2100000,
+      "parent_lobbying_total": 13610000,
+      "headline_finding": "Hormel Foods was fined by the FTC for deceptive labeling \u2014 and still owns Justin's",
+      "share_text": "\ud83d\udd0d Justin's on @TracedHealth:\n\u2022 Owned by Hormel Foods since 2016\ntracedhealth.com/brand/justins"
+    },
+    {
+      "rank": 41,
+      "brand": "Coke",
+      "slug": "coke",
+      "parent": "Coca-Cola",
+      "parent_id": "coca-cola",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 60710000,
+      "headline_finding": "Coca-Cola was fined by the FTC for deceptive labeling \u2014 and still owns Coke",
+      "share_text": "\ud83d\udd0d Coke on @TracedHealth:\n\u2022 Owned by Coca-Cola\n\u2022 Coca-Cola lobbied against GMO labeling\ntracedhealth.com/brand/coke"
+    },
+    {
+      "rank": 42,
+      "brand": "M&M's",
+      "slug": "m-ms",
+      "parent": "Mars Inc.",
+      "parent_id": "mars",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 11020000,
+      "headline_finding": "Mars Inc. was fined by the FTC for deceptive labeling \u2014 and still owns M&M's",
+      "share_text": "\ud83d\udd0d M&M's on @TracedHealth:\n\u2022 Owned by Mars Inc.\n\u2022 Mars Inc. lobbied against GMO labeling\ntracedhealth.com/brand/m-ms"
+    },
+    {
+      "rank": 43,
+      "brand": "Bertolli",
+      "slug": "bertolli",
+      "parent": "Conagra Brands",
+      "parent_id": "conagra",
+      "acquired_year": 2015,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2015",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 5200000,
+      "parent_lobbying_total": 17160000,
+      "headline_finding": "Conagra Brands was fined by the FTC for deceptive labeling \u2014 and still owns Bertolli",
+      "share_text": "\ud83d\udd0d Bertolli on @TracedHealth:\n\u2022 Owned by Conagra Brands since 2015\n\u2022 Conagra Brands lobbied against GMO labeling\ntracedhealth.com/brand/bertolli"
+    },
+    {
+      "rank": 44,
+      "brand": "Ruffles",
+      "slug": "ruffles",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns Ruffles",
+      "share_text": "\ud83d\udd0d Ruffles on @TracedHealth:\n\u2022 Owned by PepsiCo\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/ruffles"
+    },
+    {
+      "rank": 45,
+      "brand": "fairlife nutrition plan",
+      "slug": "fairlife-nutrition-plan",
+      "parent": "Coca-Cola",
+      "parent_id": "coca-cola",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 60710000,
+      "headline_finding": "Coca-Cola was fined by the FTC for deceptive labeling \u2014 and still owns fairlife nutrition plan",
+      "share_text": "\ud83d\udd0d fairlife nutrition plan on @TracedHealth:\n\u2022 Owned by Coca-Cola\n\u2022 Coca-Cola lobbied against GMO labeling\ntracedhealth.com/brand/fairlife-nutrition-plan"
+    },
+    {
+      "rank": 46,
+      "brand": "Lipton",
+      "slug": "lipton",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns Lipton",
+      "share_text": "\ud83d\udd0d Lipton on @TracedHealth:\n\u2022 Owned by PepsiCo\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/lipton"
+    },
+    {
+      "rank": 47,
+      "brand": "Clif Bar",
+      "slug": "clif-bar",
+      "parent": "Mondel\u0113z",
+      "parent_id": "mondelez",
+      "acquired_year": 2022,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Acquired by parent in 2022",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 22240000,
+      "headline_finding": "Mondel\u0113z was fined by the FTC for deceptive labeling \u2014 and still owns Clif Bar",
+      "share_text": "\ud83d\udd0d Clif Bar on @TracedHealth:\n\u2022 Owned by Mondel\u0113z since 2022\n\u2022 Mondel\u0113z lobbied against GMO labeling\ntracedhealth.com/brand/clif-bar"
+    },
+    {
+      "rank": 48,
+      "brand": "Kinder's",
+      "slug": "kinders",
+      "parent": "Mars Inc.",
+      "parent_id": "mars",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Brand markets itself as \"kind\" despite conglomerate ownership",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling"
+      ],
+      "parent_fines_total": 0,
+      "parent_lobbying_total": 11020000,
+      "headline_finding": "Kinder's sells itself as \"kind\" while Mars Inc. spent millions lobbying to keep GMO ingredients unlabeled",
+      "share_text": "\ud83d\udd0d Kinder's on @TracedHealth:\n\u2022 Owned by Mars Inc.\n\u2022 Mars Inc. lobbied against GMO labeling\ntracedhealth.com/brand/kinders"
+    },
+    {
+      "rank": 49,
+      "brand": "Applegate Naturals",
+      "slug": "applegate-naturals",
+      "parent": "Hormel Foods",
+      "parent_id": "hormel",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Brand markets itself as \"natural\" despite conglomerate ownership",
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied against stricter nutrition labeling rules"
+      ],
+      "parent_fines_total": 2100000,
+      "parent_lobbying_total": 13610000,
+      "headline_finding": "Hormel Foods was fined by the FTC for deceptive labeling \u2014 and still owns Applegate Naturals",
+      "share_text": "\ud83d\udd0d Applegate Naturals on @TracedHealth:\n\u2022 Owned by Hormel Foods\ntracedhealth.com/brand/applegate-naturals"
+    },
+    {
+      "rank": 50,
+      "brand": "Mountain Dew",
+      "slug": "mountain-dew",
+      "parent": "PepsiCo",
+      "parent_id": "pepsico",
+      "acquired_year": null,
+      "contradiction_score": 100,
+      "top_reasons": [
+        "Parent company has FTC action for deceptive food labeling",
+        "Parent lobbied Congress against mandatory GMO labeling",
+        "Parent lobbied against sugar/soda tax legislation"
+      ],
+      "parent_fines_total": 9000000,
+      "parent_lobbying_total": 51560000,
+      "headline_finding": "PepsiCo was fined by the FTC for deceptive labeling \u2014 and still owns Mountain Dew",
+      "share_text": "\ud83d\udd0d Mountain Dew on @TracedHealth:\n\u2022 Owned by PepsiCo\n\u2022 PepsiCo lobbied against GMO labeling\ntracedhealth.com/brand/mountain-dew"
+    }
+  ]
+}
