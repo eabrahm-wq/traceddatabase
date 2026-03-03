@@ -1,0 +1,204 @@
+====================================================================
+TRACED — BUILD REPORT v2.0
+Generated: 2026-03-03
+====================================================================
+
+## DATABASE STATE
+
+| Table               | Records    |
+|---------------------|------------|
+| companies           | 72         |
+| brands              | 881        |
+| products            | 190,532    |
+| violations          | 2,338      |
+| lobbying_records    | 218        |
+| brand_events        | 1,331      |
+| ingredient_drift    | 8          |
+| ingredient_snapshots| 101,767    |
+
+DB size: 79.4 MB (tracked via Git LFS)
+
+## PHASES COMPLETED THIS BUILD
+
+### Phase 2 — PE Ownership Layer
+- Fixed SQL apostrophe bug (parameterized queries throughout)
+- Added ownership_type to all 72 companies (100% coverage)
+  - public_conglomerate: 47
+  - private_conglomerate: 17
+  - pe_firm: 7
+  - subsidiary: 1
+- Inserted 11 new companies: Simply Good Foods, BellRing Brands,
+  Glanbia, Clorox, Pharmavite, Haleon, Maple Leaf Foods, Otsuka
+  Holdings, Morinaga, Hero Group, Bayer AG
+- Added 5 new company descriptions: Trader Joe's, Target, Costco,
+  Albertsons, Ahold
+
+### Phase 3 — New Brand Profiles (16 new, 21 updated)
+New brands inserted:
+  - Quest Nutrition (Simply Good Foods / $1B acquisition)
+  - Vega (Danone via WhiteWave acquisition chain)
+  - Happy Baby (Danone / $361M)
+  - Plum Organics (Campbell Soup / $249M)
+  - Centrum (Haleon / GSK spinoff)
+  - Lightlife (Maple Leaf Foods / Canadian meat giant)
+  - Siete Family Foods (PepsiCo / $1.2B, 2024)
+  - GoMacro (INDEPENDENT — certified B Corp)
+  - AG1 / Athletic Greens (PE-backed by Strand Equity / $1.2B val)
+  - Purely Elizabeth (INDEPENDENT — founder-owned)
+  - LMNT (INDEPENDENT — bootstrapped)
+  - Nuun (Nestlé Health Science / 2021)
+  - Tofurky (INDEPENDENT — family-owned since 1980)
+  - Bare Snacks (PepsiCo/Frito-Lay / 2018)
+  - That's It (INDEPENDENT — 2-ingredient bars)
+  - One A Day (Bayer AG / Roundup connection)
+
+Already existing (verified): Orgain, Muscle Milk, Premier Protein,
+  Optimum Nutrition, Garden of Life, Vital Proteins, Liquid I.V.,
+  Poppi, Olipop, Celsius, Earth's Best, Gerber, Beech-Nut, Nature
+  Made, Airborne, Emergen-C, Beyond Meat, Gardein, Sweet Earth,
+  Perfect Bar, Chomps
+
+### Phase 4 — Ingredient Drift + Brand Events
+8 ingredient drift records documenting pre/post-acquisition changes:
+  - Kashi: evaporated cane juice → brown rice syrup (2014)
+  - Annie's: organic annatto downgraded (2015)
+  - Naked Juice: $9M FTC settlement → synthetic vitamin removal (2013)
+  - Honest Tea: entire line discontinued by Coca-Cola (2022)
+  - Larabar: original bars preserved, new SKUs more complex (2009+)
+  - Odwalla: brand eliminated entirely by Coca-Cola (2020)
+  - Poppi: PepsiCo acquisition + $8.9M prebiotic settlement (2025)
+  - Siete: PepsiCo acquisition, no changes yet (2024)
+
+12 new brand events for key acquisition milestones and legal actions.
+
+### Phase 5 — Category Pages
+New routes:
+  - /categories (8-category browse grid)
+  - /category/<slug> (full brand list with scores, parent labels)
+  - /category/<slug>/independent (filtered independent-only view)
+Categories: protein-supplements, baby-food, functional-beverages,
+  plant-based, snacks, vitamins, cereals, beverages
+
+### Phase 6 — Receipt Audit
+New routes:
+  - /audit (paste receipt, get basket contradiction report)
+  - /api/v1/audit (POST) (JSON receipt audit API endpoint)
+  Features: NLP brand extraction, basket score, per-brand cards,
+  parent company attribution, headline findings
+
+### Phase 7 — Watchlist
+New routes:
+  - /watchlist (localStorage-based watchlist UI)
+  - /api/brand/<slug>/alerts (brand event alerts endpoint)
+  Features: Add brands from any brand page, localStorage persistence,
+  remove functionality, live score display
+
+### Phase 8 — Contradiction Score Rebuild
+New multi-dimensional rubric (capped at 100):
+  - Ownership score (max 35): PE=35, public_conglomerate=28,
+    subsidiary=25, private_conglomerate=20
+  - Brand positioning score (max 25): organic+acquired=20,
+    natural+acquired=15, clean/simple=12, family/founder=10
+  - Parent regulatory score (max 30): fines >$100M=30,
+    fines >$10M=20, recalls=+8, lobbying=+5/issue (max 15)
+  - Ingredient integrity score (max 15): formula changed=15,
+    drift documented=10
+
+Top scores: Vega 78, Plum Organics 78, Happy Baby 78, Annie's 76,
+  Kashi 76, Naked Juice 76, Honest Tea 74, Siete Family Foods 68
+
+contradiction_reasons, headline_finding, share_text now populated
+for all 881 brands.
+
+### Phase 9 — SEO
+New routes:
+  - /sitemap.xml (all brand URLs + static pages)
+  - /robots.txt
+  - Updated page_head() with: canonical URLs, og:url, og:type,
+    twitter:site, JSON-LD support parameter
+
+### Phase 10 — Social Sharing
+  - NAV updated with /categories and /audit links
+  - page_head() upgraded with canonical + JSON-LD support
+  - share_text populated for all acquired brands (format:
+    "[Brand] is owned by [Parent]. Check it on Traced.")
+
+### Phase 11 — API v1 Expansion
+New endpoints:
+  - GET /api/v1/brands?category=&owner=&pe_owned=&independent=
+    &min_score=&max_score=&limit=&offset=
+  - GET /api/v1/brand/<slug> (full brand data with drift + events)
+  - GET /api/v1/categories (category stats)
+  - POST /api/v1/audit {"text": "receipt text"}
+  - GET /api/v1/ingredient-drift?brand=<slug>
+  - GET /api/v1/stats
+
+## FULL ROUTE MAP
+
+| Route                              | Method | Description                    |
+|------------------------------------|--------|--------------------------------|
+| /                                  | GET    | Home page                      |
+| /contradiction                     | GET    | Top contradiction brands       |
+| /transparency                      | GET    | Independent/clean brands       |
+| /categories                        | GET    | Category browse page           |
+| /category/<slug>                   | GET    | Category brand list            |
+| /category/<slug>/independent       | GET    | Independent brands in category |
+| /audit                             | GET    | Receipt audit page             |
+| /watchlist                         | GET    | User watchlist page            |
+| /brand/<slug>                      | GET    | Brand investigation page       |
+| /scan                              | GET    | Barcode scanner page           |
+| /sitemap.xml                       | GET    | SEO sitemap                    |
+| /robots.txt                        | GET    | Robots exclusion               |
+| /company/<slug>                    | GET    | Company profile page           |
+| /share/text/<slug>                 | GET    | Share text endpoint            |
+| /share/card/<slug>                 | GET    | OG image share card            |
+| /widget/<slug>                     | GET    | Embeddable brand widget        |
+| /embed.js                          | GET    | Embed script                   |
+| /api/docs                          | GET    | API documentation              |
+| /api/brand/<slug>                  | GET    | Brand data (legacy)            |
+| /api/brands                        | GET    | Brand list (legacy)            |
+| /api/companies                     | GET    | Company list                   |
+| /api/stats                         | GET    | DB stats                       |
+| /api/brand/<slug>/alerts           | GET    | Brand event alerts             |
+| /api/v1/brands                     | GET    | Filtered brand search          |
+| /api/v1/brand/<slug>               | GET    | Full brand data                |
+| /api/v1/categories                 | GET    | Category stats                 |
+| /api/v1/audit                      | POST   | Receipt audit                  |
+| /api/v1/ingredient-drift           | GET    | Ingredient drift records       |
+| /api/v1/stats                      | GET    | Full DB stats                  |
+
+## CHROME EXTENSION
+Location: /chrome-extension/
+Files: manifest.json, content.js, background.js, popup.js,
+       popup.html, styles.css, icons/
+Supported sites: Instacart, Amazon Fresh, Whole Foods, Safeway,
+                 Walmart, Target, Kroger
+Features: Color-coded badge overlay, click-to-expand card,
+          MutationObserver for SPA/infinite scroll,
+          BarcodeDetector API, toolbar popup with brand search
+
+## VERCEL DEPLOYMENT
+Files: api/index.py, vercel.json, requirements.txt
+Config: @vercel/python builder, all routes → api/index.py
+DB: 79.4MB tracked via Git LFS (.gitattributes)
+Production: https://tracedhealth.com
+
+## KEY BRAND STORIES VERIFIED
+
+1. Kashi: Kellogg's acquisition (2000) → GMO controversy (2012) →
+   ingredient drift documented
+2. Annie's: General Mills acquisition (2014, $820M) → subtle
+   sourcing changes noted
+3. Naked Juice: PepsiCo ownership + $9M FTC settlement (2013) for
+   "all natural" false advertising
+4. Honest Tea: Coke acquisition (2011) → entire brand discontinued
+   (2022) → documented in ingredient_drift
+5. Larabar: General Mills acquisition (2008) → original bars
+   preserved, new complex SKUs added
+6. Odwalla: Coke acquisition (2001, $181M) → brand eliminated (2020)
+7. Poppi: Shark Tank → $100M revenue → PepsiCo $1.65B (2025) +
+   $8.9M prebiotic settlement
+8. Siete Family Foods: Family-founded grain-free → PepsiCo $1.2B
+   (2024), formula intact as of report date
+
+====================================================================

@@ -49,12 +49,15 @@ NAV_LINKS = (
     "<div style='display:flex;gap:20px;font-size:10px;letter-spacing:.08em'>"
     "<a href='/contradiction' style='color:" + MUTED + "'>CONTRADICTION INDEX</a>"
     "<a href='/transparency' style='color:" + MUTED + "'>CLEAN BRANDS</a>"
+    "<a href='/categories' style='color:" + MUTED + "'>CATEGORIES</a>"
+    "<a href='/audit' style='color:" + MUTED + "'>RECEIPT AUDIT</a>"
     "<a href='/scan' style='color:" + MUTED + "'>SCAN</a>"
     "</div>"
 )
 
-def page_head(title, desc='', slug=''):
+def page_head(title, desc='', slug='', canonical='', jsonld=None):
     og_img = ('https://tracedhealth.com/share/card/' + slug) if slug else ''
+    canon_url = canonical or (('https://tracedhealth.com/brand/' + slug) if slug else '')
     parts = [
         "<!DOCTYPE html><html lang='en'><head>",
         "<meta charset='UTF-8'>",
@@ -64,13 +67,20 @@ def page_head(title, desc='', slug=''):
         "<meta property='og:title' content='" + title + "'>",
         "<meta property='og:description' content='" + desc.replace("'", "&#39;") + "'>",
         "<meta property='og:site_name' content='Traced'>",
+        "<meta property='og:type' content='website'>",
+        "<meta name='twitter:site' content='@tracedhealth'>",
     ]
+    if canon_url:
+        parts.append("<link rel='canonical' href='" + canon_url + "'>")
+        parts.append("<meta property='og:url' content='" + canon_url + "'>")
     if og_img:
         parts += [
             "<meta property='og:image' content='" + og_img + "'>",
             "<meta name='twitter:card' content='summary_large_image'>",
             "<meta name='twitter:image' content='" + og_img + "'>",
         ]
+    if jsonld:
+        parts.append("<script type='application/ld+json'>" + json.dumps(jsonld) + "</script>")
     parts += [
         FONTS,
         "<style>" + BASE_CSS + "</style>",
@@ -681,5 +691,544 @@ document.getElementById('ui').addEventListener('keydown',function(e){if(e.key===
         stats['total_lobbying_spend'] = c.fetchone()[0] or 0
         c.execute('SELECT SUM(fine_amount) FROM violations WHERE fine_amount IS NOT NULL')
         stats['total_fines'] = c.fetchone()[0] or 0
+        conn.close()
+        return jsonify(stats)
+
+    # ══════════════════════════════════════════════════════════════════
+    # PHASE 5 — CATEGORY PAGES
+    # ══════════════════════════════════════════════════════════════════
+
+    CATEGORY_DEFS = {
+        'protein-supplements': {'label': 'Protein & Supplements', 'icon': '💪',
+            'desc': 'Protein powders, bars, shakes, and supplement brands — who really owns them.'},
+        'baby-food': {'label': 'Baby Food', 'icon': '🍼',
+            'desc': 'Baby food brands and their parent companies, plus heavy metal recall history.'},
+        'functional-beverages': {'label': 'Functional Beverages', 'icon': '⚡',
+            'desc': 'Hydration, energy, prebiotic soda, and electrolyte brands and their owners.'},
+        'plant-based': {'label': 'Plant-Based Foods', 'icon': '🌱',
+            'desc': 'Plant-based meat and dairy alternative brands — often owned by conventional meat companies.'},
+        'snacks': {'label': 'Snacks', 'icon': '🥜',
+            'desc': 'Snack brands and their conglomerate owners.'},
+        'vitamins': {'label': 'Vitamins & Supplements', 'icon': '💊',
+            'desc': 'Vitamin and supplement brands, many owned by pharmaceutical conglomerates.'},
+        'cereals': {'label': 'Cereals & Breakfast', 'icon': '🥣',
+            'desc': 'Breakfast brands including cereals, granola, and oats.'},
+        'beverages': {'label': 'Beverages', 'icon': '🧃',
+            'desc': 'Juice, water, coffee, and other beverage brands.'},
+    }
+
+    CAT_MAP = {
+        'protein-supplements': ['Supplements', 'Protein'],
+        'baby-food': ['Baby Food', 'Baby'],
+        'functional-beverages': ['Beverages', 'Functional', 'Hydration'],
+        'plant-based': ['Plant-Based', 'Vegan'],
+        'snacks': ['Snacks', 'Chips', 'Bars'],
+        'vitamins': ['Vitamins', 'Supplements'],
+        'cereals': ['Cereal', 'Breakfast', 'Granola'],
+        'beverages': ['Beverages', 'Drinks', 'Juice'],
+    }
+
+    @app.route('/categories')
+    def categories_index():
+        conn = get_db()
+        c = conn.cursor()
+        cards = ''
+        for slug_key, meta in CATEGORY_DEFS.items():
+            terms = CAT_MAP.get(slug_key, [meta['label']])
+            placeholders = ','.join('?' * len(terms))
+            c.execute(
+                "SELECT COUNT(*) FROM brands WHERE category IN (" + placeholders + ")",
+                terms)
+            total = c.fetchone()[0]
+            c.execute(
+                "SELECT COUNT(*) FROM brands WHERE category IN (" + placeholders + ") AND (acquired_year IS NOT NULL OR parent_company_id IS NOT NULL)",
+                terms)
+            acquired = c.fetchone()[0]
+            pct = round(acquired * 100 / total) if total else 0
+            cards += (
+                "<a href='/category/" + slug_key + "' style='display:block;border:1px solid var(--border);"
+                "border-radius:12px;padding:20px 24px;text-decoration:none;transition:border-color .2s'>"
+                "<div style='font-size:28px;margin-bottom:8px'>" + meta['icon'] + "</div>"
+                "<div style='font-family:\"Playfair Display\",serif;font-size:18px;color:var(--ink);margin-bottom:4px'>" + meta['label'] + "</div>"
+                "<div style='font-size:10px;color:var(--muted);margin-bottom:12px'>" + meta['desc'] + "</div>"
+                "<div style='display:flex;gap:16px;font-size:10px'>"
+                "<span style='color:var(--amber)'>" + str(total) + " brands tracked</span>"
+                "<span style='color:var(--red)'>" + str(pct) + "% conglomerate-owned</span>"
+                "</div></a>"
+            )
+        conn.close()
+        html = (
+            page_head('Brand Categories | Traced', 'Browse food and supplement brands by category. See who owns what.')
+            + "<main style='max-width:1200px;margin:0 auto;padding:40px 20px'>"
+            + "<h1 style='font-size:32px;margin-bottom:8px'>Browse by Category</h1>"
+            + "<p style='color:var(--muted);font-size:12px;margin-bottom:32px'>Select a category to see brand ownership, contradiction scores, and independent alternatives.</p>"
+            + "<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px'>"
+            + cards
+            + "</div></main></body></html>"
+        )
+        return html
+
+    @app.route('/category/<cat_slug>')
+    def category_page(cat_slug):
+        meta = CATEGORY_DEFS.get(cat_slug)
+        if not meta:
+            return "Category not found", 404
+        terms = CAT_MAP.get(cat_slug, [meta['label']])
+        conn = get_db()
+        c = conn.cursor()
+        placeholders = ','.join('?' * len(terms))
+        c.execute(
+            "SELECT b.name, b.slug, b.acquired_year, b.founded_year, b.contradiction_score,"
+            " b.headline_finding, b.pe_owned, b.certifications,"
+            " co.name as parent_name, co.ownership_type"
+            " FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id"
+            " WHERE b.category IN (" + placeholders + ")"
+            " ORDER BY b.contradiction_score DESC NULLS LAST, b.name",
+            terms)
+        rows = c.fetchall()
+        conn.close()
+        conglomerate_count = sum(1 for r in rows if r['parent_name'])
+        independent_count = len(rows) - conglomerate_count
+        rows_html = ''
+        for r in rows:
+            sc = r['contradiction_score'] or 0
+            col = score_color(sc)
+            parent_txt = r['parent_name'] or '✓ Independent'
+            parent_col = GREEN if not r['parent_name'] else AMBER
+            pe_badge = ("<span style='font-size:8px;background:var(--rlt);color:var(--red);"
+                        "border-radius:4px;padding:1px 5px;margin-left:6px'>PE</span>") if r['pe_owned'] else ''
+            acq_yr = (' &middot; acq. ' + str(r['acquired_year'])) if r['acquired_year'] else ''
+            b_slug = r['slug'] or ''
+            certs = r['certifications'] or ''
+            cert_pills = ''.join(
+                "<span style='font-size:8px;border:1px solid rgba(58,138,90,0.4);border-radius:20px;"
+                "padding:1px 7px;color:var(--green);margin-right:4px'>" + ct.strip() + "</span>"
+                for ct in certs.split(',') if ct.strip()
+            )
+            headline = r['headline_finding'] or ''
+            rows_html += (
+                "<div style='border:1px solid var(--border);border-radius:10px;padding:16px 20px;"
+                "display:flex;align-items:center;gap:16px'>"
+                "<div style='flex:1'>"
+                "<div style='display:flex;align-items:center;gap:8px;margin-bottom:2px'>"
+                "<a href='/brand/" + b_slug + "' style='font-size:15px;font-weight:700;color:var(--ink)'>" + (r['name'] or '') + "</a>"
+                + pe_badge +
+                "</div>"
+                "<div style='font-size:10px;color:" + parent_col + ";margin-bottom:4px'>" + parent_txt + acq_yr + "</div>"
+                + (("<div style='font-size:9px;color:var(--muted);margin-bottom:6px'>" + headline[:120] + ("…" if len(headline) > 120 else "") + "</div>") if headline else "")
+                + cert_pills
+                + "</div>"
+                "<div style='text-align:right;min-width:48px'>"
+                "<div style='font-size:24px;font-weight:700;color:" + col + "'>" + str(sc) + "</div>"
+                "<div style='font-size:8px;color:var(--muted)'>score</div>"
+                "</div>"
+                "</div>"
+            )
+        html = (
+            page_head(meta['label'] + ' | Traced', meta['desc'])
+            + "<main style='max-width:900px;margin:0 auto;padding:40px 20px'>"
+            + "<div style='margin-bottom:8px'><a href='/categories' style='font-size:10px;color:var(--muted)'>← All Categories</a></div>"
+            + "<div style='font-size:32px;margin-bottom:4px'>" + meta['icon'] + "</div>"
+            + "<h1 style='font-size:32px;margin-bottom:8px'>" + meta['label'] + "</h1>"
+            + "<p style='color:var(--muted);font-size:12px;margin-bottom:16px'>" + meta['desc'] + "</p>"
+            + "<div style='display:flex;gap:24px;font-size:11px;margin-bottom:32px'>"
+            + "<span><span style='color:var(--red)'>" + str(conglomerate_count) + "</span> conglomerate-owned</span>"
+            + "<span><span style='color:var(--green)'>" + str(independent_count) + "</span> independent</span>"
+            + "<span style='color:var(--muted)'>" + str(len(rows)) + " total tracked</span>"
+            + "</div>"
+            + "<div style='display:flex;flex-direction:column;gap:10px'>" + rows_html + "</div>"
+            + "</main></body></html>"
+        )
+        return html
+
+    @app.route('/category/<cat_slug>/independent')
+    def category_independent(cat_slug):
+        meta = CATEGORY_DEFS.get(cat_slug)
+        if not meta:
+            return "Category not found", 404
+        terms = CAT_MAP.get(cat_slug, [meta['label']])
+        conn = get_db()
+        c = conn.cursor()
+        placeholders = ','.join('?' * len(terms))
+        c.execute(
+            "SELECT b.name, b.slug, b.founded_year, b.contradiction_score,"
+            " b.certifications, b.headline_finding"
+            " FROM brands b"
+            " WHERE b.category IN (" + placeholders + ")"
+            " AND b.parent_company_id IS NULL AND (b.acquired_year IS NULL OR b.acquired_year='')"
+            " ORDER BY b.founded_year ASC NULLS LAST",
+            terms)
+        rows = c.fetchall()
+        conn.close()
+        rows_html = ''
+        for r in rows:
+            certs = r['certifications'] or ''
+            cert_pills = ''.join(
+                "<span style='font-size:8px;border:1px solid rgba(58,138,90,0.4);border-radius:20px;"
+                "padding:1px 7px;color:var(--green);margin-right:4px'>" + ct.strip() + "</span>"
+                for ct in certs.split(',') if ct.strip()
+            )
+            b_slug = r['slug'] or ''
+            rows_html += (
+                "<div style='border:1px solid rgba(58,138,90,0.2);border-radius:10px;padding:14px 18px'>"
+                "<a href='/brand/" + b_slug + "' style='font-size:14px;font-weight:700;color:var(--ink)'>" + (r['name'] or '') + "</a>"
+                + (("<div style='color:var(--green);font-size:10px;margin:2px 0'>Founded " + str(r['founded_year']) + "</div>") if r['founded_year'] else "")
+                + cert_pills
+                + "</div>"
+            )
+        html = (
+            page_head('Independent ' + meta['label'] + ' | Traced', 'Independent ' + meta['label'] + ' brands with no major corporate acquisition.')
+            + "<main style='max-width:900px;margin:0 auto;padding:40px 20px'>"
+            + "<div style='margin-bottom:8px'><a href='/category/" + cat_slug + "' style='font-size:10px;color:var(--muted)'>← " + meta['label'] + "</a></div>"
+            + "<h1 style='font-size:28px;margin-bottom:8px'>Independent " + meta['label'] + "</h1>"
+            + "<p style='color:var(--muted);font-size:12px;margin-bottom:28px'>These brands have not been acquired by a major conglomerate. Independence does not guarantee quality.</p>"
+            + "<div style='display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px'>" + rows_html + "</div>"
+            + "</main></body></html>"
+        )
+        return html
+
+    # ══════════════════════════════════════════════════════════════════
+    # PHASE 6 — RECEIPT AUDIT
+    # ══════════════════════════════════════════════════════════════════
+
+    @app.route('/audit')
+    def audit_page():
+        html = (
+            page_head('Receipt Audit | Traced', 'Paste your grocery receipt and get a contradiction report on every brand.')
+            + "<main style='max-width:800px;margin:0 auto;padding:40px 20px'>"
+            + "<h1 style='font-size:32px;margin-bottom:8px'>Receipt Audit</h1>"
+            + "<p style='color:var(--muted);font-size:12px;margin-bottom:24px'>"
+            + "Paste your grocery receipt below. Traced will identify every brand and score your basket.</p>"
+            + "<textarea id='receipt-input' placeholder='Paste your receipt here...\n\nExample:\nKashi GOLEAN Cereal $4.99\nAnnie&#39;s Mac and Cheese $2.49\nNaked Juice Green Machine $3.79\nChomps Beef Sticks $11.99'"
+            + " style='width:100%;height:200px;background:var(--surface);border:1px solid var(--b2);"
+            + "border-radius:10px;padding:16px;color:var(--ink);font-family:inherit;font-size:12px;"
+            + "resize:vertical;outline:none;margin-bottom:16px'></textarea>"
+            + "<button onclick='runAudit()' style='background:var(--amber);color:#000;border:none;"
+            + "border-radius:8px;padding:12px 28px;font-family:inherit;font-size:11px;"
+            + "letter-spacing:.08em;cursor:pointer;text-transform:uppercase'>Audit My Receipt</button>"
+            + "<div id='audit-results' style='margin-top:32px'></div>"
+            + "<script>"
+            + "async function runAudit(){"
+            + "const txt=document.getElementById('receipt-input').value;"
+            + "if(!txt.trim()){alert('Paste a receipt first');return;}"
+            + "document.getElementById('audit-results').innerHTML='<div style=\"color:var(--muted);font-size:12px\">Analyzing...</div>';"
+            + "try{"
+            + "const r=await fetch('/api/v1/audit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:txt})});"
+            + "const d=await r.json();"
+            + "renderAudit(d);"
+            + "}catch(e){document.getElementById('audit-results').innerHTML='<div style=\"color:var(--red)\">Error connecting to Traced API.</div>';}"
+            + "}"
+            + "function renderAudit(d){"
+            + "if(!d.results||!d.results.length){document.getElementById('audit-results').innerHTML='<div style=\"color:var(--muted)\">No brands detected in your receipt.</div>';return;}"
+            + "let avg=d.avg_score||0;"
+            + "let col=avg>=70?'var(--red)':avg>=40?'var(--amber)':'var(--green)';"
+            + "let html='<div style=\"border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:24px\">';"
+            + "html+='<div style=\"font-size:11px;color:var(--muted);margin-bottom:4px\">BASKET SCORE</div>';"
+            + "html+='<div style=\"font-size:48px;font-weight:700;color:'+col+'\">'+(Math.round(avg)||0)+'</div>';"
+            + "html+='<div style=\"font-size:10px;color:var(--muted)\">'+(d.results.length)+' brands detected &middot; '+(d.conglomerate_count||0)+' conglomerate-owned &middot; '+(d.independent_count||0)+' independent</div>';"
+            + "html+='</div>';"
+            + "d.results.forEach(b=>{"
+            + "let sc=b.contradiction_score||0;"
+            + "let c=sc>=70?'var(--red)':sc>=40?'var(--amber)':'var(--green)';"
+            + "let parent=b.parent||'Independent';"
+            + "let parentCol=b.parent?'var(--amber)':'var(--green)';"
+            + "html+='<div style=\"border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:16px\">';"
+            + "html+='<div style=\"flex:1\">';"
+            + "html+='<a href=\"/brand/'+(b.slug||'')+('\" style=\"font-size:14px;font-weight:700;color:var(--ink)\">')+b.name+'</a>';"
+            + "html+='<div style=\"font-size:10px;color:'+parentCol+';margin-top:2px\">'+parent+'</div>';"
+            + "html+=(b.headline_finding?'<div style=\"font-size:9px;color:var(--muted);margin-top:4px\">'+b.headline_finding.substring(0,100)+'...</div>':'');"
+            + "html+='</div><div style=\"font-size:22px;font-weight:700;color:'+c+'\">'+sc+'</div></div>';"
+            + "});"
+            + "document.getElementById('audit-results').innerHTML=html;"
+            + "}"
+            + "</script>"
+            + "</main></body></html>"
+        )
+        return html
+
+    # ══════════════════════════════════════════════════════════════════
+    # PHASE 7 — WATCHLIST
+    # ══════════════════════════════════════════════════════════════════
+
+    @app.route('/watchlist')
+    def watchlist_page():
+        html = (
+            page_head('My Watchlist | Traced', 'Track brands you care about. Get alerts when ownership or ingredients change.')
+            + "<main style='max-width:800px;margin:0 auto;padding:40px 20px'>"
+            + "<h1 style='font-size:32px;margin-bottom:8px'>My Watchlist</h1>"
+            + "<p style='color:var(--muted);font-size:12px;margin-bottom:24px'>"
+            + "Brands you're watching. Add brands from any brand page.</p>"
+            + "<div id='watchlist-empty' style='display:none;color:var(--muted);font-size:12px;padding:40px;text-align:center'>"
+            + "Your watchlist is empty.<br>Visit a brand page and click <strong style='color:var(--amber)'>+ Watch</strong>.</div>"
+            + "<div id='watchlist-items' style='display:flex;flex-direction:column;gap:10px'></div>"
+            + "<script>"
+            + "(function(){"
+            + "const slugs=JSON.parse(localStorage.getItem('traced_watchlist')||'[]');"
+            + "const container=document.getElementById('watchlist-items');"
+            + "const empty=document.getElementById('watchlist-empty');"
+            + "if(!slugs.length){empty.style.display='block';return;}"
+            + "slugs.forEach(async slug=>{"
+            + "try{"
+            + "const r=await fetch('/api/brand/'+slug);"
+            + "const d=await r.json();"
+            + "if(d.error){return;}"
+            + "const sc=d.contradiction_score||0;"
+            + "const col=sc>=70?'var(--red)':sc>=40?'var(--amber)':'var(--green)';"
+            + "const parent=d.parent_company||'Independent';"
+            + "const parentCol=d.parent_company?'var(--amber)':'var(--green)';"
+            + "const div=document.createElement('div');"
+            + "div.style.cssText='border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:16px';"
+            + "div.innerHTML='<div style=\"flex:1\"><a href=\"/brand/'+slug+'\" style=\"font-size:14px;font-weight:700;color:var(--ink)\">'+d.name+'</a>"
+            + "<div style=\"font-size:10px;color:'+parentCol+';margin-top:2px\">'+parent+'</div></div>"
+            + "<div style=\"font-size:22px;font-weight:700;color:'+col+'\">'+sc+'</div>"
+            + "<button onclick=\"removeFromWatchlist(\\\"'+slug+'\\\")\" style=\"background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--muted);cursor:pointer;font-size:9px\">Remove</button>';"
+            + "container.appendChild(div);"
+            + "}catch(e){}"
+            + "});"
+            + "})()"
+            + "function removeFromWatchlist(slug){"
+            + "let list=JSON.parse(localStorage.getItem('traced_watchlist')||'[]');"
+            + "list=list.filter(s=>s!==slug);"
+            + "localStorage.setItem('traced_watchlist',JSON.stringify(list));"
+            + "location.reload();"
+            + "}"
+            + "</script>"
+            + "</main></body></html>"
+        )
+        return html
+
+    @app.route('/api/brand/<bslug>/alerts')
+    def brand_alerts(bslug):
+        conn = get_db()
+        c = conn.cursor()
+        c.execute(
+            "SELECT event_type, event_date, headline, description FROM brand_events"
+            " WHERE brand_id=(SELECT id FROM brands WHERE slug=? OR lower(name)=lower(?))"
+            " ORDER BY event_date DESC LIMIT 10",
+            (bslug, bslug))
+        events = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify({'slug': bslug, 'alerts': events})
+
+    # ══════════════════════════════════════════════════════════════════
+    # PHASE 9 — SEO: sitemap.xml + robots.txt
+    # ══════════════════════════════════════════════════════════════════
+
+    @app.route('/sitemap.xml')
+    def sitemap_xml():
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("SELECT slug FROM brands WHERE slug IS NOT NULL AND slug != '' ORDER BY contradiction_score DESC NULLS LAST")
+        brand_slugs = [r[0] for r in c.fetchall()]
+        conn.close()
+        lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+        static_urls = [
+            'https://tracedhealth.com/',
+            'https://tracedhealth.com/contradiction',
+            'https://tracedhealth.com/transparency',
+            'https://tracedhealth.com/categories',
+            'https://tracedhealth.com/audit',
+            'https://tracedhealth.com/watchlist',
+            'https://tracedhealth.com/scan',
+        ]
+        for cat_slug in CATEGORY_DEFS:
+            static_urls.append('https://tracedhealth.com/category/' + cat_slug)
+        for url in static_urls:
+            lines.append('<url><loc>' + url + '</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>')
+        for sl in brand_slugs:
+            lines.append('<url><loc>https://tracedhealth.com/brand/' + sl + '</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>')
+        lines.append('</urlset>')
+        return Response('\n'.join(lines), mimetype='application/xml')
+
+    @app.route('/robots.txt')
+    def robots_txt():
+        txt = (
+            "User-agent: *\n"
+            "Allow: /\n"
+            "Disallow: /api/\n\n"
+            "Sitemap: https://tracedhealth.com/sitemap.xml\n"
+        )
+        return Response(txt, mimetype='text/plain')
+
+    # ══════════════════════════════════════════════════════════════════
+    # PHASE 11 — API v1 WITH FILTERING + RECEIPT AUDIT POST
+    # ══════════════════════════════════════════════════════════════════
+
+    @app.route('/api/v1/brands')
+    def api_v1_brands():
+        category   = request.args.get('category', '').strip()
+        owner      = request.args.get('owner', '').strip()
+        pe_owned   = request.args.get('pe_owned', '').strip()
+        independent = request.args.get('independent', '').strip()
+        min_score  = request.args.get('min_score', '').strip()
+        max_score  = request.args.get('max_score', '').strip()
+        limit      = min(int(request.args.get('limit', 50)), 200)
+        offset_v   = int(request.args.get('offset', 0))
+
+        where = []
+        params = []
+        if category:
+            where.append("b.category LIKE ?"); params.append('%' + category + '%')
+        if owner:
+            where.append("co.name LIKE ?"); params.append('%' + owner + '%')
+        if pe_owned == '1':
+            where.append("b.pe_owned = 1")
+        if independent == '1':
+            where.append("b.parent_company_id IS NULL")
+        if min_score:
+            where.append("b.contradiction_score >= ?"); params.append(int(min_score))
+        if max_score:
+            where.append("b.contradiction_score <= ?"); params.append(int(max_score))
+
+        where_clause = ('WHERE ' + ' AND '.join(where)) if where else ''
+        conn = get_db()
+        c = conn.cursor()
+        c.execute(
+            "SELECT b.name, b.slug, b.category, b.sub_category, b.contradiction_score,"
+            " b.acquired_year, b.founded_year, b.pe_owned, b.headline_finding,"
+            " b.certifications, co.name as parent_company, co.ownership_type"
+            " FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id "
+            + where_clause +
+            " ORDER BY b.contradiction_score DESC NULLS LAST LIMIT ? OFFSET ?",
+            params + [limit, offset_v])
+        rows = [dict(r) for r in c.fetchall()]
+        c.execute("SELECT COUNT(*) FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id " + where_clause, params)
+        total = c.fetchone()[0]
+        conn.close()
+        return jsonify({'total': total, 'limit': limit, 'offset': offset_v, 'results': rows})
+
+    @app.route('/api/v1/brand/<bslug>')
+    def api_v1_brand(bslug):
+        conn = get_db()
+        c = conn.cursor()
+        c.execute(
+            "SELECT b.*, co.name as parent_company, co.ownership_type, co.description as company_description"
+            " FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id"
+            " WHERE b.slug=? OR lower(b.name)=lower(?)",
+            (bslug, bslug))
+        row = c.fetchone()
+        if not row:
+            conn.close(); return jsonify({'error': 'Brand not found'}), 404
+        d = dict(row)
+        if d.get('contradiction_reasons'):
+            try: d['contradiction_reasons'] = json.loads(d['contradiction_reasons'])
+            except: pass
+        # ingredient drift
+        c.execute(
+            "SELECT change_date, change_summary, ingredients_added, ingredients_removed, pre_acquisition_ingredients, post_acquisition_ingredients"
+            " FROM ingredient_drift WHERE brand_id=? ORDER BY change_date DESC",
+            (d['id'],))
+        d['ingredient_drift'] = [dict(r) for r in c.fetchall()]
+        # brand events
+        c.execute(
+            "SELECT event_type, event_date, headline, description, source_url"
+            " FROM brand_events WHERE brand_id=? ORDER BY event_date DESC LIMIT 10",
+            (d['id'],))
+        d['events'] = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify(d)
+
+    @app.route('/api/v1/categories')
+    def api_v1_categories():
+        conn = get_db()
+        c = conn.cursor()
+        c.execute(
+            "SELECT category, COUNT(*) as count,"
+            " AVG(contradiction_score) as avg_score,"
+            " SUM(CASE WHEN parent_company_id IS NOT NULL THEN 1 ELSE 0 END) as acquired_count"
+            " FROM brands WHERE category IS NOT NULL AND category != ''"
+            " GROUP BY category ORDER BY count DESC")
+        rows = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify(rows)
+
+    @app.route('/api/v1/audit', methods=['POST'])
+    def api_v1_audit():
+        data = request.get_json(force=True) or {}
+        text = data.get('text', '')
+        if not text:
+            return jsonify({'error': 'No text provided'}), 400
+        # Extract candidate brand names (capitalized words/phrases)
+        words = re.findall(r"[A-Z][a-z]+(?:\s+[A-Z][a-z'&]+)*", text)
+        # Also try 2-word combos
+        candidates = list(set(words))
+        candidates += [' '.join(t) for t in zip(words, words[1:])]
+
+        conn = get_db()
+        c = conn.cursor()
+        results = []
+        seen = set()
+        for cand in candidates:
+            cand = cand.strip()
+            if len(cand) < 3 or cand.lower() in seen:
+                continue
+            c.execute(
+                "SELECT b.name, b.slug, b.contradiction_score, b.headline_finding,"
+                " b.pe_owned, co.name as parent"
+                " FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id"
+                " WHERE lower(b.name)=lower(?) OR b.slug=lower(?)"
+                " LIMIT 1",
+                (cand, re.sub(r'[^a-z0-9]+', '-', cand.lower())))
+            row = c.fetchone()
+            if row and row['name'].lower() not in seen:
+                seen.add(row['name'].lower())
+                results.append(dict(row))
+        conn.close()
+        if not results:
+            return jsonify({'results': [], 'avg_score': 0, 'conglomerate_count': 0, 'independent_count': 0})
+        avg = sum(r['contradiction_score'] or 0 for r in results) / len(results)
+        conglomerate_count = sum(1 for r in results if r['parent'])
+        independent_count = len(results) - conglomerate_count
+        return jsonify({
+            'results': results,
+            'avg_score': round(avg, 1),
+            'conglomerate_count': conglomerate_count,
+            'independent_count': independent_count,
+        })
+
+    @app.route('/api/v1/ingredient-drift')
+    def api_v1_ingredient_drift():
+        brand_slug = request.args.get('brand', '').strip()
+        conn = get_db()
+        c = conn.cursor()
+        if brand_slug:
+            c.execute(
+                "SELECT id.* FROM ingredient_drift id"
+                " JOIN brands b ON id.brand_id=b.id"
+                " WHERE b.slug=? OR lower(b.name)=lower(?)"
+                " ORDER BY id.change_date DESC",
+                (brand_slug, brand_slug))
+        else:
+            c.execute("SELECT * FROM ingredient_drift ORDER BY change_date DESC LIMIT 50")
+        rows = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify(rows)
+
+    @app.route('/api/v1/stats')
+    def api_v1_stats():
+        conn = get_db()
+        c = conn.cursor()
+        stats = {}
+        for k, q in [
+            ('brands',           'SELECT COUNT(*) FROM brands'),
+            ('companies',        'SELECT COUNT(*) FROM companies'),
+            ('products',         'SELECT COUNT(*) FROM products'),
+            ('violations',       'SELECT COUNT(*) FROM violations'),
+            ('lobbying_records', 'SELECT COUNT(*) FROM lobbying_records'),
+            ('brand_events',     'SELECT COUNT(*) FROM brand_events'),
+            ('ingredient_drift', 'SELECT COUNT(*) FROM ingredient_drift'),
+        ]:
+            c.execute(q); stats[k] = c.fetchone()[0]
+        c.execute("SELECT SUM(total_spend) FROM lobbying_records")
+        stats['total_lobbying_spend'] = round(c.fetchone()[0] or 0)
+        c.execute("SELECT SUM(fine_amount) FROM violations WHERE fine_amount IS NOT NULL")
+        stats['total_fines'] = round(c.fetchone()[0] or 0)
+        c.execute("SELECT COUNT(*) FROM brands WHERE parent_company_id IS NOT NULL")
+        stats['brands_acquired'] = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) FROM brands WHERE parent_company_id IS NULL")
+        stats['brands_independent'] = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) FROM brands WHERE pe_owned=1")
+        stats['brands_pe_owned'] = c.fetchone()[0]
         conn.close()
         return jsonify(stats)
