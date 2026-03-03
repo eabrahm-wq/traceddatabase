@@ -1,5 +1,5 @@
-# SQLite database (tracked separately / not in git)
-*.db
+# SQLite database — tracked via Git LFS (see .gitattributes)
+# traced.db is committed but stored in LFS due to size
 *.db-shm
 *.db-wal
 *.sqlite
