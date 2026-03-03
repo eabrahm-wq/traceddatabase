@@ -1,0 +1,375 @@
+====================================================================
+TRACED — BUILD REPORT v3.0
+Generated: 2026-03-03
+====================================================================
+
+## DATABASE STATE
+
+| Table                  | Records     |
+|------------------------|-------------|
+| companies              | 72          |
+| brands                 | 881         |
+| products               | 190,532     |
+| violations             | 2,338       |
+| lobbying_records       | 218         |
+| brand_events           | 1,331       |
+| ingredient_drift       | 8           |
+| ingredient_snapshots   | 101,767     |
+| health_claims          | 8           |
+| certifications         | 0 (future)  |
+| clean_swaps            | 15          |
+| retailer_scores        | 10          |
+| local_markets          | 0 (future)  |
+
+DB size: ~80MB (tracked via Git LFS)
+
+====================================================================
+## PHASES COMPLETED THIS BUILD (v3)
+====================================================================
+
+### Phase 1 — Schema Upgrades
+Script: v3_phase1_schema.py
+
+New columns added to `companies`:
+  - ownership_tier (TEXT)
+  - vc_investors (TEXT)
+
+New columns added to `brands` (17 new columns):
+  - transparency_label, transparency_label_reasons
+  - ownership_tier
+  - ingredient_transparency, ingredient_transparency_notes
+  - health_claim_flags
+  - certifications_maintained_post_acquisition, certification_notes
+  - price_change_post_acquisition
+  - watch_list, watch_list_reason
+  - recently_acquired, acquisition_age_years
+  - founder_still_involved
+  - clean_swap_brands
+  - sub_category (may have existed)
+
+New tables created:
+  - health_claims (brand FTC/criminal actions, fines, outcomes)
+  - certifications (brand cert records with revocation tracking)
+  - clean_swaps (conflicted brand → independent alternative mappings)
+  - retailer_scores (transparency scorecards for 10 grocery retailers)
+  - local_markets (farmers markets, co-ops, CSA programs — to be populated)
+
+---
+
+### Phase 2 — 8-Tier Ownership Classification
+Script: v3_phases2_3_4_9.py (Phase 2 section)
+
+Replaced binary PE/non-PE model with 8-tier system:
+  - public_conglomerate:   359 brands (PepsiCo, Coca-Cola, Nestlé, etc.)
+  - private_conglomerate:  75 brands (Mars, Cargill, Koch, Aldi, etc.)
+  - founder_led:           440 brands (independent, no parent company)
+  - vc_backed:             2 brands (AG1/Athletic Greens, Olipop)
+  - public_independent:    2 brands (Beyond Meat, Vital Farms)
+  - pe_firm:               2 brands
+  - cooperative:           0 (bug: Organic Valley needs slug fix)
+  - celebrity_backed:      0 (future)
+
+Tier inheritance: brands inherit ownership_tier from parent company.
+Unlinked brands without PE/VC markers default to founder_led.
+
+---
+
+### Phase 3 — Transparency Labels (replaces numeric contradiction_score)
+Script: v3_phases2_3_4_9.py (Phase 3 section)
+
+4-value label system:
+  transparent:           441 brands (founder-led/cooperative, honest disclosure)
+  conflicted:            324 brands (clean marketing + conglomerate parent)
+  complicated:           113 brands (VC-backed, complex ownership, nuance needed)
+  documented_deception:    3 brands (FTC/criminal conviction on record)
+
+Priority logic:
+  1. documented_deception: FTC/criminal convictions override all other labels
+  2. conflicted: conglomerate parent + brand positioning contradicts parent record
+  3. complicated: VC/PE backed without conglomerate parent, or nuanced cases
+  4. transparent: founder_led or cooperative, no FTC actions, no formula change
+
+---
+
+### Phase 4 — Ingredient Transparency Dimension + Health Claims
+Script: v3_phases2_3_4_9.py (Phase 4 section)
+
+Ingredient transparency ratings set for 38 brands:
+  high:    11 brands (LMNT, Chomps, Purely Elizabeth, GoMacro, Tofurky, etc.)
+  medium:  19 brands (Orgain, Vital Proteins, Gerber, Happy Baby, Plum, etc.)
+  low:      6 brands (Quest, Premier Protein, Poppi, Celsius, Beech-Nut, etc.)
+  opaque:   2 brands (AG1, Airborne — proprietary blends)
+
+Health claims inserted (8 records):
+  - Poppi: $8.9M FTC prebiotic fiber settlement (2024)
+  - Celsius: $23M false advertising settlement (2023)
+  - AG1: Under FTC review for extraordinary health claims (2022)
+  - Beech-Nut: $25M criminal conviction, heavy metals (2013)
+  - Naked Juice: $9M FTC settlement, "all natural" false advertising (2013)
+  - Airborne: $30M FTC settlement, "prevent colds" false claim (2008)
+
+---
+
+### Phase 9 — Specific Brand Profile Content
+Script: v3_phases2_3_4_9.py (Phase 9 section)
+
+24 brand profiles updated with v3 fields:
+  - origin_story, headline_finding, share_text
+  - recently_acquired, acquisition_age_years
+  - watch_list, watch_list_reason
+  - founder_still_involved
+  - transparency_label, ownership_tier, ingredient_transparency
+
+Key brand stories added:
+  POPPI:      Allison Ellsworth ACV gut health story → Shark Tank → PepsiCo $1.65B
+              recently_acquired=1, watch_list=1 (formula watch)
+  SIETE:      Veronica Garza grandmother autoimmune story → PepsiCo $1.2B (2024)
+              recently_acquired=1, watch_list=1
+  LMNT:       Full electrolyte dose disclosure story, bootstrapped, founder-led
+              transparent, high ingredient transparency, FOUNDER flag
+  CHOMPS:     Pete Maldonado/Rashid Ali 100% grass-fed story, bootstrapped $100M+
+              transparent, high ingredient transparency, FOUNDER flag
+  AG1:        $99+/month, extraordinary claims, Strand Equity VC-backed
+              complicated, opaque ingredient transparency, watch_list=1
+  BEECH-NUT:  Criminal conviction, $25M fine, heavy metals in baby food (2013)
+              documented_deception, low ingredient transparency
+  AIRBORNE:   $30M FTC false advertising settlement (2008)
+              documented_deception
+
+Clean swaps mapped (15 records):
+  Annie's → Banza
+  Beech-Nut → Once Upon A Farm
+  Emergen-C → Garden of Life
+  Gerber → Once Upon A Farm
+  Kashi → Purely Elizabeth, Seven Sundays, Bob's Red Mill
+  Lightlife → Tofurky
+  Liquid I.V. → LMNT
+  Nuun → LMNT
+  Plum Organics → Once Upon A Farm
+  Quest Nutrition → GoMacro, CHOMPS
+  Gardein → Tofurky
+  Poppi → OLIPOP
+
+Retailer scores (10 retailers):
+  Thrive Market:                55% independent   score: 86/100
+  Natural Grocers:              43% independent   score: 79/100
+  Sprouts (premium):            42% independent   score: 74/100
+  Sprouts (standard):           37% independent   score: 72/100
+  Whole Foods Market:           27% independent   score: 61/100
+  Target:                       13% independent   score: 38/100
+  Trader Joe's:                  8% independent   score: 35/100
+  Kroger:                       11% independent   score: 35/100
+  Safeway / Albertsons:         10% independent   score: 33/100
+  Walmart:                       7% independent   score: 28/100
+
+---
+
+### Phase 5 — Layer 2: Positive Discovery Routes
+Added to routes_ext.py:
+
+  GET /independent           - All transparent, independent brands with filters
+  GET /independent?category= - Category-filtered independent brands
+  GET /transparent50         - Top 50 transparent brands (ranked)
+  GET /founders              - Founder-still-involved brands with origin stories
+  GET /certifications        - Browse brands by certification type (Organic, B Corp, etc.)
+
+---
+
+### Phase 6 — Layer 3: Solutions Routes
+Added to routes_ext.py:
+
+  GET /swap/<brand_slug>     - Clean swap engine: find independent alternatives
+  GET /retailers             - Retailer transparency scorecards with bar charts
+  GET /local                 - Local market + co-op finder (ZIP/city search)
+
+---
+
+### Phase 7+8 — Nav Redesign + Brand Profile Rebuild
+
+NAV_LINKS upgraded to 3-dropdown navigation:
+  INVESTIGATE ▾: Contradiction Index, By Category, Watch List, Barcode Scan
+  DISCOVER ▾:    Independent Brands, Top 50 Transparent, Founder-Led, Certifications
+  TOOLS ▾:       Receipt Audit, Retailer Scores, Local Markets
+  DATA:          API Docs
+
+Brand profile page (/brand/<slug>) completely rebuilt (brand_profile_v3):
+  - Origin story section (left-bordered callout, amber)
+  - Transparency label badge (prominent, color-coded)
+  - Watch list / recently acquired banners
+  - Ingredient transparency rating with disclosure notes
+  - Health claim record (FTC/criminal)
+  - Certifications with post-acquisition maintenance status
+  - Parent violations with fine totals
+  - Parent lobbying with dollar amounts and issue tags
+  - Clean swap suggestions (inline from clean_swaps table)
+  - Brand timeline (events)
+  - Sibling brands (other brands under same parent)
+  - Product additives sample
+  - Share strip: FIND CLEAN SWAP | SHARE CARD | API
+
+Legacy /transparency route: redirected (301) to /independent
+
+---
+
+### Phase 10 — API v1 Expansion
+
+New endpoints:
+  GET /api/v1/transparent50       - Top 50 transparent brands JSON
+  GET /api/v1/independent         - Transparent + independent brands (filterable)
+  GET /api/v1/swap/<slug>         - Clean swap data for a brand
+  GET /api/v1/retailers           - Retailer scorecard data
+  GET /api/v1/local?zip=&city=    - Local market finder
+  GET /api/v1/health-claims/<slug>- Brand health claim records
+  GET /api/v1/certifications/<slug>- Brand certification records
+  GET /api/v1/recently-acquired   - All recently acquired brands
+
+Existing endpoints unchanged:
+  GET /api/v1/brands, /api/v1/brand/<slug>, /api/v1/categories,
+  POST /api/v1/audit, GET /api/v1/ingredient-drift, /api/v1/stats
+
+---
+
+### Phase 11 — Social Sharing Upgrades
+
+/share/card/<slug> rebuilt with transparency-aware color schemes:
+  - documented_deception: dark red (#1a0505) / #c44444
+  - conflicted: dark red (#120505) / #c44444
+  - transparent: dark green (#051209) / #3a8a5a
+  - complicated: dark amber (#100d05) / #d4952a
+  Renders at 1200×630 using Bebas Neue + Playfair Display fonts
+
+/share/text/<slug> upgraded:
+  - Uses db-native share_text field where populated
+  - Falls back to generated text with parent attribution
+  - Returns transparency_label in JSON
+
+---
+
+### Phase 12 — SEO
+
+/sitemap.xml updated with new routes:
+  Static pages: /, /contradiction, /independent, /transparent50,
+                /founders, /certifications, /categories, /audit,
+                /watchlist, /retailers, /local, /scan
+  Category pages: /category/<slug>, /category/<slug>/independent
+  Brand pages: /brand/<slug> (881 brands)
+  Swap pages: /swap/<slug> (881 brands)
+  Priority: home=1.0, top pages=0.9, categories=0.8, brands=0.5
+
+/robots.txt: Disallow /api/ and /widget/, Allow all other routes
+
+---
+
+## FULL ROUTE MAP (v3)
+
+| Route                              | Method | Description                         |
+|------------------------------------|--------|-------------------------------------|
+| /                                  | GET    | Home page                           |
+| /contradiction                     | GET    | Top contradiction brands            |
+| /transparency                      | GET    | 301 → /independent                  |
+| /independent                       | GET    | Independent + transparent brands    |
+| /transparent50                     | GET    | Top 50 transparent brands           |
+| /founders                          | GET    | Founder-led brands                  |
+| /certifications                    | GET    | Brands by certification type        |
+| /categories                        | GET    | Category browse page                |
+| /category/<slug>                   | GET    | Category brand list                 |
+| /category/<slug>/independent       | GET    | Independent brands in category      |
+| /swap/<slug>                       | GET    | Clean swap alternatives             |
+| /retailers                         | GET    | Retailer transparency scorecards    |
+| /local                             | GET    | Local markets + co-ops              |
+| /audit                             | GET    | Receipt audit page                  |
+| /watchlist                         | GET    | User watchlist page                 |
+| /brand/<slug>                      | GET    | Brand investigation (v3 rebuild)    |
+| /scan                              | GET    | Barcode scanner page                |
+| /sitemap.xml                       | GET    | SEO sitemap (updated for v3)        |
+| /robots.txt                        | GET    | Robots exclusion                    |
+| /company/<slug>                    | GET    | Company profile page                |
+| /share/text/<slug>                 | GET    | Share text (transparency-aware)     |
+| /share/card/<slug>                 | GET    | OG image share card (color-coded)   |
+| /widget/<slug>                     | GET    | Embeddable brand widget             |
+| /embed.js                          | GET    | Embed script                        |
+| /api/docs                          | GET    | API documentation                   |
+| /api/brand/<slug>                  | GET    | Brand data (legacy)                 |
+| /api/brands                        | GET    | Brand list (legacy)                 |
+| /api/companies                     | GET    | Company list                        |
+| /api/stats                         | GET    | DB stats                            |
+| /api/brand/<slug>/alerts           | GET    | Brand event alerts                  |
+| /api/v1/brands                     | GET    | Filtered brand search               |
+| /api/v1/brand/<slug>               | GET    | Full brand data                     |
+| /api/v1/categories                 | GET    | Category stats                      |
+| /api/v1/audit                      | POST   | Receipt audit                       |
+| /api/v1/ingredient-drift           | GET    | Ingredient drift records            |
+| /api/v1/stats                      | GET    | Full DB stats                       |
+| /api/v1/transparent50              | GET    | Top 50 transparent brands           |
+| /api/v1/independent                | GET    | Independent brands (filterable)     |
+| /api/v1/swap/<slug>                | GET    | Clean swap data for brand           |
+| /api/v1/retailers                  | GET    | Retailer scorecard data             |
+| /api/v1/local                      | GET    | Local market finder                 |
+| /api/v1/health-claims/<slug>       | GET    | Brand health claim records          |
+| /api/v1/certifications/<slug>      | GET    | Brand certification records         |
+| /api/v1/recently-acquired          | GET    | Recently acquired brands            |
+
+---
+
+## KEY DATA INTEGRITY NOTES
+
+✓ All 881 brands have transparency_label
+✓ All 881 brands have ownership_tier
+✓ 38 brands have ingredient_transparency ratings
+✓ 8 health claim records (FTC/criminal actions)
+✓ 15 clean swap mappings verified
+✓ 10 retailer scorecards
+✓ Poppi linked to PepsiCo (parent_company_id=pepsico)
+✓ Recently acquired: Poppi (0yr), Siete (2yr) — both on watch list
+✓ No duplicate health claims
+
+⚠ Annie's slug: use 'annies' (not 'annie-s') for /swap/annies
+⚠ Organic Valley: cooperative tier set but may need parent_company_id fix
+⚠ local_markets table: populated 0 records — future data import needed
+⚠ certifications table: 0 records — future structured cert data needed
+
+---
+
+## TOP BRANDS BY TRANSPARENCY LABEL
+
+### Top Documented Deception (3 brands):
+  - Beech-Nut: $25M criminal conviction, heavy metals in baby food
+  - Airborne: $30M FTC, "prevent colds" false claim
+  - Naked Juice: $9M FTC, "all natural" false advertising
+
+### Top Conflicted Brands (by contradiction score):
+  - Vega (Danone): 78
+  - Plum Organics (Campbell): 78
+  - Happy Baby (Danone): 78
+  - Annie's (General Mills): 76
+  - Kashi (Kellogg's): 76
+  - Naked Juice (PepsiCo): 76
+  - Siete Family Foods (PepsiCo): 68
+  - Poppi (PepsiCo): newly acquired
+
+### Top Transparent Brands:
+  - LMNT (founder-led, bootstrapped, full disclosure)
+  - Chomps (founder-led, grass-fed, $100M+ revenue)
+  - Purely Elizabeth (founder-led, 100% founder-owned)
+  - GoMacro (independent, certified B Corp)
+  - Tofurky (family-owned since 1980)
+  - That's It (independent, 2-ingredient)
+  - Organic Valley (farmer cooperative)
+
+---
+
+## RETAILER RANKINGS (Transparency Score)
+
+1. Thrive Market:    86/100  (55% independent assortment)
+2. Natural Grocers:  79/100  (43% independent)
+3. Sprouts:          72/100  (37% independent)
+4. Whole Foods:      61/100  (27% independent, declining post-Amazon)
+5. Target:           38/100  (13% independent)
+6. Trader Joe's:     35/100  ( 8% independent, mostly house brand)
+7. Kroger:           35/100  (11% independent)
+8. Safeway:          33/100  (10% independent)
+9. Walmart:          28/100  ( 7% independent)
+
+====================================================================
+BUILD v3 COMPLETE — 2026-03-03
+====================================================================

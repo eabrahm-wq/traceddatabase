@@ -46,13 +46,51 @@ BASE_CSS = (
 )
 
 NAV_LINKS = (
-    "<div style='display:flex;gap:20px;font-size:10px;letter-spacing:.08em'>"
-    "<a href='/contradiction' style='color:" + MUTED + "'>CONTRADICTION INDEX</a>"
-    "<a href='/transparency' style='color:" + MUTED + "'>CLEAN BRANDS</a>"
-    "<a href='/categories' style='color:" + MUTED + "'>CATEGORIES</a>"
-    "<a href='/audit' style='color:" + MUTED + "'>RECEIPT AUDIT</a>"
-    "<a href='/scan' style='color:" + MUTED + "'>SCAN</a>"
+    "<div style='display:flex;gap:0;font-size:10px;letter-spacing:.07em;align-items:center'>"
+    # INVESTIGATE dropdown
+    "<div class='nav-group'>"
+    "<span class='nav-label'>INVESTIGATE ▾</span>"
+    "<div class='nav-dropdown'>"
+    "<a href='/contradiction'>CONTRADICTION INDEX</a>"
+    "<a href='/categories'>BY CATEGORY</a>"
+    "<a href='/watchlist'>WATCH LIST</a>"
+    "<a href='/scan'>BARCODE SCAN</a>"
+    "</div></div>"
+    # DISCOVER dropdown
+    "<div class='nav-group'>"
+    "<span class='nav-label'>DISCOVER ▾</span>"
+    "<div class='nav-dropdown'>"
+    "<a href='/independent'>INDEPENDENT BRANDS</a>"
+    "<a href='/transparent50'>TOP 50 TRANSPARENT</a>"
+    "<a href='/founders'>FOUNDER-LED</a>"
+    "<a href='/certifications'>CERTIFICATIONS</a>"
+    "</div></div>"
+    # TOOLS dropdown
+    "<div class='nav-group'>"
+    "<span class='nav-label'>TOOLS ▾</span>"
+    "<div class='nav-dropdown'>"
+    "<a href='/audit'>RECEIPT AUDIT</a>"
+    "<a href='/retailers'>RETAILER SCORES</a>"
+    "<a href='/local'>LOCAL MARKETS</a>"
+    "</div></div>"
+    # DATA link
+    "<a href='/api/docs' style='color:" + MUTED + ";padding:8px 12px'>DATA</a>"
     "</div>"
+    # Nav dropdown CSS (injected once per page)
+    "<style>"
+    ".nav-group{position:relative}"
+    ".nav-label{color:" + MUTED + ";padding:8px 12px;cursor:pointer;user-select:none;"
+    "white-space:nowrap;display:inline-block}"
+    ".nav-group:hover .nav-label{color:" + INK + "}"
+    ".nav-dropdown{display:none;position:absolute;top:100%;left:0;background:" + BG + ";"
+    "border:1px solid " + B2 + ";border-radius:8px;padding:8px 0;min-width:180px;z-index:200;"
+    "box-shadow:0 8px 32px rgba(0,0,0,0.6)}"
+    ".nav-group:hover .nav-dropdown{display:block}"
+    ".nav-dropdown a{display:block;padding:8px 16px;color:" + MUTED + ";font-size:10px;"
+    "letter-spacing:.07em;white-space:nowrap}"
+    ".nav-dropdown a:hover{color:" + INK + ";background:rgba(255,255,255,0.04);text-decoration:none}"
+    "@media(max-width:640px){.nav-group{display:none}}"
+    "</style>"
 )
 
 def page_head(title, desc='', slug='', canonical='', jsonld=None):
@@ -235,176 +273,12 @@ def register(app):
         )
 
     # ── /transparency ────────────────────────────────────────────
+    # ── /transparency ── (redirects to /independent in v3) ─────────
     @app.route('/transparency')
     def transparency_index():
-        data = load_json('transparency_index.json')
-        brands = data.get('brands', [])
-        rows = ''
-        for b in brands:
-            sc = b['transparency_score']
-            bslug = b.get('slug', b['brand'].lower().replace(' ', '-'))
-            founded = (' est. ' + str(b['founded_year'])) if b.get('founded_year') else ''
-            prod_str = (str(b['product_count']) + ' products') if b.get('product_count') else ''
-            scan_str = (str(b['scan_count']) + ' scans') if b.get('scan_count') else ''
-            meta_parts = [s for s in [b.get('category', ''), prod_str, scan_str] if s]
-            rows += (
-                "<div style='border:1px solid " + BDR + ";border-radius:12px;padding:20px 24px;margin-bottom:10px;"
-                "display:grid;grid-template-columns:40px 1fr auto;gap:20px;align-items:start'>"
-                "<div style='font-family:Bebas Neue,sans-serif;font-size:32px;color:" + MUTED + ";line-height:1'>" + str(b['rank']) + "</div>"
-                "<div>"
-                "<div style='display:flex;align-items:center;gap:10px;margin-bottom:6px'>"
-                "<a href='/brand/" + bslug + "' style='font-family:Bebas Neue,sans-serif;font-size:24px;letter-spacing:.04em;color:" + INK + "'>" + b['brand'] + "</a>"
-                "<span style='font-size:9px;color:" + GREEN + ";background:rgba(58,138,90,.12);padding:2px 8px;border-radius:4px'>INDEPENDENT</span>"
-                + ("<span style='font-size:9px;color:" + MUTED + "'>" + founded.strip() + "</span>" if founded else "")
-                + "</div>"
-                "<div style='font-size:11px;color:rgba(240,234,216,.75);line-height:1.6;margin-bottom:8px'>" + b.get('why', '') + "</div>"
-                "<div style='font-size:9px;color:" + MUTED + "'>" + ' · '.join(meta_parts) + "</div>"
-                "</div>"
-                "<div style='text-align:right'>"
-                "<div style='font-family:Bebas Neue,sans-serif;font-size:48px;color:" + GREEN + ";line-height:1'>" + str(sc) + "</div>"
-                "<div style='font-size:8px;letter-spacing:.1em;color:" + GREEN + "'>CLEAN</div>"
-                "<div style='background:rgba(255,255,255,0.06);border-radius:4px;height:4px;width:60px;margin-top:8px;overflow:hidden'>"
-                "<div style='height:4px;border-radius:4px;background:" + GREEN + ";width:" + str(sc) + "%'></div></div>"
-                "</div></div>"
-            )
-        return (
-            page_head('Clean Brand Index — Traced', 'Independent brands doing it right.')
-            + "<div style='max-width:900px;margin:0 auto;padding:40px 40px 80px'>"
-            "<div style='text-align:center;margin-bottom:40px'>"
-            "<h1 style='font-size:clamp(24px,4vw,42px);margin-bottom:12px'>"
-            "Brands <em style='color:" + GREEN + "'>Doing It Right</em></h1>"
-            "<p style='font-size:12px;color:" + MUTED + ";max-width:500px;margin:0 auto;line-height:1.7'>"
-            "Independent, founder-led brands with clean ingredient profiles and no conglomerate ownership chains.</p></div>"
-            + rows + "</div></body></html>"
-        )
+        from flask import redirect
+        return redirect('/independent', code=301)
 
-    # ── /brand/<slug> ────────────────────────────────────────────
-    @app.route('/brand/<slug>')
-    def brand_investigation(slug):
-        from traced_app import brand_profile, render_profile, CSS, get_stats
-        p = brand_profile(slug)
-        if not p:
-            conn = get_db()
-            c2 = conn.cursor()
-            c2.execute("SELECT name FROM brands WHERE slug=? LIMIT 1", (slug,))
-            row = c2.fetchone()
-            conn.close()
-            if row:
-                p = brand_profile(row['name'])
-        if not p:
-            return (
-                page_head('Brand Not Found — Traced')
-                + "<div style='text-align:center;padding:80px;color:" + MUTED + ";font-size:13px'>"
-                "Brand not found. <a href='/'>Search brands</a></div></body></html>"
-            ), 404
-
-        bslug = p.get('slug') or slug
-        brand_name = p['name']
-        parent_name = p.get('co_name') or 'Unknown'
-        acq_year = p.get('acquired_year') or '?'
-        recall_count = p.get('recall_count', 0)
-        fines = p.get('fines_total', 0)
-        lobby_issues = p.get('lobbying_issues', [])
-        lobby_total = p.get('lobbying_total', 0)
-        sc = p.get('contradiction_score', 0)
-
-        og_desc = brand_name + ' is owned by ' + parent_name + '. Contradiction score: ' + str(sc) + '/100.'
-
-        jsonld = json.dumps({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": brand_name,
-            "description": og_desc,
-            "url": "https://tracedhealth.com/brand/" + bslug,
-            "parentOrganization": {"@type": "Organization", "name": parent_name},
-        })
-
-        # Share JS (no backslashes inside strings)
-        text_parts = [brand_name + " on @TracedHealth:"]
-        if p.get('co_name'):
-            text_parts.append("Owned by " + parent_name + (" since " + str(acq_year) if p.get('acquired_year') else ""))
-        if lobby_issues:
-            text_parts.append(parent_name + " spent $" + str(round(lobby_total / 1e6, 1)) + "M lobbying on " + lobby_issues[0])
-        elif fines > 1e6:
-            text_parts.append("$" + str(round(fines / 1e6, 1)) + "M in documented fines")
-        if recall_count > 0:
-            text_parts.append(str(recall_count) + " FDA recalls")
-        text_parts.append("tracedhealth.com/brand/" + bslug)
-        share_text_str = "\\n".join(text_parts)[:280]
-
-        share_bar = (
-            "<div style='display:flex;gap:8px;flex-wrap:wrap;margin:16px 40px 0'>"
-            "<button id='copy-btn' onclick='copyLink()' style='background:" + SURF + ";border:1px solid " + B2 + ";"
-            "border-radius:8px;padding:8px 14px;font-family:DM Mono,monospace;font-size:10px;letter-spacing:.08em;"
-            "text-transform:uppercase;color:" + INK + ";cursor:pointer'>Copy Link</button>"
-            "<button id='share-text-btn' onclick='shareText()' style='background:" + SURF + ";border:1px solid " + B2 + ";"
-            "border-radius:8px;padding:8px 14px;font-family:DM Mono,monospace;font-size:10px;letter-spacing:.08em;"
-            "text-transform:uppercase;color:" + INK + ";cursor:pointer'>Share via Text</button>"
-            "<a href='https://twitter.com/intent/tweet?text=" + brand_name + " — Traced&url=https://tracedhealth.com/brand/" + bslug + "'"
-            " target='_blank' style='background:" + SURF + ";border:1px solid " + B2 + ";border-radius:8px;padding:8px 14px;"
-            "font-family:DM Mono,monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:" + INK + "'>Share on X</a>"
-            "</div>"
-        )
-
-        embed_code = (
-            "<div style='border:1px solid " + BDR + ";border-radius:12px;padding:20px;margin:24px 40px'>"
-            "<div style='font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:" + AMBER + ";margin-bottom:10px'>Embed This Card</div>"
-            "<textarea onclick='this.select()' readonly style='width:100%;background:#111;border:1px solid " + BDR + ";"
-            "border-radius:6px;padding:10px;font-family:DM Mono,monospace;font-size:10px;color:" + MUTED + ";resize:none;height:48px'>"
-            "&lt;script src=\"https://tracedhealth.com/embed.js\" data-brand=\"" + bslug + "\"&gt;&lt;/script&gt;"
-            "</textarea>"
-            "<div style='font-size:10px;color:" + MUTED + ";margin-top:6px'>Paste in any webpage to embed the Traced widget</div>"
-            "</div>"
-        )
-
-        cite = (
-            "<div style='border:1px solid " + BDR + ";border-radius:12px;padding:20px;margin:0 40px 80px'>"
-            "<div style='font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:" + AMBER + ";margin-bottom:10px'>Cite This Page</div>"
-            "<div style='font-size:10px;color:" + MUTED + ";line-height:1.8'>"
-            "Traced. \"" + brand_name + " — Brand Investigation.\" TracedHealth.com. "
-            "https://tracedhealth.com/brand/" + bslug + ". Accessed 2026."
-            "</div></div>"
-        )
-
-        share_js = (
-            "function copyLink(){"
-            "navigator.clipboard.writeText('https://tracedhealth.com/brand/" + bslug + "')"
-            ".then(function(){var b=document.getElementById('copy-btn');b.textContent='Copied!';setTimeout(function(){b.textContent='Copy Link'},2000)})}"
-            "function shareText(){"
-            "var t='" + share_text_str.replace("'", "\\'") + "';"
-            "navigator.clipboard.writeText(t)"
-            ".then(function(){var b=document.getElementById('share-text-btn');b.textContent='Copied!';setTimeout(function(){b.textContent='Share via Text'},2000)})}"
-        )
-
-        profile_html = render_profile(p)
-
-        return (
-            "<!DOCTYPE html><html lang='en'><head>"
-            "<meta charset='UTF-8'>"
-            "<meta name='viewport' content='width=device-width,initial-scale=1.0'>"
-            "<title>" + brand_name + " — Traced Brand Investigation</title>"
-            "<meta name='description' content='" + og_desc.replace("'", "&#39;") + "'>"
-            "<meta property='og:title' content='" + brand_name + " — Traced'>"
-            "<meta property='og:description' content='" + og_desc.replace("'", "&#39;") + "'>"
-            "<meta property='og:image' content='https://tracedhealth.com/share/card/" + bslug + "'>"
-            "<meta property='og:type' content='article'>"
-            "<meta name='twitter:card' content='summary_large_image'>"
-            "<meta name='twitter:title' content='" + brand_name + " — Traced'>"
-            "<meta name='twitter:image' content='https://tracedhealth.com/share/card/" + bslug + "'>"
-            + FONTS
-            + "<style>" + CSS
-            + "</style>"
-            "<script type='application/ld+json'>" + jsonld + "</script>"
-            "</head><body>"
-            "<nav><a class='logo' href='/'>TRACED</a>"
-            "<a style='font-size:10px;color:" + MUTED + ";text-decoration:none;letter-spacing:.08em;text-transform:uppercase' href='/'>&#8592; Search</a>"
-            "</nav>"
-            + share_bar
-            + profile_html
-            + embed_code + cite
-            + "<script>function searchBrand(n){window.location.href='/?q='+encodeURIComponent(n)}" + share_js + "</script>"
-            "</body></html>"
-        )
 
     # ── /scan ─────────────────────────────────────────────────────
     @app.route('/scan')
@@ -449,90 +323,6 @@ function fb(u){status.textContent='Looking up '+u+'...';fetch('/api/barcode/'+u)
 function lu(){var v=document.getElementById('ui').value.trim().replace(/\D/g,'');if(v)fb(v);}
 document.getElementById('ui').addEventListener('keydown',function(e){if(e.key==='Enter')lu();});
 </script></body></html>"""
-        )
-
-    # ── /share/text/<slug> ────────────────────────────────────────
-    @app.route('/share/text/<slug>')
-    def share_text_route(slug):
-        p = full_brand_data(slug)
-        if not p:
-            return jsonify({'error': 'Brand not found'}), 404
-        bslug = p.get('slug') or slug
-        issues = p.get('lobbying_issues', [])
-        parts = ['🔍 ' + p['name'] + ' on @TracedHealth:']
-        if p.get('co_name'):
-            parts.append('• Owned by ' + p['co_name'] + (' since ' + str(p['acquired_year']) if p.get('acquired_year') else ''))
-        if issues:
-            spend = p.get('lobbying_total', 0)
-            parts.append('• ' + p['co_name'] + ' spent $' + str(round(spend / 1e6, 1)) + 'M lobbying on ' + issues[0])
-        elif p.get('fines_total', 0) > 1e6:
-            parts.append('• $' + str(round(p['fines_total'] / 1e6, 1)) + 'M in documented fines')
-        if p.get('recall_count', 0) > 0:
-            parts.append('• ' + str(p['recall_count']) + ' FDA recalls on record')
-        parts.append('tracedhealth.com/brand/' + bslug)
-        text = '\n'.join(parts)[:280]
-        return jsonify({'brand': p['name'], 'slug': bslug, 'share_text': text, 'char_count': len(text)})
-
-    # ── /share/card/<slug> ────────────────────────────────────────
-    @app.route('/share/card/<slug>')
-    def share_card_route(slug):
-        p = full_brand_data(slug)
-        if not p:
-            return "Brand not found", 404
-        bslug = p.get('slug') or slug
-        sc = p.get('contradiction_score', 0)
-        col = score_color(sc)
-        brand_name = p['name']
-        parent_name = p.get('co_name') or 'Independent'
-
-        findings = []
-        if p.get('co_name') and p.get('acquired_year'):
-            findings.append('Acquired by ' + parent_name + ' in ' + str(p['acquired_year']))
-        if p.get('lobbying_issues'):
-            findings.append(parent_name + ' lobbied on: ' + ', '.join(p['lobbying_issues'][:2]))
-        elif p.get('fines_total', 0) > 1e6:
-            findings.append('$' + str(round(p['fines_total'] / 1e6)) + 'M in documented fines')
-        if p.get('recall_count', 0) > 0:
-            findings.append(str(p['recall_count']) + ' FDA recalls')
-        findings = findings[:2]
-
-        findings_js = '\n'.join(
-            "ctx.fillText(" + json.dumps('• ' + f[:70]) + "," + str(60) + "," + str(320 + i * 40) + ");"
-            for i, f in enumerate(findings)
-        )
-
-        canvas_html = (
-            "<style>body{background:#000;display:flex;flex-direction:column;align-items:center;padding:40px 20px;font-family:DM Mono,monospace}"
-            "canvas{border-radius:12px;max-width:100%}"
-            ".dlb{margin-top:16px;background:" + AMBER + ";border:none;border-radius:8px;padding:10px 20px;"
-            "font-family:DM Mono,monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#000;cursor:pointer}</style>"
-            "<canvas id='c' width='1200' height='630'></canvas>"
-            "<button class='dlb' onclick='dl()'>Download Card</button>"
-            "<script>"
-            "var c=document.getElementById('c'),ctx=c.getContext('2d');"
-            "ctx.fillStyle='" + BG + "';ctx.fillRect(0,0,1200,630);"
-            "ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=1;"
-            "for(var x=0;x<1200;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,630);ctx.stroke()}"
-            "for(var y=0;y<630;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(1200,y);ctx.stroke()}"
-            "ctx.fillStyle='rgba(255,255,255,0.04)';ctx.fillRect(60,510,1080,28);"
-            "ctx.fillStyle='" + col + "';ctx.fillRect(60,510," + str(sc) + "*1080/100,28);"
-            "ctx.fillStyle='" + INK + "';ctx.font='bold 80px Arial';ctx.fillText(" + json.dumps(brand_name[:22]) + ",60,200);"
-            "ctx.fillStyle='" + AMBER + "';ctx.font='22px Arial';"
-            "ctx.fillText(" + json.dumps('Owned by ' + parent_name[:40]) + ",60,245);"
-            "ctx.fillStyle='" + col + "';ctx.font='bold 110px Arial';ctx.textAlign='right';ctx.fillText('" + str(sc) + "',1140,200);"
-            "ctx.font='15px Arial';ctx.fillText('CONTRADICTION SCORE',1140,225);ctx.textAlign='left';"
-            "ctx.fillStyle='rgba(240,234,216,0.5)';ctx.font='20px Arial';"
-            + findings_js +
-            "ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font='16px Arial';"
-            "ctx.fillText('TRACED  ·  tracedhealth.com',60,590);"
-            "function dl(){var a=document.createElement('a');a.download='traced-" + bslug + ".png';a.href=c.toDataURL('image/png');a.click();}"
-            "</script>"
-        )
-        return (
-            "<!DOCTYPE html><html><head><meta charset='UTF-8'>"
-            + FONTS
-            + "<title>" + brand_name + " — Traced Card</title>"
-            "</head><body>" + canvas_html + "</body></html>"
         )
 
     # ── /api/docs ─────────────────────────────────────────────────
@@ -1011,46 +801,6 @@ document.getElementById('ui').addEventListener('keydown',function(e){if(e.key===
         return jsonify({'slug': bslug, 'alerts': events})
 
     # ══════════════════════════════════════════════════════════════════
-    # PHASE 9 — SEO: sitemap.xml + robots.txt
-    # ══════════════════════════════════════════════════════════════════
-
-    @app.route('/sitemap.xml')
-    def sitemap_xml():
-        conn = get_db()
-        c = conn.cursor()
-        c.execute("SELECT slug FROM brands WHERE slug IS NOT NULL AND slug != '' ORDER BY contradiction_score DESC NULLS LAST")
-        brand_slugs = [r[0] for r in c.fetchall()]
-        conn.close()
-        lines = ['<?xml version="1.0" encoding="UTF-8"?>',
-                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-        static_urls = [
-            'https://tracedhealth.com/',
-            'https://tracedhealth.com/contradiction',
-            'https://tracedhealth.com/transparency',
-            'https://tracedhealth.com/categories',
-            'https://tracedhealth.com/audit',
-            'https://tracedhealth.com/watchlist',
-            'https://tracedhealth.com/scan',
-        ]
-        for cat_slug in CATEGORY_DEFS:
-            static_urls.append('https://tracedhealth.com/category/' + cat_slug)
-        for url in static_urls:
-            lines.append('<url><loc>' + url + '</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>')
-        for sl in brand_slugs:
-            lines.append('<url><loc>https://tracedhealth.com/brand/' + sl + '</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>')
-        lines.append('</urlset>')
-        return Response('\n'.join(lines), mimetype='application/xml')
-
-    @app.route('/robots.txt')
-    def robots_txt():
-        txt = (
-            "User-agent: *\n"
-            "Allow: /\n"
-            "Disallow: /api/\n\n"
-            "Sitemap: https://tracedhealth.com/sitemap.xml\n"
-        )
-        return Response(txt, mimetype='text/plain')
-
     # ══════════════════════════════════════════════════════════════════
     # PHASE 11 — API v1 WITH FILTERING + RECEIPT AUDIT POST
     # ══════════════════════════════════════════════════════════════════
@@ -1232,3 +982,1360 @@ document.getElementById('ui').addEventListener('keydown',function(e){if(e.key===
         stats['brands_pe_owned'] = c.fetchone()[0]
         conn.close()
         return jsonify(stats)
+
+    # ════════════════════════════════════════════════════════════════════
+    # PHASE 5 — LAYER 2: POSITIVE DISCOVERY ROUTES
+    # ════════════════════════════════════════════════════════════════════
+
+    # ── /independent ────────────────────────────────────────────────────
+    @app.route('/independent')
+    def independent_brands():
+        conn = get_db(); c = conn.cursor()
+        cat = request.args.get('category', '')
+        sql = (
+            "SELECT b.name, b.slug, b.category, b.sub_category, b.founded_year, "
+            "b.transparency_label, b.ingredient_transparency, b.ownership_tier, "
+            "b.founder_still_involved, b.notes as description, b.origin_story, "
+            "b.contradiction_score, b.certifications "
+            "FROM brands b "
+            "WHERE b.transparency_label='transparent' "
+            "AND (b.parent_company_id IS NULL OR b.independent=1) "
+        )
+        params = []
+        if cat:
+            sql += "AND b.category=? "
+            params.append(cat)
+        sql += "ORDER BY b.total_scans DESC NULLS LAST LIMIT 200"
+        c.execute(sql, params)
+        brands = [dict(r) for r in c.fetchall()]
+
+        # category list for filter
+        c.execute("SELECT DISTINCT category FROM brands WHERE transparency_label='transparent' AND category IS NOT NULL ORDER BY category")
+        cats = [r['category'] for r in c.fetchall()]
+
+        # stats
+        c.execute("SELECT COUNT(*) FROM brands WHERE transparency_label='transparent' AND (parent_company_id IS NULL OR independent=1)")
+        total_indep = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) FROM brands WHERE transparency_label='transparent' AND founder_still_involved=1")
+        founder_count = c.fetchone()[0]
+        conn.close()
+
+        # category filter bar
+        cat_links = "<a href='/independent' style='color:" + ("var(--amber)" if not cat else "var(--muted)") + ";font-size:10px;letter-spacing:.08em'>ALL</a> "
+        for cc in cats:
+            active = cat == cc
+            cat_links += (
+                "<a href='/independent?category=" + cc + "' "
+                "style='color:" + ("var(--amber)" if active else "var(--muted)") + ";"
+                "font-size:10px;letter-spacing:.08em'>" + cc.upper().replace('-', ' ') + "</a> "
+            )
+
+        rows = ''
+        for b in brands:
+            label_color = GREEN
+            it = b.get('ingredient_transparency') or ''
+            it_badge = ''
+            if it == 'high':
+                it_badge = "<span style='color:var(--green);font-size:9px'>FULL DISCLOSURE</span>"
+            elif it == 'medium':
+                it_badge = "<span style='color:var(--amber);font-size:9px'>MEDIUM TRANSPARENCY</span>"
+            certs = b.get('certifications') or ''
+            cert_str = ''
+            if certs:
+                for cert in certs.split(',')[:3]:
+                    cert = cert.strip()
+                    if cert:
+                        cert_str += "<span style='background:var(--glt);color:var(--green);font-size:9px;padding:2px 6px;border-radius:3px;margin-right:4px'>" + cert + "</span>"
+            founded = (' · Est. ' + str(b['founded_year'])) if b.get('founded_year') else ''
+            rows += (
+                "<div style='border:1px solid var(--border);border-radius:8px;padding:20px;"
+                "margin-bottom:12px;background:var(--surface)'>"
+                "<div style='display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px'>"
+                "<div>"
+                "<a href='/brand/" + (b['slug'] or '') + "' style='font-size:18px;font-weight:600;color:var(--ink)'>" + b['name'] + "</a>"
+                "<span style='color:var(--muted);font-size:10px;margin-left:10px'>" + (b.get('category') or '').upper().replace('-', ' ') + founded + "</span>"
+                "</div>"
+                "<span style='background:var(--glt);color:var(--green);font-size:10px;padding:4px 10px;border-radius:4px;font-weight:600'>TRANSPARENT</span>"
+                "</div>"
+                + ("<div style='color:var(--muted);font-size:12px;margin-top:8px;line-height:1.5'>" + (b.get('description') or '')[:160] + "...</div>" if b.get('description') else '')
+                + "<div style='margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center'>"
+                + it_badge + cert_str
+                + ("  <span style='color:var(--green);font-size:9px'>FOUNDER-LED</span>" if b.get('founder_still_involved') else '')
+                + "</div></div>"
+            )
+
+        head = page_head(
+            'Independent & Transparent Brands — Traced',
+            'Discover ' + str(total_indep) + ' genuinely transparent, independent food and wellness brands vetted by Traced.',
+            canonical='https://tracedhealth.com/independent'
+        )
+        html = (
+            head
+            + "<div style='max-width:900px;margin:0 auto;padding:40px 20px'>"
+            + "<h1 style='font-size:clamp(28px,5vw,48px);margin-bottom:8px'>Independent &amp; Transparent Brands</h1>"
+            + "<p style='color:var(--muted);font-size:13px;margin-bottom:24px'>"
+            + str(total_indep) + " brands verified as founder-led or cooperative, "
+            + "with honest ingredient disclosure and no documented deception. "
+            + str(founder_count) + " still led by original founders."
+            + "</p>"
+            + "<div style='display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px'>"
+            + cat_links
+            + "</div>"
+            + rows
+            + "</div></body></html>"
+        )
+        return html
+
+    # ── /transparent50 ──────────────────────────────────────────────────
+    @app.route('/transparent50')
+    def transparent50():
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT b.name, b.slug, b.category, b.transparency_label, "
+            "b.ingredient_transparency, b.ownership_tier, b.founder_still_involved, "
+            "b.notes as description, b.contradiction_score, b.certifications, b.founded_year, "
+            "co.name as parent_name "
+            "FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id "
+            "WHERE b.transparency_label IN ('transparent','complicated') "
+            "ORDER BY b.transparency_label ASC, b.total_scans DESC NULLS LAST LIMIT 50"
+        )
+        brands = [dict(r) for r in c.fetchall()]
+        conn.close()
+
+        rows = ''
+        for i, b in enumerate(brands):
+            label = b.get('transparency_label') or 'complicated'
+            if label == 'transparent':
+                bg = "var(--glt)"; border_col = "var(--green)"; label_txt = "TRANSPARENT"
+            else:
+                bg = "rgba(212,149,42,0.08)"; border_col = "var(--amber)"; label_txt = "COMPLICATED"
+            it = (b.get('ingredient_transparency') or '').upper()
+            rows += (
+                "<div style='display:flex;align-items:center;gap:16px;padding:14px 0;"
+                "border-bottom:1px solid var(--border)'>"
+                "<span style='color:var(--muted);font-size:13px;width:28px;text-align:right'>" + str(i+1) + "</span>"
+                "<div style='flex:1'>"
+                "<a href='/brand/" + (b['slug'] or '') + "' style='font-size:15px;color:var(--ink);font-weight:600'>" + b['name'] + "</a>"
+                + ("<span style='color:var(--muted);font-size:10px;margin-left:8px'>" + (b.get('parent_name') or '') + "</span>" if b.get('parent_name') else '')
+                + "<div style='color:var(--muted);font-size:10px;margin-top:2px'>"
+                + (b.get('category') or '').upper().replace('-', ' ')
+                + ((" · " + it + " TRANSPARENCY") if it else '')
+                + "</div></div>"
+                "<span style='background:" + bg + ";color:" + border_col + ";"
+                "font-size:9px;padding:3px 8px;border-radius:3px;white-space:nowrap'>" + label_txt + "</span>"
+                "</div>"
+            )
+
+        head = page_head(
+            'Top 50 Transparent Brands — Traced',
+            'The 50 most transparent food brands ranked by ingredient honesty, founder involvement, and ownership integrity.',
+            canonical='https://tracedhealth.com/transparent50'
+        )
+        return (
+            head
+            + "<div style='max-width:800px;margin:0 auto;padding:40px 20px'>"
+            "<h1 style='font-size:clamp(28px,5vw,46px);margin-bottom:8px'>Top 50 Transparent Brands</h1>"
+            "<p style='color:var(--muted);font-size:13px;margin-bottom:32px'>"
+            "Ranked by ingredient transparency, ownership integrity, and founder involvement. "
+            "No conglomerate ownership, no documented deception."
+            "</p>"
+            + rows
+            + "<div style='margin-top:32px;padding:16px;background:var(--surface);border-radius:8px'>"
+            "<p style='color:var(--muted);font-size:11px'>Methodology: brands scored on ingredient disclosure, "
+            "founder involvement, ownership tier, certification integrity, and absence of FTC/FDA actions. "
+            "<a href='/api/docs'>API docs</a></p></div>"
+            "</div></body></html>"
+        )
+
+    # ── /founders ───────────────────────────────────────────────────────
+    @app.route('/founders')
+    def founders_page():
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT b.name, b.slug, b.category, b.sub_category, b.founded_year, "
+            "b.transparency_label, b.ingredient_transparency, b.ownership_tier, "
+            "b.founder_still_involved, b.notes as description, b.origin_story, "
+            "b.contradiction_score, b.recently_acquired, b.acquisition_age_years, "
+            "co.name as parent_name "
+            "FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id "
+            "WHERE b.founder_still_involved=1 "
+            "ORDER BY b.transparency_label ASC, b.total_scans DESC NULLS LAST LIMIT 100"
+        )
+        brands = [dict(r) for r in c.fetchall()]
+        conn.close()
+
+        rows = ''
+        for b in brands:
+            label = b.get('transparency_label') or ''
+            if label == 'transparent':
+                badge = "<span style='background:var(--glt);color:var(--green);font-size:9px;padding:3px 8px;border-radius:3px'>TRANSPARENT</span>"
+            elif label == 'documented_deception':
+                badge = "<span style='background:var(--rlt);color:var(--red);font-size:9px;padding:3px 8px;border-radius:3px'>DOCUMENTED DECEPTION</span>"
+            elif label == 'conflicted':
+                badge = "<span style='background:var(--rlt);color:var(--red);font-size:9px;padding:3px 8px;border-radius:3px'>CONFLICTED</span>"
+            else:
+                badge = "<span style='background:rgba(212,149,42,0.1);color:var(--amber);font-size:9px;padding:3px 8px;border-radius:3px'>COMPLICATED</span>"
+            origin = (b.get('origin_story') or b.get('description') or '')[:180]
+            acquired_warn = ''
+            if b.get('recently_acquired'):
+                acquired_warn = (
+                    "<div style='background:rgba(196,68,68,0.08);border:1px solid rgba(196,68,68,0.2);"
+                    "border-radius:6px;padding:8px 12px;margin-top:10px;font-size:11px;color:var(--red)'>"
+                    "Recently acquired by " + (b.get('parent_name') or 'conglomerate') + " — founder may be transitioning out"
+                    "</div>"
+                )
+            rows += (
+                "<div style='border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:12px;background:var(--surface)'>"
+                "<div style='display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px'>"
+                "<div>"
+                "<a href='/brand/" + (b['slug'] or '') + "' style='font-size:17px;font-weight:600;color:var(--ink)'>" + b['name'] + "</a>"
+                "<span style='color:var(--muted);font-size:10px;margin-left:8px'>"
+                + (b.get('category') or '').upper().replace('-', ' ')
+                + ((' · Est. ' + str(b['founded_year'])) if b.get('founded_year') else '')
+                + "</span>"
+                "</div>" + badge
+                + "</div>"
+                + ("<div style='color:var(--muted);font-size:12px;margin-top:8px;line-height:1.5'>" + origin + ("..." if len(origin) == 180 else "") + "</div>" if origin else '')
+                + acquired_warn
+                + "</div>"
+            )
+
+        head = page_head(
+            'Founder-Led Brands — Traced',
+            'Brands still led by their original founders — the people who built them and still stand behind them.',
+            canonical='https://tracedhealth.com/founders'
+        )
+        return (
+            head
+            + "<div style='max-width:900px;margin:0 auto;padding:40px 20px'>"
+            "<h1 style='font-size:clamp(28px,5vw,46px);margin-bottom:8px'>Founder-Led Brands</h1>"
+            "<p style='color:var(--muted);font-size:13px;margin-bottom:32px'>"
+            + str(len(brands)) + " brands still operated by their founders. "
+            "The people who built these brands still have skin in the game."
+            "</p>"
+            + rows
+            + "</div></body></html>"
+        )
+
+    # ── /certifications ─────────────────────────────────────────────────
+    @app.route('/certifications')
+    def certifications_page():
+        conn = get_db(); c = conn.cursor()
+        # Brands with certifications, grouped by cert type
+        c.execute(
+            "SELECT b.name, b.slug, b.category, b.certifications, "
+            "b.transparency_label, b.certifications_maintained_post_acquisition, "
+            "b.certification_notes, b.ownership_tier, co.name as parent_name "
+            "FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id "
+            "WHERE b.certifications IS NOT NULL AND b.certifications != '' "
+            "ORDER BY b.certifications_maintained_post_acquisition DESC, b.total_scans DESC NULLS LAST"
+        )
+        brands = [dict(r) for r in c.fetchall()]
+        conn.close()
+
+        # group by cert type
+        cert_map = {}
+        for b in brands:
+            certs_raw = b.get('certifications') or ''
+            for cert in certs_raw.split(','):
+                cert = cert.strip()
+                if not cert: continue
+                cert_map.setdefault(cert, []).append(b)
+
+        cert_sections = ''
+        for cert_name in sorted(cert_map.keys()):
+            cert_brands = cert_map[cert_name]
+            brand_chips = ''
+            for b in cert_brands[:20]:
+                label = b.get('transparency_label') or ''
+                col = GREEN if label == 'transparent' else (RED if label in ('conflicted', 'documented_deception') else AMBER)
+                maintained = b.get('certifications_maintained_post_acquisition')
+                border_style = ''
+                if maintained == 0 and b.get('parent_name'):
+                    border_style = "border:1px solid rgba(196,68,68,0.4);"
+                brand_chips += (
+                    "<a href='/brand/" + (b['slug'] or '') + "' "
+                    "style='display:inline-block;background:var(--surface);" + border_style
+                    + "border-radius:6px;padding:6px 12px;margin:4px;font-size:12px;color:var(--ink)'>"
+                    + b['name']
+                    + ("  <span style='color:var(--red);font-size:9px'>LAPSED</span>" if maintained == 0 and b.get('parent_name') else '')
+                    + "</a>"
+                )
+            cert_sections += (
+                "<div style='margin-bottom:32px'>"
+                "<h2 style='font-size:16px;color:var(--amber);letter-spacing:.06em;margin-bottom:12px'>"
+                + cert_name.upper() + " <span style='color:var(--muted);font-size:11px;font-family:DM Mono'>(" + str(len(cert_brands)) + ")</span>"
+                "</h2>"
+                "<div style='display:flex;flex-wrap:wrap'>" + brand_chips + "</div>"
+                "</div>"
+            )
+
+        head = page_head(
+            'Certified Brands — Traced',
+            'Browse food and wellness brands by certification type — organic, non-GMO, B Corp, and more.',
+            canonical='https://tracedhealth.com/certifications'
+        )
+        return (
+            head
+            + "<div style='max-width:900px;margin:0 auto;padding:40px 20px'>"
+            "<h1 style='font-size:clamp(28px,5vw,46px);margin-bottom:8px'>Certified Brands</h1>"
+            "<p style='color:var(--muted);font-size:13px;margin-bottom:32px'>"
+            "Certifications by type. Brands marked LAPSED lost certification after acquisition."
+            "</p>"
+            + cert_sections
+            + "</div></body></html>"
+        )
+
+    # ════════════════════════════════════════════════════════════════════
+    # PHASE 6 — LAYER 3: SOLUTIONS ROUTES
+    # ════════════════════════════════════════════════════════════════════
+
+    # ── /swap/<brand_slug> ──────────────────────────────────────────────
+    @app.route('/swap/<slug>')
+    def clean_swap(slug):
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT b.id, b.name, b.slug, b.category, b.transparency_label, "
+            "b.headline_finding, b.ownership_tier, b.ingredient_transparency, "
+            "co.name as parent_name "
+            "FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id "
+            "WHERE b.slug=? OR lower(b.name)=lower(?)",
+            (slug, slug)
+        )
+        brand = c.fetchone()
+        if not brand:
+            conn.close()
+            return "<h1>Brand not found</h1>", 404
+        b = dict(brand)
+
+        # Look up clean swaps
+        c.execute(
+            "SELECT cs.reason, cs.category, "
+            "ab.name as alt_name, ab.slug as alt_slug, ab.notes as alt_desc, "
+            "ab.transparency_label as alt_label, ab.ingredient_transparency as alt_it, "
+            "ab.founded_year as alt_founded, ab.certifications as alt_certs, "
+            "ab.ownership_tier as alt_tier "
+            "FROM clean_swaps cs "
+            "JOIN brands ab ON cs.alternative_brand_id = ab.id "
+            "WHERE cs.brand_id=?",
+            (b['id'],)
+        )
+        swaps = [dict(r) for r in c.fetchall()]
+
+        # Fallback: find by category
+        if not swaps:
+            c.execute(
+                "SELECT b2.name, b2.slug, b2.description, b2.transparency_label, "
+                "b2.ingredient_transparency, b2.founded_year, b2.certifications, "
+                "b2.ownership_tier "
+                "FROM brands b2 "
+                "WHERE b2.category=? AND b2.transparency_label='transparent' "
+                "AND b2.id != ? "
+                "ORDER BY b2.total_scans DESC NULLS LAST LIMIT 5",
+                (b.get('category') or '', b['id'])
+            )
+            rows = [dict(r) for r in c.fetchall()]
+            swaps = [{'alt_name': r['name'], 'alt_slug': r['slug'], 'alt_desc': r.get('description'),
+                      'alt_label': r['transparency_label'], 'alt_it': r.get('ingredient_transparency'),
+                      'alt_founded': r.get('founded_year'), 'alt_certs': r.get('certifications'),
+                      'alt_tier': r.get('ownership_tier'), 'reason': 'Independent alternative in same category',
+                      'category': b.get('category')} for r in rows]
+        conn.close()
+
+        label = b.get('transparency_label') or ''
+        if label == 'documented_deception':
+            warn_color = RED; warn_bg = "rgba(196,68,68,0.08)"
+            warn_text = b.get('headline_finding') or ('Documented deception linked to ' + b['name'])
+        elif label == 'conflicted':
+            warn_color = RED; warn_bg = "rgba(196,68,68,0.06)"
+            warn_text = b.get('headline_finding') or ((b.get('parent_name') or '') + ' owns ' + b['name'])
+        else:
+            warn_color = AMBER; warn_bg = "rgba(212,149,42,0.06)"
+            warn_text = "Owned by " + (b.get('parent_name') or 'undisclosed parent')
+
+        swap_cards = ''
+        for s in swaps:
+            alt_label = s.get('alt_label') or ''
+            it_txt = (s.get('alt_it') or '').upper()
+            certs_raw = s.get('alt_certs') or ''
+            cert_chips = ''
+            for cert in certs_raw.split(',')[:3]:
+                cert = cert.strip()
+                if cert:
+                    cert_chips += "<span style='background:var(--glt);color:var(--green);font-size:9px;padding:2px 6px;border-radius:3px;margin-right:4px'>" + cert + "</span>"
+            swap_cards += (
+                "<div style='border:1px solid rgba(58,138,90,0.3);border-radius:8px;padding:20px;"
+                "background:rgba(58,138,90,0.05);margin-bottom:12px'>"
+                "<div style='display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px'>"
+                "<div>"
+                "<a href='/brand/" + (s.get('alt_slug') or '') + "' style='font-size:17px;font-weight:600;color:var(--ink)'>"
+                + (s.get('alt_name') or '') + "</a>"
+                + ((" · Est. " + str(s['alt_founded'])) if s.get('alt_founded') else '')
+                + "</div>"
+                "<span style='background:var(--glt);color:var(--green);font-size:9px;padding:3px 8px;border-radius:3px'>TRANSPARENT</span>"
+                "</div>"
+                + ("<div style='color:var(--muted);font-size:12px;margin-top:8px;line-height:1.5'>" + (s.get('alt_desc') or '')[:160] + "...</div>" if s.get('alt_desc') else '')
+                + "<div style='margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center'>"
+                + cert_chips
+                + ("  <span style='color:var(--green);font-size:9px'>" + it_txt + " TRANSPARENCY</span>" if it_txt else '')
+                + "</div>"
+                + "<div style='color:var(--muted);font-size:10px;margin-top:8px'><em>" + (s.get('reason') or '') + "</em></div>"
+                "</div>"
+            )
+
+        if not swap_cards:
+            swap_cards = "<p style='color:var(--muted);font-size:13px'>No verified swaps yet. <a href='/independent?category=" + (b.get('category') or '') + "'>Browse independent brands in this category</a>.</p>"
+
+        head = page_head(
+            'Clean Swap for ' + b['name'] + ' — Traced',
+            'Find independent alternatives to ' + b['name'] + '. Transparent brands in the same category.',
+            slug=b['slug']
+        )
+        return (
+            head
+            + "<div style='max-width:800px;margin:0 auto;padding:40px 20px'>"
+            + "<div style='background:" + warn_bg + ";border-left:3px solid " + warn_color + ";"
+            + "padding:16px 20px;border-radius:0 8px 8px 0;margin-bottom:32px'>"
+            + "<div style='color:" + warn_color + ";font-size:11px;letter-spacing:.08em;margin-bottom:6px'>WHY SWAP?</div>"
+            + "<div style='font-size:15px;font-weight:600;color:var(--ink)'>" + warn_text + "</div>"
+            + "<a href='/brand/" + (b['slug'] or '') + "' style='font-size:11px;color:var(--muted);margin-top:6px;display:inline-block'>See full profile for " + b['name'] + " →</a>"
+            + "</div>"
+            + "<h1 style='font-size:clamp(24px,4vw,38px);margin-bottom:8px'>Clean Swaps for " + b['name'] + "</h1>"
+            + "<p style='color:var(--muted);font-size:13px;margin-bottom:28px'>Independent alternatives in the same category with verified ingredient transparency.</p>"
+            + swap_cards
+            + "<div style='margin-top:32px;border-top:1px solid var(--border);padding-top:24px'>"
+            + "<a href='/independent?category=" + (b.get('category') or '') + "' style='color:var(--amber)'>Browse all independent brands in this category →</a>"
+            + "</div>"
+            + "</div></body></html>"
+        )
+
+    # ── /retailers ──────────────────────────────────────────────────────
+    @app.route('/retailers')
+    def retailer_scorecards():
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT retailer_name, retailer_slug, independent_brand_pct, "
+            "conglomerate_brand_pct, pe_brand_pct, transparency_score, "
+            "total_brands_tracked, notes "
+            "FROM retailer_scores ORDER BY transparency_score DESC"
+        )
+        retailers = [dict(r) for r in c.fetchall()]
+        conn.close()
+
+        rows = ''
+        for i, r in enumerate(retailers):
+            score = r.get('transparency_score') or 0
+            if score >= 70:
+                score_col = GREEN; score_bg = "var(--glt)"
+            elif score >= 50:
+                score_col = AMBER; score_bg = "rgba(212,149,42,0.1)"
+            else:
+                score_col = RED; score_bg = "var(--rlt)"
+            indep_pct = r.get('independent_brand_pct') or 0
+            indep_bar_w = str(min(100, indep_pct)) + "%"
+            cong_pct = r.get('conglomerate_brand_pct') or 0
+            cong_bar_w = str(min(100, cong_pct)) + "%"
+            rows += (
+                "<div style='border:1px solid var(--border);border-radius:8px;padding:24px;"
+                "margin-bottom:16px;background:var(--surface)'>"
+                "<div style='display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px'>"
+                "<div>"
+                "<h2 style='font-size:18px;font-weight:600;margin-bottom:4px'>" + r['retailer_name'] + "</h2>"
+                "<span style='color:var(--muted);font-size:11px'>" + (r.get('notes') or '') + "</span>"
+                "</div>"
+                "<div style='text-align:center'>"
+                "<div style='font-size:32px;font-weight:700;font-family:Bebas Neue;color:" + score_col + "'>" + str(score) + "</div>"
+                "<div style='font-size:9px;letter-spacing:.08em;color:var(--muted)'>TRANSPARENCY SCORE</div>"
+                "</div>"
+                "</div>"
+                # bar charts
+                "<div style='margin-bottom:8px'>"
+                "<div style='display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px'>"
+                "<span>INDEPENDENT BRANDS</span><span>" + str(round(indep_pct)) + "%</span>"
+                "</div>"
+                "<div style='background:var(--border);border-radius:4px;height:6px'>"
+                "<div style='background:var(--green);border-radius:4px;height:6px;width:" + indep_bar_w + "'></div>"
+                "</div></div>"
+                "<div>"
+                "<div style='display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px'>"
+                "<span>CONGLOMERATE BRANDS</span><span>" + str(round(cong_pct)) + "%</span>"
+                "</div>"
+                "<div style='background:var(--border);border-radius:4px;height:6px'>"
+                "<div style='background:var(--red);border-radius:4px;height:6px;width:" + cong_bar_w + "'></div>"
+                "</div></div>"
+                "</div>"
+            )
+
+        head = page_head(
+            'Retailer Transparency Scorecards — Traced',
+            'Which grocery stores carry the most independent brands? Scored by % independent, % conglomerate, and transparency.',
+            canonical='https://tracedhealth.com/retailers'
+        )
+        return (
+            head
+            + "<div style='max-width:800px;margin:0 auto;padding:40px 20px'>"
+            "<h1 style='font-size:clamp(28px,5vw,46px);margin-bottom:8px'>Retailer Transparency Scorecards</h1>"
+            "<p style='color:var(--muted);font-size:13px;margin-bottom:32px'>"
+            "Which grocery stores give independent brands shelf space? Ranked by percentage of independent brands tracked in each retailer's assortment."
+            "</p>"
+            + rows
+            + "<div style='margin-top:32px;padding:16px;background:var(--surface);border-radius:8px'>"
+            "<p style='color:var(--muted);font-size:11px'>"
+            "Methodology: brands scored against Traced database of 881 brands. "
+            "Retailer assortments estimated from product database. Updated quarterly. "
+            "<a href='/api/v1/retailers'>API endpoint available</a>."
+            "</p></div>"
+            "</div></body></html>"
+        )
+
+    # ── /local ──────────────────────────────────────────────────────────
+    @app.route('/local')
+    def local_markets_page():
+        conn = get_db(); c = conn.cursor()
+        zip_q = request.args.get('zip', '')
+        city_q = request.args.get('city', '').strip()
+
+        sql = ("SELECT id, name, type, address, city, state, zip, "
+               "hours, website, accepts_ebt, organic_vendors, year_round "
+               "FROM local_markets ")
+        params = []
+        if zip_q:
+            sql += "WHERE zip LIKE ? "; params.append(zip_q[:5] + '%')
+        elif city_q:
+            sql += "WHERE lower(city) LIKE ? "; params.append('%' + city_q.lower() + '%')
+        sql += "ORDER BY name LIMIT 100"
+        c.execute(sql, params)
+        markets = [dict(r) for r in c.fetchall()]
+        c.execute("SELECT COUNT(*) FROM local_markets"); total = c.fetchone()[0]
+        conn.close()
+
+        search_form = (
+            "<form method='get' action='/local' style='display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px'>"
+            "<input name='zip' value='" + zip_q + "' placeholder='ZIP code' "
+            "style='background:var(--surface);border:1px solid var(--border);border-radius:6px;"
+            "padding:10px 14px;color:var(--ink);font-family:DM Mono;font-size:13px;width:140px'>"
+            "<input name='city' value='" + city_q + "' placeholder='City name' "
+            "style='background:var(--surface);border:1px solid var(--border);border-radius:6px;"
+            "padding:10px 14px;color:var(--ink);font-family:DM Mono;font-size:13px;flex:1;min-width:160px'>"
+            "<button type='submit' style='background:var(--amber);color:#000;border:none;border-radius:6px;"
+            "padding:10px 20px;font-family:DM Mono;font-size:12px;cursor:pointer;font-weight:600'>SEARCH</button>"
+            "</form>"
+        )
+
+        market_cards = ''
+        if markets:
+            for m in markets:
+                type_colors = {'farmers_market': GREEN, 'csa': AMBER, 'food_coop': GREEN, 'natural_grocer': AMBER}
+                type_col = type_colors.get(m.get('type') or '', MUTED)
+                badges = ''
+                if m.get('accepts_ebt'):
+                    badges += "<span style='background:rgba(58,138,90,0.1);color:var(--green);font-size:9px;padding:2px 6px;border-radius:3px;margin-right:4px'>EBT ACCEPTED</span>"
+                if m.get('year_round'):
+                    badges += "<span style='background:var(--surface);color:var(--muted);font-size:9px;padding:2px 6px;border-radius:3px;border:1px solid var(--border);margin-right:4px'>YEAR-ROUND</span>"
+                if m.get('organic_vendors'):
+                    badges += "<span style='background:var(--glt);color:var(--green);font-size:9px;padding:2px 6px;border-radius:3px'>ORGANIC VENDORS</span>"
+                market_cards += (
+                    "<div style='border:1px solid var(--border);border-radius:8px;padding:18px;"
+                    "margin-bottom:12px;background:var(--surface)'>"
+                    "<div style='display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px'>"
+                    "<div>"
+                    "<div style='font-size:16px;font-weight:600;margin-bottom:4px'>" + (m.get('name') or '') + "</div>"
+                    "<div style='color:var(--muted);font-size:11px'>"
+                    + (m.get('address') or '') + ", " + (m.get('city') or '') + ", " + (m.get('state') or '') + " " + (m.get('zip') or '')
+                    + "</div>"
+                    "</div>"
+                    "<span style='color:" + type_col + ";font-size:9px;letter-spacing:.08em'>" + (m.get('type') or '').upper().replace('_', ' ') + "</span>"
+                    "</div>"
+                    "<div style='margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center'>"
+                    + badges
+                    + ("  <a href='" + m['website'] + "' style='color:var(--amber);font-size:10px;margin-left:auto' target='_blank'>Website →</a>" if m.get('website') else '')
+                    + ("  <span style='color:var(--muted);font-size:10px'>" + m['hours'] + "</span>" if m.get('hours') else '')
+                    + "</div>"
+                    "</div>"
+                )
+        elif zip_q or city_q:
+            market_cards = (
+                "<div style='text-align:center;padding:60px 20px;color:var(--muted)'>"
+                "<p style='font-size:16px;margin-bottom:12px'>No markets found for that location yet.</p>"
+                "<p style='font-size:12px'>We're building this database. "
+                "<a href='mailto:hello@tracedhealth.com'>Submit a market to add.</a></p>"
+                "</div>"
+            )
+        else:
+            market_cards = (
+                "<div style='text-align:center;padding:60px 20px;color:var(--muted)'>"
+                "<p style='font-size:14px'>" + str(total) + " markets in database. Search by ZIP or city to find markets near you.</p>"
+                "</div>"
+            )
+
+        head = page_head(
+            'Local Farmers Markets & Food Co-ops — Traced',
+            'Find farmers markets, food co-ops, and CSA programs near you that carry independent and organic food brands.',
+            canonical='https://tracedhealth.com/local'
+        )
+        return (
+            head
+            + "<div style='max-width:800px;margin:0 auto;padding:40px 20px'>"
+            "<h1 style='font-size:clamp(28px,5vw,46px);margin-bottom:8px'>Local Markets &amp; Co-ops</h1>"
+            "<p style='color:var(--muted);font-size:13px;margin-bottom:24px'>"
+            "Farmers markets, food co-ops, and CSA programs near you. "
+            "Skip the conglomerate shelf — buy direct from farmers and local producers."
+            "</p>"
+            + search_form
+            + market_cards
+            + "</div></body></html>"
+        )
+
+    # ════════════════════════════════════════════════════════════════════
+    # PHASE 7+8 — NAV REDESIGN + BRAND PROFILE UPGRADES
+    # ════════════════════════════════════════════════════════════════════
+
+    # ── /brand-v3/<slug> — new brand profile page ───────────────────────
+    @app.route('/brand/<slug>')
+    def brand_profile_v3(slug):
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT b.id, b.name, b.slug, b.category, b.sub_category, b.founded_year, "
+            "b.acquired_year, b.acquisition_price, b.independent, b.total_scans, "
+            "b.contradiction_score, b.contradiction_reasons, b.headline_finding, b.share_text, "
+            "b.transparency_label, b.transparency_label_reasons, b.ownership_tier, "
+            "b.ingredient_transparency, b.ingredient_transparency_notes, b.health_claim_flags, "
+            "b.certifications, b.certifications_maintained_post_acquisition, b.certification_notes, "
+            "b.price_change_post_acquisition, b.watch_list, b.watch_list_reason, "
+            "b.recently_acquired, b.acquisition_age_years, b.founder_still_involved, "
+            "b.clean_swap_brands, b.notes as description, b.origin_story, b.pe_owned, "
+            "co.name as co_name, co.type as co_type, co.hq_country, co.annual_revenue, "
+            "co.id as co_id, co.description as co_desc "
+            "FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id "
+            "WHERE b.slug=? OR lower(b.name)=lower(?) "
+            "ORDER BY b.total_scans DESC NULLS LAST LIMIT 1",
+            (slug, slug)
+        )
+        brand = c.fetchone()
+        if not brand:
+            conn.close(); return "<h1>Brand not found</h1>", 404
+        b = dict(brand)
+        co_id = b.get('co_id')
+
+        # related data
+        siblings = []; violations = []; lobbying = []; events = []; products = []
+        recall_count = 0; fines_total = 0; lobbying_total = 0; lobbying_issues = []
+        if co_id:
+            c.execute("SELECT name, slug FROM brands WHERE parent_company_id=? AND id!=? ORDER BY total_scans DESC NULLS LAST LIMIT 10", (co_id, b['id']))
+            siblings = [dict(r) for r in c.fetchall()]
+            c.execute("SELECT violation_type,year,description,outcome,fine_amount FROM violations WHERE company_id=? AND violation_type!='FDA recall' ORDER BY year DESC", (co_id,))
+            violations = [dict(r) for r in c.fetchall()]
+            c.execute("SELECT COUNT(*) FROM violations WHERE company_id=? AND violation_type='FDA recall'", (co_id,))
+            recall_count = c.fetchone()[0]
+            c.execute("SELECT year,total_spend,issues FROM lobbying_records WHERE company_id=? ORDER BY year DESC LIMIT 5", (co_id,))
+            lobbying = [dict(r) for r in c.fetchall()]
+            lobbying_total = sum(r['total_spend'] for r in lobbying)
+            for r in lobbying:
+                for issue in (r['issues'] or '').split(','):
+                    issue = issue.strip()
+                    if issue and issue not in lobbying_issues:
+                        lobbying_issues.append(issue)
+            c.execute("SELECT SUM(fine_amount) FROM violations WHERE company_id=? AND fine_amount IS NOT NULL", (co_id,))
+            fines_total = c.fetchone()[0] or 0
+
+        c.execute("SELECT event_type,event_date,headline,description,source_url FROM brand_events WHERE brand_id=? ORDER BY event_date DESC", (b['id'],))
+        events = [dict(r) for r in c.fetchall()]
+        c.execute("SELECT p.name,s.additives FROM products p JOIN ingredient_snapshots s ON s.product_id=p.id WHERE p.brand_id=? AND s.additives!='' ORDER BY length(s.additives) DESC LIMIT 8", (b['id'],))
+        products = [dict(r) for r in c.fetchall()]
+        c.execute("SELECT COUNT(*) FROM products WHERE brand_id=?", (b['id'],))
+        product_count = c.fetchone()[0]
+
+        # Clean swaps
+        c.execute(
+            "SELECT cs.reason, ab.name as alt_name, ab.slug as alt_slug, ab.ingredient_transparency as alt_it "
+            "FROM clean_swaps cs JOIN brands ab ON cs.alternative_brand_id=ab.id WHERE cs.brand_id=?",
+            (b['id'],)
+        )
+        swaps = [dict(r) for r in c.fetchall()]
+
+        # Health claims
+        c.execute(
+            "SELECT claim_text, claim_type, challenged_by, outcome, year, fine_amount FROM health_claims WHERE brand_id=? ORDER BY year DESC",
+            (b['id'],)
+        )
+        health_claims = [dict(r) for r in c.fetchall()]
+
+        conn.close()
+
+        # ── transparency label badge ──
+        label = b.get('transparency_label') or ''
+        if label == 'transparent':
+            label_color = GREEN; label_bg = "var(--glt)"; label_txt = "TRANSPARENT"
+        elif label == 'documented_deception':
+            label_color = RED; label_bg = "var(--rlt)"; label_txt = "DOCUMENTED DECEPTION"
+        elif label == 'conflicted':
+            label_color = RED; label_bg = "var(--rlt)"; label_txt = "CONFLICTED"
+        else:
+            label_color = AMBER; label_bg = "rgba(212,149,42,0.1)"; label_txt = "COMPLICATED"
+
+        # ── ownership tier badge ──
+        tier = b.get('ownership_tier') or ''
+        tier_labels = {
+            'public_conglomerate': ('PUBLIC CONGLOMERATE', RED),
+            'private_conglomerate': ('PRIVATE CONGLOMERATE', RED),
+            'pe_firm': ('PRIVATE EQUITY', RED),
+            'vc_backed': ('VC-BACKED', AMBER),
+            'celebrity_backed': ('CELEBRITY-BACKED', AMBER),
+            'public_independent': ('PUBLIC INDEPENDENT', AMBER),
+            'cooperative': ('COOPERATIVE', GREEN),
+            'founder_led': ('FOUNDER-LED', GREEN),
+        }
+        tier_txt, tier_col = tier_labels.get(tier, ('INDEPENDENT', GREEN))
+
+        # ── headline section ──
+        headline = b.get('headline_finding') or ''
+        origin = b.get('origin_story') or b.get('description') or ''
+
+        # ── watch list banner ──
+        watch_banner = ''
+        if b.get('watch_list'):
+            watch_banner = (
+                "<div style='background:rgba(212,149,42,0.08);border:1px solid rgba(212,149,42,0.3);"
+                "border-radius:8px;padding:16px 20px;margin-bottom:24px'>"
+                "<div style='color:var(--amber);font-size:10px;letter-spacing:.1em;margin-bottom:6px'>WATCH LIST</div>"
+                "<div style='font-size:14px;color:var(--ink)'>" + (b.get('watch_list_reason') or '') + "</div>"
+                "</div>"
+            )
+
+        # ── recently acquired banner ──
+        acquired_banner = ''
+        if b.get('recently_acquired'):
+            age = b.get('acquisition_age_years') or 0
+            age_str = "just acquired" if age == 0 else (str(age) + " year" + ("s" if age != 1 else "") + " ago")
+            acquired_banner = (
+                "<div style='background:rgba(196,68,68,0.06);border-left:3px solid " + RED + ";"
+                "padding:14px 18px;border-radius:0 6px 6px 0;margin-bottom:20px'>"
+                "<span style='color:var(--red);font-size:10px;letter-spacing:.08em'>RECENTLY ACQUIRED — " + age_str.upper() + "</span>"
+                "<div style='font-size:13px;color:var(--muted);margin-top:4px'>"
+                "Formula changes typically occur within 12–24 months of acquisition. Monitor for ingredient drift."
+                "</div>"
+                "</div>"
+            )
+
+        # ── ingredient transparency section ──
+        it = b.get('ingredient_transparency') or ''
+        it_section = ''
+        if it:
+            it_labels = {
+                'high': ('FULL INGREDIENT DISCLOSURE', GREEN, "All ingredients, sources, and quantities disclosed."),
+                'medium': ('PARTIAL DISCLOSURE', AMBER, "Most ingredients listed; some sourcing opacity."),
+                'low': ('LIMITED DISCLOSURE', RED, "Key ingredients or sources not disclosed."),
+                'opaque': ('OPAQUE', RED, "Proprietary blends or significant undisclosed ingredients."),
+            }
+            it_txt, it_col, it_desc = it_labels.get(it, ('UNKNOWN', MUTED, ''))
+            it_notes = b.get('ingredient_transparency_notes') or ''
+            it_section = (
+                "<div style='border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px'>"
+                "<div style='font-size:10px;letter-spacing:.08em;color:var(--muted);margin-bottom:8px'>INGREDIENT TRANSPARENCY</div>"
+                "<div style='color:" + it_col + ";font-size:14px;font-weight:600;margin-bottom:6px'>" + it_txt + "</div>"
+                "<div style='color:var(--muted);font-size:12px'>" + it_desc
+                + (" " + it_notes if it_notes else '')
+                + "</div>"
+                "</div>"
+            )
+
+        # ── health claims section ──
+        hc_section = ''
+        if health_claims:
+            hc_rows = ''
+            for hc in health_claims:
+                outcome = hc.get('outcome') or ''
+                out_col = RED if outcome in ('convicted', 'settled_paid') else AMBER
+                fine_str = (' · $' + str(round(hc['fine_amount']/1e6, 1)) + 'M fine') if hc.get('fine_amount') else ''
+                hc_rows += (
+                    "<div style='padding:12px 0;border-bottom:1px solid var(--border)'>"
+                    "<div style='font-size:12px;color:var(--ink);margin-bottom:4px'>" + (hc.get('claim_text') or '') + "</div>"
+                    "<div style='font-size:10px;color:" + out_col + "'>"
+                    + (hc.get('challenged_by') or '') + " · " + outcome.upper().replace('_', ' ')
+                    + fine_str + ((' · ' + str(hc['year'])) if hc.get('year') else '')
+                    + "</div>"
+                    "</div>"
+                )
+            hc_section = (
+                "<div style='border:1px solid rgba(196,68,68,0.3);border-radius:8px;padding:16px;margin-bottom:16px'>"
+                "<div style='font-size:10px;letter-spacing:.08em;color:var(--red);margin-bottom:8px'>HEALTH CLAIM RECORD</div>"
+                + hc_rows
+                + "</div>"
+            )
+
+        # ── certifications ──
+        cert_section = ''
+        certs_raw = b.get('certifications') or ''
+        if certs_raw:
+            maintained = b.get('certifications_maintained_post_acquisition')
+            cert_notes = b.get('certification_notes') or ''
+            cert_chips = ''
+            for cert in certs_raw.split(','):
+                cert = cert.strip()
+                if cert:
+                    cert_chips += "<span style='background:var(--glt);color:var(--green);font-size:10px;padding:3px 10px;border-radius:4px;margin-right:6px;margin-bottom:6px;display:inline-block'>" + cert + "</span>"
+            status_txt = ''
+            if maintained == 0 and b.get('co_id'):
+                status_txt = "<div style='color:var(--red);font-size:11px;margin-top:8px'>⚠ Certification status reduced or dropped post-acquisition. " + cert_notes + "</div>"
+            elif cert_notes:
+                status_txt = "<div style='color:var(--muted);font-size:11px;margin-top:8px'>" + cert_notes + "</div>"
+            cert_section = (
+                "<div style='border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px'>"
+                "<div style='font-size:10px;letter-spacing:.08em;color:var(--muted);margin-bottom:10px'>CERTIFICATIONS</div>"
+                "<div style='display:flex;flex-wrap:wrap'>" + cert_chips + "</div>"
+                + status_txt
+                + "</div>"
+            )
+
+        # ── clean swap section ──
+        swap_section = ''
+        if swaps or label in ('conflicted', 'documented_deception'):
+            if swaps:
+                swap_rows = ''
+                for s in swaps[:3]:
+                    it_badge = ''
+                    it_val = s.get('alt_it') or ''
+                    if it_val in ('high', 'medium'):
+                        it_badge = "<span style='color:var(--green);font-size:9px'>" + it_val.upper() + " TRANSPARENCY</span>"
+                    swap_rows += (
+                        "<div style='display:flex;justify-content:space-between;align-items:center;"
+                        "padding:10px 0;border-bottom:1px solid var(--border)'>"
+                        "<div>"
+                        "<a href='/brand/" + (s.get('alt_slug') or '') + "' style='color:var(--ink);font-size:14px;font-weight:600'>" + (s.get('alt_name') or '') + "</a>"
+                        "<div style='color:var(--muted);font-size:10px;margin-top:2px'>" + (s.get('reason') or '') + "</div>"
+                        "</div>" + it_badge
+                        + "</div>"
+                    )
+                swap_section = (
+                    "<div style='border:1px solid rgba(58,138,90,0.3);border-radius:8px;padding:16px;margin-bottom:16px'>"
+                    "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:12px'>"
+                    "<div style='font-size:10px;letter-spacing:.08em;color:var(--green)'>CLEAN SWAPS</div>"
+                    "<a href='/swap/" + (b['slug'] or '') + "' style='font-size:10px;color:var(--amber)'>See all →</a>"
+                    "</div>"
+                    + swap_rows
+                    + "</div>"
+                )
+            else:
+                swap_section = (
+                    "<div style='border:1px solid rgba(58,138,90,0.3);border-radius:8px;padding:16px;margin-bottom:16px'>"
+                    "<div style='font-size:10px;letter-spacing:.08em;color:var(--green);margin-bottom:8px'>FIND A CLEAN SWAP</div>"
+                    "<a href='/swap/" + (b['slug'] or '') + "' style='color:var(--amber);font-size:13px'>"
+                    "Browse independent alternatives to " + b['name'] + " →</a>"
+                    "</div>"
+                )
+
+        # ── siblings section ──
+        sibling_html = ''
+        if siblings:
+            sib_chips = ''
+            for s in siblings[:8]:
+                sib_chips += "<a href='/brand/" + (s.get('slug') or s['name'].lower().replace(' ', '-')) + "' style='display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:5px 10px;font-size:11px;color:var(--muted);margin:3px'>" + s['name'] + "</a>"
+            sibling_html = (
+                "<div style='margin-bottom:24px'>"
+                "<div style='font-size:10px;letter-spacing:.08em;color:var(--muted);margin-bottom:10px'>"
+                "OTHER BRANDS OWNED BY " + (b.get('co_name') or '').upper()
+                + "</div><div style='display:flex;flex-wrap:wrap'>" + sib_chips + "</div>"
+                "</div>"
+            )
+
+        # ── violations section ──
+        violation_html = ''
+        if violations or recall_count or fines_total:
+            v_rows = ''
+            for v in violations[:5]:
+                fine_str = (' · $' + str(round(v['fine_amount']/1e6,1)) + 'M') if v.get('fine_amount') else ''
+                v_rows += (
+                    "<div style='padding:10px 0;border-bottom:1px solid var(--border);font-size:12px'>"
+                    "<span style='color:var(--red)'>" + (v.get('violation_type') or '') + "</span>"
+                    " — " + (v.get('description') or '') + fine_str
+                    + (" <em>(" + str(v['year']) + ")</em>" if v.get('year') else '')
+                    + "</div>"
+                )
+            if recall_count:
+                v_rows += "<div style='padding:10px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--amber)'>" + str(recall_count) + " FDA Recall(s) on record</div>"
+            violation_html = (
+                "<div style='border:1px solid rgba(196,68,68,0.25);border-radius:8px;padding:16px;margin-bottom:16px'>"
+                "<div style='font-size:10px;letter-spacing:.08em;color:var(--red);margin-bottom:8px'>"
+                "PARENT VIOLATIONS"
+                + (" · $" + str(round(fines_total/1e6, 1)) + "M IN FINES" if fines_total > 0 else '')
+                + "</div>"
+                + v_rows
+                + "</div>"
+            )
+
+        # ── events timeline ──
+        events_html = ''
+        if events:
+            ev_rows = ''
+            for ev in events[:6]:
+                ev_rows += (
+                    "<div style='display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)'>"
+                    "<span style='color:var(--muted);font-size:11px;white-space:nowrap;width:90px'>" + (ev.get('event_date') or '')[:10] + "</span>"
+                    "<div style='font-size:12px'>"
+                    "<div style='color:var(--amber);font-size:9px;letter-spacing:.06em;margin-bottom:3px'>" + (ev.get('event_type') or '').upper().replace('_', ' ') + "</div>"
+                    + (ev.get('headline') or ev.get('description') or '')
+                    + "</div>"
+                    "</div>"
+                )
+            events_html = (
+                "<div style='border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px'>"
+                "<div style='font-size:10px;letter-spacing:.08em;color:var(--muted);margin-bottom:8px'>BRAND TIMELINE</div>"
+                + ev_rows
+                + "</div>"
+            )
+
+        # ── lobbying section ──
+        lobby_html = ''
+        if lobbying_total > 0:
+            issue_chips = ''.join(
+                "<span style='background:var(--surface);border:1px solid var(--border);border-radius:4px;"
+                "font-size:9px;padding:2px 7px;margin-right:5px;color:var(--muted)'>" + iss + "</span>"
+                for iss in lobbying_issues[:6]
+            )
+            lobby_html = (
+                "<div style='border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px'>"
+                "<div style='font-size:10px;letter-spacing:.08em;color:var(--muted);margin-bottom:8px'>PARENT LOBBYING</div>"
+                "<div style='font-size:20px;font-family:Bebas Neue;color:var(--amber);margin-bottom:8px'>"
+                "$" + str(round(lobbying_total/1e6,1)) + "M lobbied since "
+                + (str(lobbying[-1]['year']) if lobbying else '')
+                + "</div>"
+                + ("<div style='margin-bottom:8px'>" + issue_chips + "</div>" if issue_chips else '')
+                + "</div>"
+            )
+
+        # ── products section ──
+        product_html = ''
+        if products:
+            prod_rows = ''
+            for p in products[:5]:
+                additives = (p.get('additives') or '').split(',')
+                additive_chips = ''.join(
+                    "<span style='background:var(--rlt);color:var(--red);font-size:9px;padding:1px 5px;border-radius:3px;margin-right:3px'>" + a.strip() + "</span>"
+                    for a in additives[:5] if a.strip()
+                )
+                prod_rows += (
+                    "<div style='padding:8px 0;border-bottom:1px solid var(--border)'>"
+                    "<div style='font-size:12px;margin-bottom:4px'>" + (p.get('name') or '') + "</div>"
+                    + ("<div>" + additive_chips + "</div>" if additive_chips else '')
+                    + "</div>"
+                )
+            product_html = (
+                "<div style='border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px'>"
+                "<div style='font-size:10px;letter-spacing:.08em;color:var(--muted);margin-bottom:8px'>"
+                "PRODUCT ADDITIVES (" + str(product_count) + " PRODUCTS TRACKED)"
+                "</div>"
+                + prod_rows
+                + "</div>"
+            )
+
+        # ── share strip ──
+        share_text_val = (b.get('share_text') or '').replace("'", "&#39;")
+        share_strip = (
+            "<div style='display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap'>"
+            "<a href='/swap/" + (b['slug'] or '') + "' style='background:var(--green);color:#fff;font-size:11px;"
+            "padding:8px 16px;border-radius:6px;font-weight:600;text-decoration:none'>FIND CLEAN SWAP</a>"
+            "<a href='/share/card/" + (b['slug'] or '') + "' style='background:var(--surface);border:1px solid var(--border);"
+            "color:var(--muted);font-size:11px;padding:8px 16px;border-radius:6px;text-decoration:none'>SHARE CARD</a>"
+            "<a href='/api/v1/brand/" + (b['slug'] or '') + "' style='background:var(--surface);border:1px solid var(--border);"
+            "color:var(--muted);font-size:11px;padding:8px 16px;border-radius:6px;text-decoration:none'>API</a>"
+            "</div>"
+        )
+
+        # ── JSON-LD ──
+        jld = {
+            "@context": "https://schema.org",
+            "@type": "Brand",
+            "name": b['name'],
+            "description": origin[:160] if origin else '',
+            "url": "https://tracedhealth.com/brand/" + (b['slug'] or ''),
+        }
+        if b.get('co_name'):
+            jld["parentOrganization"] = {"@type": "Organization", "name": b['co_name']}
+
+        head = page_head(
+            b['name'] + ' — Brand Investigation · Traced',
+            (headline or origin)[:160],
+            slug=b['slug'] or '',
+            jsonld=jld
+        )
+
+        # ── parent company section ──
+        parent_section = ''
+        if b.get('co_name'):
+            acquisition_price_str = ''
+            if b.get('acquisition_price'):
+                ap = b['acquisition_price']
+                acquisition_price_str = ' for $' + (str(round(ap/1e9, 2)) + 'B' if ap >= 1e9 else str(round(ap/1e6, 0)) + 'M')
+            parent_section = (
+                "<div style='background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px'>"
+                "<div style='font-size:10px;letter-spacing:.08em;color:var(--muted);margin-bottom:8px'>PARENT COMPANY</div>"
+                "<div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px'>"
+                "<div>"
+                "<div style='font-size:16px;font-weight:600'><a href='/company/" + (b.get('co_id') or '') + "' style='color:var(--ink)'>" + b['co_name'] + "</a></div>"
+                + (("<div style='color:var(--muted);font-size:11px;margin-top:3px'>Acquired " + str(b['acquired_year']) + acquisition_price_str + "</div>") if b.get('acquired_year') else '')
+                + "</div>"
+                "<span style='color:" + tier_col + ";font-size:9px;letter-spacing:.06em'>" + tier_txt + "</span>"
+                "</div>"
+                "</div>"
+            )
+        else:
+            parent_section = (
+                "<div style='background:var(--glt);border:1px solid rgba(58,138,90,0.3);border-radius:8px;padding:16px;margin-bottom:16px'>"
+                "<div style='font-size:10px;letter-spacing:.08em;color:var(--green);margin-bottom:4px'>" + tier_txt + "</div>"
+                "<div style='font-size:13px;color:var(--ink)'>No parent company on record. Independently owned.</div>"
+                "</div>"
+            )
+
+        # ── final assembly ──
+        return (
+            head
+            + "<div style='max-width:900px;margin:0 auto;padding:40px 20px'>"
+            # title row
+            + "<div style='display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:6px'>"
+            + "<h1 style='font-size:clamp(28px,5vw,52px);margin:0'>" + b['name'] + "</h1>"
+            + "<span style='background:" + label_bg + ";color:" + label_color + ";"
+            + "font-size:11px;padding:6px 14px;border-radius:6px;font-weight:600;align-self:flex-start'>"
+            + label_txt + "</span>"
+            + "</div>"
+            + ("<div style='color:var(--muted);font-size:12px;margin-bottom:20px'>"
+               + (b.get('category') or '').upper().replace('-', ' ')
+               + ((' · Est. ' + str(b['founded_year'])) if b.get('founded_year') else '')
+               + ("  ·  " + str(b.get('total_scans', 0)) + " scans" if b.get('total_scans') else '')
+               + "</div>")
+            # watch / acquired banners
+            + watch_banner + acquired_banner
+            # headline
+            + ("<div style='font-size:clamp(15px,2.5vw,19px);line-height:1.6;color:var(--ink);"
+               "margin-bottom:24px;font-family:Playfair Display,serif;font-style:italic'>"
+               + headline + "</div>" if headline else '')
+            # share strip
+            + share_strip
+            # origin story
+            + ("<div style='background:var(--surface);border-left:3px solid var(--amber);"
+               "padding:16px 20px;border-radius:0 8px 8px 0;margin-bottom:24px'>"
+               "<div style='font-size:10px;letter-spacing:.08em;color:var(--amber);margin-bottom:8px'>ORIGIN STORY</div>"
+               "<div style='font-size:13px;color:var(--muted);line-height:1.7'>" + origin + "</div>"
+               "</div>" if origin else '')
+            # parent company + tier
+            + parent_section
+            # ingredient transparency
+            + it_section
+            # health claims
+            + hc_section
+            # certifications
+            + cert_section
+            # violations
+            + violation_html
+            # lobbying
+            + lobby_html
+            # clean swaps
+            + swap_section
+            # timeline
+            + events_html
+            # siblings
+            + sibling_html
+            # products
+            + product_html
+            + "</div></body></html>"
+        )
+
+    # ════════════════════════════════════════════════════════════════════
+    # PHASE 10 — API v1 EXPANSION
+    # ════════════════════════════════════════════════════════════════════
+
+    @app.route('/api/v1/transparent50')
+    def api_transparent50():
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT b.name, b.slug, b.category, b.transparency_label, "
+            "b.ingredient_transparency, b.ownership_tier, b.founder_still_involved, "
+            "b.founded_year, b.certifications, "
+            "co.name as parent_name "
+            "FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id "
+            "WHERE b.transparency_label IN ('transparent','complicated') "
+            "ORDER BY b.transparency_label ASC, b.total_scans DESC NULLS LAST LIMIT 50"
+        )
+        rows = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify(rows)
+
+    @app.route('/api/v1/independent')
+    def api_independent():
+        conn = get_db(); c = conn.cursor()
+        cat = request.args.get('category', '')
+        limit = min(int(request.args.get('limit', 100)), 200)
+        sql = ("SELECT b.name, b.slug, b.category, b.transparency_label, "
+               "b.ingredient_transparency, b.ownership_tier, b.founder_still_involved, "
+               "b.founded_year, b.certifications, b.notes as description "
+               "FROM brands b WHERE b.transparency_label='transparent' "
+               "AND (b.parent_company_id IS NULL OR b.independent=1) ")
+        params = []
+        if cat:
+            sql += "AND b.category=? "; params.append(cat)
+        sql += "ORDER BY b.total_scans DESC NULLS LAST LIMIT ?"
+        params.append(limit)
+        c.execute(sql, params)
+        rows = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify({'count': len(rows), 'brands': rows})
+
+    @app.route('/api/v1/swap/<slug>')
+    def api_swap(slug):
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT b.id, b.name, b.slug, b.transparency_label, b.category "
+            "FROM brands b WHERE b.slug=? OR lower(b.name)=lower(?)",
+            (slug, slug)
+        )
+        brand = c.fetchone()
+        if not brand:
+            conn.close(); return jsonify({'error': 'Brand not found'}), 404
+        b = dict(brand)
+        c.execute(
+            "SELECT cs.reason, cs.category, "
+            "ab.name as alt_name, ab.slug as alt_slug, "
+            "ab.transparency_label as alt_label, ab.ingredient_transparency as alt_it, "
+            "ab.certifications as alt_certs "
+            "FROM clean_swaps cs JOIN brands ab ON cs.alternative_brand_id=ab.id "
+            "WHERE cs.brand_id=?",
+            (b['id'],)
+        )
+        swaps = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify({'brand': b['name'], 'slug': b['slug'],
+                        'transparency_label': b['transparency_label'], 'swaps': swaps})
+
+    @app.route('/api/v1/retailers')
+    def api_retailers():
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT retailer_name, retailer_slug, independent_brand_pct, "
+            "conglomerate_brand_pct, pe_brand_pct, transparency_score, "
+            "total_brands_tracked, notes FROM retailer_scores ORDER BY transparency_score DESC"
+        )
+        rows = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify(rows)
+
+    @app.route('/api/v1/local')
+    def api_local():
+        conn = get_db(); c = conn.cursor()
+        zip_q = request.args.get('zip', '')
+        city_q = request.args.get('city', '')
+        sql = ("SELECT id, name, type, address, city, state, zip, "
+               "hours, website, accepts_ebt, organic_vendors, year_round "
+               "FROM local_markets ")
+        params = []
+        if zip_q:
+            sql += "WHERE zip LIKE ? "; params.append(zip_q[:5] + '%')
+        elif city_q:
+            sql += "WHERE lower(city) LIKE ? "; params.append('%' + city_q.lower() + '%')
+        sql += "ORDER BY name LIMIT 100"
+        c.execute(sql, params)
+        rows = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify({'count': len(rows), 'markets': rows})
+
+    @app.route('/api/v1/health-claims/<slug>')
+    def api_health_claims(slug):
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT b.id FROM brands b WHERE b.slug=? OR lower(b.name)=lower(?)", (slug, slug)
+        )
+        row = c.fetchone()
+        if not row:
+            conn.close(); return jsonify({'error': 'Brand not found'}), 404
+        c.execute(
+            "SELECT claim_text, claim_type, challenged_by, outcome, year, fine_amount, source_url "
+            "FROM health_claims WHERE brand_id=? ORDER BY year DESC",
+            (row['id'],)
+        )
+        claims = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify({'brand_slug': slug, 'claims': claims})
+
+    @app.route('/api/v1/certifications/<slug>')
+    def api_certifications_brand(slug):
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT b.id, b.certifications, b.certifications_maintained_post_acquisition, "
+            "b.certification_notes FROM brands b WHERE b.slug=? OR lower(b.name)=lower(?)",
+            (slug, slug)
+        )
+        row = c.fetchone()
+        if not row:
+            conn.close(); return jsonify({'error': 'Brand not found'}), 404
+        b = dict(row)
+        c.execute(
+            "SELECT certification_type, granted_year, revoked_year, "
+            "maintained_post_acquisition, notes, source_url "
+            "FROM certifications WHERE brand_id=?",
+            (b['id'],)
+        )
+        certs = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify({
+            'brand_slug': slug,
+            'certifications_string': b.get('certifications'),
+            'maintained_post_acquisition': b.get('certifications_maintained_post_acquisition'),
+            'notes': b.get('certification_notes'),
+            'certification_records': certs
+        })
+
+    @app.route('/api/v1/recently-acquired')
+    def api_recently_acquired():
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT b.name, b.slug, b.category, b.transparency_label, b.ownership_tier, "
+            "b.acquisition_age_years, b.watch_list_reason, b.headline_finding, "
+            "co.name as parent_name "
+            "FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id "
+            "WHERE b.recently_acquired=1 ORDER BY b.acquisition_age_years ASC"
+        )
+        rows = [dict(r) for r in c.fetchall()]
+        conn.close()
+        return jsonify({'count': len(rows), 'brands': rows})
+
+    # ════════════════════════════════════════════════════════════════════
+    # PHASE 11 — SOCIAL SHARING UPGRADES
+    # ════════════════════════════════════════════════════════════════════
+
+    @app.route('/share/card/<slug>')
+    def share_card(slug):
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT b.name, b.slug, b.category, b.transparency_label, b.headline_finding, "
+            "b.ownership_tier, b.contradiction_score, "
+            "co.name as parent_name "
+            "FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id "
+            "WHERE b.slug=? OR lower(b.name)=lower(?)",
+            (slug, slug)
+        )
+        brand = c.fetchone()
+        conn.close()
+        if not brand:
+            return "<h1>Brand not found</h1>", 404
+        b = dict(brand)
+        label = b.get('transparency_label') or ''
+
+        # Color scheme by label
+        if label == 'documented_deception':
+            card_bg = '#1a0505'; accent = '#c44444'; label_txt = 'DOCUMENTED DECEPTION'
+        elif label == 'conflicted':
+            card_bg = '#120505'; accent = '#c44444'; label_txt = 'CONFLICTED'
+        elif label == 'transparent':
+            card_bg = '#051209'; accent = '#3a8a5a'; label_txt = 'TRANSPARENT'
+        else:
+            card_bg = '#100d05'; accent = '#d4952a'; label_txt = 'COMPLICATED'
+
+        headline = b.get('headline_finding') or ('Owned by ' + (b.get('parent_name') or 'an undisclosed parent'))
+        category_txt = (b.get('category') or '').upper().replace('-', ' ')
+
+        html = (
+            "<!DOCTYPE html><html><head>"
+            "<meta charset='UTF-8'>"
+            "<meta name='viewport' content='width=1200'>"
+            + FONTS
+            + "<style>"
+            "body{margin:0;background:" + card_bg + ";color:#f0ead8;font-family:'DM Mono',monospace;"
+            "width:1200px;height:630px;overflow:hidden;display:flex;align-items:center;justify-content:center}"
+            ".card{width:1100px;padding:60px}"
+            ".logo{font-family:'Bebas Neue';font-size:22px;letter-spacing:.12em;color:" + accent + ";margin-bottom:32px}"
+            ".label{font-size:11px;letter-spacing:.12em;color:" + accent + ";margin-bottom:16px}"
+            ".brand{font-family:'Playfair Display';font-size:72px;font-weight:700;line-height:1.1;margin-bottom:16px}"
+            ".hl{font-family:'Playfair Display';font-style:italic;font-size:22px;color:rgba(240,234,216,0.7);line-height:1.5;margin-bottom:32px}"
+            ".footer{font-size:12px;color:rgba(240,234,216,0.35);letter-spacing:.06em}"
+            "</style></head><body>"
+            "<div class='card'>"
+            "<div class='logo'>TRACED</div>"
+            "<div class='label'>" + label_txt + " · " + category_txt + "</div>"
+            "<div class='brand'>" + b['name'] + "</div>"
+            "<div class='hl'>" + headline[:200] + "</div>"
+            "<div class='footer'>tracedhealth.com/brand/" + (b['slug'] or '') + "</div>"
+            "</div></body></html>"
+        )
+        return Response(html, mimetype='text/html')
+
+    @app.route('/share/text/<slug>')
+    def share_text_v3(slug):
+        conn = get_db(); c = conn.cursor()
+        c.execute(
+            "SELECT b.name, b.slug, b.share_text, b.transparency_label, b.headline_finding, "
+            "co.name as parent_name "
+            "FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id "
+            "WHERE b.slug=? OR lower(b.name)=lower(?)",
+            (slug, slug)
+        )
+        brand = c.fetchone()
+        conn.close()
+        if not brand:
+            return jsonify({'error': 'Brand not found'}), 404
+        b = dict(brand)
+        text = (
+            b.get('share_text')
+            or (b['name'] + " is owned by " + (b.get('parent_name') or 'an undisclosed parent') + ". Check it on Traced. tracedhealth.com/brand/" + (b['slug'] or ''))
+        )
+        return jsonify({'slug': b['slug'], 'text': text,
+                        'url': 'https://tracedhealth.com/brand/' + (b['slug'] or ''),
+                        'label': b.get('transparency_label')})
+
+    # ════════════════════════════════════════════════════════════════════
+    # PHASE 12 — SEO UPDATES: SITEMAP + ROBOTS
+    # ════════════════════════════════════════════════════════════════════
+
+    @app.route('/sitemap.xml')
+    def sitemap_xml():
+        conn = get_db(); c = conn.cursor()
+        c.execute("SELECT slug FROM brands WHERE slug IS NOT NULL AND slug != '' ORDER BY total_scans DESC NULLS LAST")
+        brand_slugs = [r['slug'] for r in c.fetchall()]
+        c.execute("SELECT DISTINCT category FROM brands WHERE category IS NOT NULL AND category != '' ORDER BY category")
+        cats = [r['category'] for r in c.fetchall()]
+        conn.close()
+
+        base = 'https://tracedhealth.com'
+        lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+        static_pages = [
+            ('/', '1.0', 'daily'),
+            ('/contradiction', '0.9', 'weekly'),
+            ('/transparency', '0.9', 'weekly'),
+            ('/independent', '0.9', 'weekly'),
+            ('/transparent50', '0.8', 'weekly'),
+            ('/founders', '0.8', 'weekly'),
+            ('/certifications', '0.8', 'weekly'),
+            ('/categories', '0.8', 'weekly'),
+            ('/audit', '0.7', 'monthly'),
+            ('/watchlist', '0.6', 'monthly'),
+            ('/retailers', '0.7', 'monthly'),
+            ('/local', '0.6', 'monthly'),
+            ('/scan', '0.6', 'monthly'),
+        ]
+        for path, pri, freq in static_pages:
+            lines.append('<url><loc>' + base + path + '</loc>'
+                         '<changefreq>' + freq + '</changefreq>'
+                         '<priority>' + pri + '</priority></url>')
+        for cat in cats:
+            lines.append('<url><loc>' + base + '/category/' + cat + '</loc>'
+                         '<changefreq>weekly</changefreq><priority>0.7</priority></url>')
+            lines.append('<url><loc>' + base + '/category/' + cat + '/independent</loc>'
+                         '<changefreq>weekly</changefreq><priority>0.6</priority></url>')
+        for sl in brand_slugs:
+            lines.append('<url><loc>' + base + '/brand/' + sl + '</loc>'
+                         '<changefreq>monthly</changefreq><priority>0.5</priority></url>')
+            lines.append('<url><loc>' + base + '/swap/' + sl + '</loc>'
+                         '<changefreq>monthly</changefreq><priority>0.4</priority></url>')
+        lines.append('</urlset>')
+        return Response('\n'.join(lines), mimetype='application/xml')
+
+    @app.route('/robots.txt')
+    def robots_txt():
+        txt = (
+            "User-agent: *\n"
+            "Allow: /\n"
+            "Disallow: /api/\n"
+            "Disallow: /embed.js\n"
+            "Disallow: /widget/\n\n"
+            "Sitemap: https://tracedhealth.com/sitemap.xml\n"
+        )
+        return Response(txt, mimetype='text/plain')
+
