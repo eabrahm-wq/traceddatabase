@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "traced-dev",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["traced_app.py"],
+      "port": 5001
+    }
+  ]
+}
