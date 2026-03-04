@@ -641,3 +641,5 @@ if __name__ == "__main__":
     print("Traced running at http://127.0.0.1:5001")
     app.run(debug=False, port=5001, host='0.0.0.0')
 from routes_ext import *
+
+from routes_ext import *
