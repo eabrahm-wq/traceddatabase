@@ -1,0 +1,77 @@
+{
+  "profile": {
+    "name": "Liquid I.V.",
+    "slug": "liquid-i-v",
+    "category": "other",
+    "parent_company": null,
+    "founded_year": null,
+    "hq_country": null,
+    "ownership_notes": null,
+    "product_summary": null,
+    "ingredient_notes": null,
+    "regulatory_history": "No FDA enforcement actions found",
+    "recent_news_summary": null,
+    "key_findings": [],
+    "data_sources": [
+      "wikidata",
+      "google_news",
+      "fda",
+      "open_food_facts"
+    ],
+    "research_completeness": "minimal"
+  },
+  "raw": {
+    "wikidata": {
+      "parent_company": null,
+      "founded_year": null,
+      "country": null,
+      "qid": null
+    },
+    "news": [
+      {
+        "title": "Liquid I.V. Super Bowl Commercial Offers Viewers a Potty Break - Variety",
+        "pub_date": "Sun, 08 Feb 2026 08:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "LAFC Announces New Strategic Partnership With Hydration Brand Liquid I.V. - LAFC",
+        "pub_date": "Thu, 23 Oct 2025 07:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Liquid I.V. Bets On Singing Toilets for Brand Growth - ADWEEK",
+        "pub_date": "Sun, 08 Feb 2026 08:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Liquid I.V. plans \u2018bold\u2019 PSA in first-ever Super Bowl ad - Marketing Brew",
+        "pub_date": "Mon, 02 Feb 2026 08:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Liquid I.V.\u00ae Makes Big Game Debut, Redefining Wellness on the World's Biggest Stage - PR Newswire",
+        "pub_date": "Wed, 03 Dec 2025 08:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Liquid I.V. Asks Americans to Check Their Pee in Absurd Super Bowl Spot - Little Black Book | LBBOnline",
+        "pub_date": "Sun, 08 Feb 2026 08:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Liquid I.V. Super Bowl Commercial Offers Viewers a Potty Break - IMDb",
+        "pub_date": "Mon, 09 Feb 2026 01:50:05 GMT",
+        "source": ""
+      },
+      {
+        "title": "EWG's Food Scores just took the work out of grocery shopping for me! - EWG",
+        "pub_date": "Sun, 23 Nov 2025 22:04:43 GMT",
+        "source": ""
+      }
+    ],
+    "fda": [],
+    "open_food_facts": [],
+    "research_text": "Brand: Liquid I.V.\n\nRecent news headlines:\n- Liquid I.V. Super Bowl Commercial Offers Viewers a Potty Break - Variety\n- LAFC Announces New Strategic Partnership With Hydration Brand Liquid I.V. - LAFC\n- Liquid I.V. Bets On Singing Toilets for Brand Growth - ADWEEK\n- Liquid I.V. plans \u2018bold\u2019 PSA in first-ever Super Bowl ad - Marketing Brew\n- Liquid I.V.\u00ae Makes Big Game Debut, Redefining Wellness on the World's Biggest Stage - PR Newswire\n\nFDA recalls: none found"
+  },
+  "indexed_at": "2026-03-04T18:28:54.611244Z"
+}

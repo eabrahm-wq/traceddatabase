@@ -1,0 +1,77 @@
+{
+  "profile": {
+    "name": "Olipop",
+    "slug": "olipop",
+    "category": "other",
+    "parent_company": null,
+    "founded_year": null,
+    "hq_country": null,
+    "ownership_notes": null,
+    "product_summary": null,
+    "ingredient_notes": null,
+    "regulatory_history": "No FDA enforcement actions found",
+    "recent_news_summary": null,
+    "key_findings": [],
+    "data_sources": [
+      "wikidata",
+      "google_news",
+      "fda",
+      "open_food_facts"
+    ],
+    "research_completeness": "minimal"
+  },
+  "raw": {
+    "wikidata": {
+      "parent_company": null,
+      "founded_year": null,
+      "country": null,
+      "qid": "Q123655529"
+    },
+    "news": [
+      {
+        "title": "I Tried Olipop's New Shirley Temple Flavor & I've Never Felt More Nostalgic - Delish",
+        "pub_date": "Mon, 05 Jan 2026 08:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Black Rock Coffee Bar Partners with OLIPOP to Launch \u201cDirty Pop\u201d - Yahoo Finance",
+        "pub_date": "Thu, 26 Feb 2026 21:29:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Our Very Honest Review of New Shirley Temple Olipop - Sporked",
+        "pub_date": "Fri, 16 Jan 2026 08:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Viral \u2018dirty soda\u2019 lands at Black Rock Coffee with new Coco Lime drink - Stock Titan",
+        "pub_date": "Thu, 26 Feb 2026 21:29:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Aldi Is Now Selling My Favorite Soda Brand\u2014and It's the Cheapest I've Seen It - Allrecipes",
+        "pub_date": "Thu, 12 Feb 2026 08:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Olipop lawsuit claims prebiotic soda is \u2018sugared water\u2019 with no real digestive benefits - Class Action Lawsuits",
+        "pub_date": "Tue, 06 Jan 2026 08:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Olipop and Poppi Just Introduced the Same Popular Mocktail Flavor - inc.com",
+        "pub_date": "Tue, 06 Jan 2026 08:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Olipop CEO: If I had to start over in my career, I\u2019d prioritize this skillset above all others\u2014it\u2019s not AI - CNBC",
+        "pub_date": "Thu, 25 Sep 2025 07:00:00 GMT",
+        "source": ""
+      }
+    ],
+    "fda": [],
+    "open_food_facts": [],
+    "research_text": "Brand: Olipop\n\nRecent news headlines:\n- I Tried Olipop's New Shirley Temple Flavor & I've Never Felt More Nostalgic - Delish\n- Black Rock Coffee Bar Partners with OLIPOP to Launch \u201cDirty Pop\u201d - Yahoo Finance\n- Our Very Honest Review of New Shirley Temple Olipop - Sporked\n- Viral \u2018dirty soda\u2019 lands at Black Rock Coffee with new Coco Lime drink - Stock Titan\n- Aldi Is Now Selling My Favorite Soda Brand\u2014and It's the Cheapest I've Seen It - Allrecipes\n\nFDA recalls: none found"
+  },
+  "indexed_at": "2026-03-04T18:34:24.911144Z"
+}

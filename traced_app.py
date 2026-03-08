@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-import sqlite3, os, json
+import sqlite3, os, json, re
 
 app = Flask(__name__)
 DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'traced.db')
@@ -629,6 +629,337 @@ def api_barcode(upc):
         return jsonify({"error": "Barcode not found", "upc": upc}), 404
     return api_brand(row["name"])
 
+# ── Influencer vetting tool helpers ───────────────────────────────
+
+_VET_DOMAIN_MAP = {
+    'opensecrets.org': 'OpenSecrets',
+    'ftc.gov': 'FTC.gov',
+    'sec.gov': 'SEC.gov',
+    'fda.gov': 'FDA.gov',
+    'justice.gov': 'DOJ.gov',
+    'nytimes.com': 'New York Times',
+    'wsj.com': 'Wall Street Journal',
+    'washingtonpost.com': 'Washington Post',
+    'reuters.com': 'Reuters',
+    'bloomberg.com': 'Bloomberg',
+    'prnewswire.com': 'PR Newswire',
+    'businesswire.com': 'Business Wire',
+    'eater.com': 'Eater',
+    'foodnavigator': 'FoodNavigator',
+    'fooddive.com': 'Food Dive',
+    'ewg.org': 'EWG',
+    'cornucopia.org': 'Cornucopia Institute',
+    'topclassactions.com': 'Top Class Actions',
+    'agdaily.com': 'AGDaily',
+    'perishablenews.com': 'Perishable News',
+    'transparencymarket.com': 'Transparency Market Research',
+}
+
+_VET_CATEGORY_HINTS = {
+    'ag1': 'Supplements', 'momentous': 'Sports Nutrition', 'ghost': 'Sports Nutrition',
+    'transparent-labs': 'Sports Nutrition', 'musclepharm': 'Sports Nutrition',
+    'david': 'Protein Bars', 'annies': 'Organic Food', 'cheerios': 'Cereals',
+    'chobani': 'Yogurt', 'reeses': 'Confectionery', 'tropicana': 'Beverages',
+    'halo-top': 'Frozen Desserts', 'salt-straw': 'Ice Cream',
+    'beyond-meat': 'Plant-Based Food', 'oatly': 'Plant-Based Beverages',
+    'fairlife': 'Dairy', 'honest-tea': 'Beverages', 'naked-juice': 'Beverages',
+    'kashi': 'Cereals', 'bolthouse-farms': 'Beverages',
+}
+
+def _vet_source_label(url, headline=None, year=None):
+    if not url:
+        return None
+    if headline:
+        for sep in (' - ', ' — ', ' | '):
+            if sep in headline:
+                parts = headline.rsplit(sep, 1)
+                if len(parts) == 2 and 3 < len(parts[1]) < 60:
+                    pub = parts[1].strip()
+                    return pub + (', ' + str(year) if year else '')
+    m = re.search(r'https?://(?:www\.)?([^/]+)', url)
+    if m:
+        domain = m.group(1).lower()
+        for k, v in _VET_DOMAIN_MAP.items():
+            if k in domain:
+                return v + (', ' + str(year) if year else '')
+        parts = domain.split('.')
+        base = parts[-2] if len(parts) >= 2 else parts[0]
+        return base.replace('-', ' ').title() + (', ' + str(year) if year else '')
+    return None
+
+def _vet_neutralize(text):
+    pairs = [
+        (r'\bhides\b', 'does not disclose'),
+        (r'\bhidden\b', 'not disclosed'),
+        (r'\bconcealed\b', 'not disclosed'),
+        (r'\bsecretly\b', ''),
+        (r'\bquietly\b', ''),
+        (r'\bshockingly\b', ''),
+        (r'\btroubling\b', 'notable'),
+        (r'\bconcerning\b', 'notable'),
+        (r'\bdeceptively?\b', 'inconsistently'),
+        (r'\bmisleading\b', 'inconsistent'),
+        (r'\bunfortunately\b', ''),
+        (r'\bproudly\b', ''),
+        (r'\bimpressive\b', 'notable'),
+    ]
+    for pattern, repl in pairs:
+        text = re.sub(pattern, repl, text, flags=re.IGNORECASE)
+    return re.sub(r'  +', ' ', text).strip()
+
+def _vet_categorize(text):
+    t = text.lower()
+    if any(w in t for w in ('acqui', 'pepsico', 'purchased by', 'sold to', 'parent company',
+                             'private equity', 'pe firm', 'keurig', 'general mills',
+                             'coca-cola', 'ipo ', 'founder', 'ownership')):
+        return 'Ownership & Structure'
+    if any(w in t for w in ('recall', 'class action', 'lawsuit', 'litigation',
+                             'criminal', 'convicted', 'conviction', 'court')):
+        return 'Legal & Compliance'
+    if any(w in t for w in ('ftc', 'fda', 'sec ', 'warning letter', 'enforcement',
+                             'settlement', 'consent decree', 'regulatory', 'fined')):
+        return 'Regulatory Record'
+    if any(w in t for w in ('ingredient', 'formula', 'recipe', 'reformulat',
+                             'proprietary blend', 'dosing', 'protein content',
+                             'corn starch', 'collagen', 'serving')):
+        return 'Ingredient History'
+    if any(w in t for w in ('claim', 'certif', 'endors', 'advertis', 'marketing',
+                             'label', 'health benefit', 'coa', 'nsf', 'third-party')):
+        return 'Health & Ingredient Claims'
+    if any(w in t for w in ('equity', 'investor', 'fund', 'capital', 'valuation',
+                             'revenue', 'going concern', 'bankruptcy')):
+        return 'Ownership & Structure'
+    return 'Research Findings'
+
+def _vet_format_type(ot):
+    m = {
+        'public_conglomerate': 'Public — Conglomerate',
+        'public': 'Public Company',
+        'private': 'Private Company',
+        'private_equity': 'Private Equity Owned',
+        'pe': 'Private Equity Owned',
+        'independent': 'Private — Independent',
+        'family': 'Private — Family Owned',
+        'cooperative': 'Cooperative',
+    }
+    if not ot:
+        return 'Private Company'
+    return m.get(ot.lower(), ot.replace('_', ' ').title())
+
+
+@app.route('/api/vet/search')
+def api_vet_search():
+    q = request.args.get('q', '').strip()
+    if len(q) < 2:
+        resp = jsonify([])
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
+    conn = get_db()
+    c = conn.cursor()
+    c.execute(
+        "SELECT b.name, b.slug, b.category, co.name as parent_company"
+        " FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id"
+        " WHERE lower(b.name) LIKE lower(?)"
+        " ORDER BY b.total_scans DESC NULLS LAST, b.name LIMIT 8",
+        ('%' + q + '%',))
+    results = [dict(r) for r in c.fetchall()]
+    conn.close()
+    resp = jsonify(results)
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
+
+@app.route('/api/vet/<brand_slug>')
+def api_vet_brand(brand_slug):
+    slug_pattern = '%' + '%'.join(brand_slug.split('-')) + '%'
+    conn = get_db()
+    c = conn.cursor()
+    c.execute(
+        "SELECT b.id, b.name, b.slug, b.category, b.acquired_year, b.founded_year,"
+        " b.key_findings, b.headline_finding, b.overall_zone, b.ownership_tier,"
+        " co.name as co_name, co.type as co_type, co.ownership_type, co.hq_country"
+        " FROM brands b LEFT JOIN companies co ON b.parent_company_id=co.id"
+        " WHERE b.slug=? OR lower(b.name) LIKE lower(?)"
+        " ORDER BY b.total_scans DESC NULLS LAST LIMIT 1",
+        (brand_slug, slug_pattern))
+    row = c.fetchone()
+    if not row:
+        conn.close()
+        resp = jsonify({"error": "Brand not found in Traced database"})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp, 404
+    brand = dict(row)
+    brand_id = brand['id']
+    findings = []
+
+    # 1. key_findings JSON (curated, highest priority)
+    kf_raw = (brand.get('key_findings') or '').strip()
+    kf_list = []
+    if kf_raw:
+        try:
+            kf_list = json.loads(kf_raw)
+        except Exception:
+            kf_list = []
+    for kf in kf_list[:5]:
+        title = kf.get('title', '')
+        body = kf.get('body', '')
+        text = _vet_neutralize((title + '. ' + body).strip() if body else title)
+        findings.append({
+            'category': _vet_categorize(title + ' ' + body),
+            'text': text[:300],
+            'source_url': None,
+            'source_label': None,
+            'sourced': False,
+        })
+
+    # 2. brand_events (supplementary)
+    if len(findings) < 5:
+        c.execute(
+            "SELECT event_type, event_date, headline, description, source_url"
+            " FROM brand_events WHERE brand_id=? ORDER BY event_date DESC",
+            (brand_id,))
+        for e in [dict(r) for r in c.fetchall()]:
+            if len(findings) >= 5:
+                break
+            headline = e.get('headline') or ''
+            desc = e.get('description') or ''
+            text = _vet_neutralize(headline)
+            if desc and desc != headline:
+                text = (text + '. ' + _vet_neutralize(desc[:150])).strip()
+            if not text:
+                continue
+            url = e.get('source_url') or ''
+            year = (e.get('event_date') or '')[:4] or None
+            etype = e.get('event_type', '')
+            if etype == 'acquisition':
+                cat = 'Ownership & Structure'
+            elif etype in ('recall', 'legal', 'violation'):
+                cat = 'Legal & Compliance'
+            elif etype in ('reformulation', 'formulation_change'):
+                cat = 'Ingredient History'
+            else:
+                cat = _vet_categorize(text)
+            findings.append({
+                'category': cat,
+                'text': text[:250],
+                'source_url': url or None,
+                'source_label': _vet_source_label(url, headline=headline, year=year) if url else None,
+                'sourced': bool(url),
+            })
+
+    # 3. violations (supplementary, non-recall)
+    if len(findings) < 5:
+        c.execute(
+            "SELECT violation_type, year, description, outcome, source_url"
+            " FROM violations WHERE brand_id=? AND violation_type != 'FDA recall'"
+            " ORDER BY year DESC LIMIT 3",
+            (brand_id,))
+        for v in [dict(r) for r in c.fetchall()]:
+            if len(findings) >= 5:
+                break
+            text = _vet_neutralize((v.get('description') or '')[:250])
+            if not text:
+                continue
+            url = v.get('source_url') or ''
+            findings.append({
+                'category': _vet_categorize((v.get('violation_type') or '') + ' ' + text),
+                'text': text,
+                'source_url': url or None,
+                'source_label': _vet_source_label(url, year=v.get('year')) if url else None,
+                'sourced': bool(url),
+            })
+
+    # 4. health_claims (supplementary)
+    if len(findings) < 5:
+        c.execute(
+            "SELECT claim_text, source_url FROM health_claims WHERE brand_id=?",
+            (brand_id,))
+        for h in [dict(r) for r in c.fetchall()]:
+            if len(findings) >= 5:
+                break
+            text = _vet_neutralize((h.get('claim_text') or '')[:250])
+            if not text:
+                continue
+            url = h.get('source_url') or ''
+            findings.append({
+                'category': 'Health & Ingredient Claims',
+                'text': text,
+                'source_url': url or None,
+                'source_label': _vet_source_label(url) if url else None,
+                'sourced': bool(url),
+            })
+
+    # 5. ingredient_drift (supplementary)
+    if len(findings) < 5:
+        c.execute(
+            "SELECT change_summary, source_url FROM ingredient_drift"
+            " WHERE brand_id=? AND change_summary IS NOT NULL AND change_summary != ''",
+            (brand_id,))
+        for d in [dict(r) for r in c.fetchall()]:
+            if len(findings) >= 5:
+                break
+            text = _vet_neutralize((d.get('change_summary') or '')[:250])
+            if not text:
+                continue
+            url = d.get('source_url') or ''
+            findings.append({
+                'category': 'Ingredient History',
+                'text': text,
+                'source_url': url or None,
+                'source_label': _vet_source_label(url) if url else None,
+                'sourced': bool(url),
+            })
+
+    conn.close()
+
+    # Build ownership metadata
+    co_name = brand.get('co_name')
+    co_type = brand.get('ownership_type') or brand.get('co_type') or ''
+    parent_type = _vet_format_type(co_type)
+    if co_name:
+        parent_display = co_name
+        if brand.get('acquired_year'):
+            ownership_phrase = 'acquired by ' + co_name + ' in ' + str(brand['acquired_year'])
+        else:
+            ownership_phrase = 'owned by ' + co_name
+    else:
+        parent_display = brand['name'] + ' (Independent)'
+        parent_type = 'Private — Independent'
+        ownership_phrase = 'independently operated'
+
+    resolved_slug = brand.get('slug') or brand_slug
+    cat_str = (brand.get('category') or _VET_CATEGORY_HINTS.get(brand_slug)
+               or _VET_CATEGORY_HINTS.get(resolved_slug) or 'consumer goods').lower()
+    vetting_summary = brand['name'] + ' is a ' + cat_str + ' brand, ' + ownership_phrase + '.'
+    words = vetting_summary.split()
+    if len(words) > 28:
+        vetting_summary = ' '.join(words[:28]).rstrip('.,') + '.'
+
+    sourced_count = sum(1 for f in findings if f['sourced'])
+    if len(findings) >= 4 and sourced_count >= 3:
+        completeness = 'full'
+    elif len(findings) >= 2:
+        completeness = 'partial'
+    else:
+        completeness = 'minimal'
+
+    resp = jsonify({
+        'brand': brand['name'],
+        'slug': resolved_slug,
+        'parent_company': parent_display,
+        'parent_type': parent_type,
+        'category': brand.get('category') or _VET_CATEGORY_HINTS.get(brand_slug) or _VET_CATEGORY_HINTS.get(resolved_slug) or '',
+        'vetting_summary': vetting_summary,
+        'findings': findings,
+        'findings_count': len(findings),
+        'sources_count': sourced_count,
+        'data_completeness': completeness,
+        'tracedhealth_url': 'https://tracedhealth.com/brand/' + resolved_slug,
+    })
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
+
 # ── Register extended routes ──────────────────────────────────────
 try:
     from routes_ext import register as _register_ext
@@ -637,9 +968,67 @@ except Exception as _ext_err:
     import traceback; traceback.print_exc()
     print(f"Warning: could not load routes_ext: {_ext_err}")
 
+
+@app.route("/api/lookup")
+def api_lookup():
+    name = request.args.get("name", "").strip()
+    if not name:
+        return jsonify({"error": "name required"}), 400
+    surface = request.headers.get("X-Surface") or request.args.get("surface")
+    from traced_resolver import resolve
+    result = resolve(name, surface=surface)
+    response = jsonify(result)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    return response
+
+@app.route("/api/resolver/misses")
+def api_resolver_misses():
+    from traced_resolver import get_misses
+    limit = min(int(request.args.get("limit", 50)), 200)
+    misses = get_misses(limit=limit)
+    return jsonify({"misses": misses, "count": len(misses)})
+
+
+@app.route("/api/nearby")
+def api_nearby():
+    category = request.args.get("category", "").strip()
+    limit = min(int(request.args.get("limit", 2)), 5)
+    price_tier = request.args.get("price_tier", type=int)
+    format_ = request.args.get("format", "").strip()
+    if not category:
+        return jsonify({"error": "category required"}), 400
+    import sqlite3 as _sq
+    conn = _sq.connect(DB)
+    conn.row_factory = _sq.Row
+
+    rows = []
+    # 1. Exact format + exact tier
+    if format_ and price_tier:
+        rows = conn.execute(
+            "SELECT * FROM local_vendors WHERE category=? AND verified=1 AND format=? AND price_tier=? ORDER BY RANDOM() LIMIT ?",
+            (category, format_, price_tier, limit)).fetchall()
+    # 2. Exact format only (no tier padding with wrong format)
+    if not rows and format_:
+        rows = conn.execute(
+            "SELECT * FROM local_vendors WHERE category=? AND verified=1 AND format=? ORDER BY RANDOM() LIMIT ?",
+            (category, format_, limit)).fetchall()
+    # 3. Exact tier, no format constraint
+    if not rows and price_tier:
+        rows = conn.execute(
+            "SELECT * FROM local_vendors WHERE category=? AND verified=1 AND price_tier=? ORDER BY RANDOM() LIMIT ?",
+            (category, price_tier, limit)).fetchall()
+    # 4. Anything in category
+    if not rows:
+        rows = conn.execute(
+            "SELECT * FROM local_vendors WHERE category=? AND verified=1 ORDER BY RANDOM() LIMIT ?",
+            (category, limit)).fetchall()
+
+    conn.close()
+    result = [dict(r) for r in rows]
+    resp = jsonify({"nearby": result, "category": category})
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    return resp
+
 if __name__ == "__main__":
     print("Traced running at http://127.0.0.1:5001")
     app.run(debug=False, port=5001, host='0.0.0.0')
-from routes_ext import *
-
-from routes_ext import *

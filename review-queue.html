@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traced Health · Draft Review Queue</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0b09;--surface:#131210;--surface2:#1a1916;--border:#252320;--border2:#302e2a;
+  --ink:#f0ece2;--ink2:#b8b2a4;--ink3:#6a6660;--ink4:#3a3834;
+  --green:#3d7a54;--green-bg:#0f2018;--green-border:#1a3826;
+  --amber:#8a6820;--amber-bg:#1a1608;--amber-border:#2a2410;
+  --red:#8a2820;--red-bg:#1a0f0e;--red-border:#2a1816;
+  --mono:'IBM Plex Mono',monospace;--sans:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:16px 36px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:var(--bg)}
+.logo{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3)}
+.logo b{color:var(--ink2);font-weight:500}
+.hright{display:flex;align-items:center;gap:16px}
+.api-status{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;padding:5px 12px;border-radius:1px;border:1px solid var(--border2);color:var(--ink4)}
+.api-status.ok{border-color:var(--green-border);color:var(--green);background:var(--green-bg)}
+.api-status.err{border-color:var(--red-border);color:#c87060;background:var(--red-bg)}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 53px)}
+
+/* SIDEBAR */
+.sidebar{border-right:1px solid var(--border);background:var(--surface);overflow-y:auto;max-height:calc(100vh - 53px);position:sticky;top:53px}
+.sidebar-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.sidebar-title{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink4)}
+.sidebar-count{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--ink4)}
+
+.filter-row{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap}
+.filter-btn{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:1px;border:1px solid var(--border);background:transparent;color:var(--ink4);cursor:pointer;transition:all .12s}
+.filter-btn:hover,.filter-btn.active{border-color:var(--border2);color:var(--ink3);background:var(--surface2)}
+.filter-btn.f-draft.active{border-color:var(--amber-border);color:#c8a040;background:var(--amber-bg)}
+.filter-btn.f-approved.active{border-color:var(--green-border);color:var(--green);background:var(--green-bg)}
+.filter-btn.f-flagged.active{border-color:var(--red-border);color:#c87060;background:var(--red-bg)}
+
+.brand-list{padding:8px 0}
+.brand-item{padding:10px 18px;cursor:pointer;border-left:2px solid transparent;transition:all .12s;display:flex;align-items:center;gap:10px}
+.brand-item:hover{background:var(--surface2)}
+.brand-item.active{background:var(--surface2);border-left-color:var(--ink3)}
+.brand-item-name{font-size:13px;font-weight:400;color:var(--ink2);flex:1}
+.brand-item-cat{font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink4)}
+.status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-draft{background:var(--amber)}
+.dot-approved{background:var(--green)}
+.dot-flagged{background:#8a2820}
+.dot-minimal{background:var(--ink4)}
+
+/* MAIN PANEL */
+.main{padding:28px 36px;overflow-y:auto}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:12px;color:var(--ink4)}
+.empty-state-title{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase}
+.empty-state-sub{font-size:13px;color:var(--ink4)}
+
+/* PROFILE HEADER */
+.profile-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.profile-name{font-family:var(--mono);font-size:28px;font-weight:500;letter-spacing:-.01em;color:var(--ink)}
+.profile-meta{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink4);margin-top:6px;line-height:1.7}
+.profile-meta strong{color:var(--ink3);font-weight:400}
+
+.status-badge{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;padding:6px 14px;border-radius:1px;border:1px solid;flex-shrink:0}
+.badge-draft{border-color:var(--amber-border);color:#c8a040;background:var(--amber-bg)}
+.badge-approved{border-color:var(--green-border);color:var(--green);background:var(--green-bg)}
+.badge-needs_research{border-color:var(--red-border);color:#c87060;background:var(--red-bg)}
+
+/* SUMMARY */
+.profile-summary{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:16px 18px;margin-bottom:20px;font-size:13px;font-style:italic;color:var(--ink3);line-height:1.6}
+
+/* QUADRANTS */
+.quadrants{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.quad-card{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:16px 18px}
+.quad-card.low-conf{border-color:#3a2a18}
+.quad-label{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.conf-badge{font-family:var(--mono);font-size:7.5px;letter-spacing:.1em;padding:2px 7px;border-radius:1px}
+.conf-high{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.conf-mid{background:var(--amber-bg);color:#c8a040;border:1px solid var(--amber-border)}
+.conf-low{background:var(--red-bg);color:#c87060;border:1px solid var(--red-border)}
+
+.quad-finding{font-size:12.5px;color:var(--ink2);font-weight:300;line-height:1.55;margin-bottom:8px}
+.quad-share{font-family:var(--mono);font-size:10px;color:var(--ink3);padding:6px 10px;background:rgba(255,255,255,.025);border-radius:1px;margin-bottom:8px;letter-spacing:.02em}
+.quad-share-label{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink4);display:block;margin-bottom:3px}
+.quad-source{font-family:var(--mono);font-size:9px;color:var(--ink4);text-decoration:none;border-bottom:1px solid var(--border);padding-bottom:1px;display:inline-flex;align-items:center;gap:3px;transition:color .12s}
+.quad-source:hover{color:var(--ink3)}
+
+/* REVIEW FLAGS */
+.flags-section{margin-bottom:20px}
+.flags-title{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink4);margin-bottom:8px}
+.flag-list{display:flex;flex-wrap:wrap;gap:6px}
+.flag-tag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:1px;background:var(--amber-bg);color:#c8a040;border:1px solid var(--amber-border)}
+
+/* ACTION ROW */
+.action-row{display:flex;gap:10px;padding:20px 0;border-top:1px solid var(--border);margin-top:8px;flex-wrap:wrap}
+.action-btn{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:11px 20px;border-radius:2px;border:1px solid;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .14s}
+.action-btn svg{width:12px;height:12px;flex-shrink:0}
+.btn-approve{border-color:var(--green-border);background:var(--green-bg);color:var(--green)}
+.btn-approve:hover{background:#162a1e;border-color:#2a5a3a}
+.btn-flag{border-color:var(--red-border);background:var(--red-bg);color:#c87060}
+.btn-flag:hover{background:#241414}
+.btn-research{border-color:var(--border2);background:var(--surface2);color:var(--ink3)}
+.btn-research:hover{border-color:var(--ink4);color:var(--ink2)}
+
+/* NOTES INPUT */
+.notes-wrap{margin-bottom:16px}
+.notes-label{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink4);margin-bottom:6px}
+.notes-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:10px 14px;font-family:var(--sans);font-size:12.5px;color:var(--ink2);outline:none;resize:vertical;min-height:64px;line-height:1.55;transition:border-color .14s}
+.notes-input:focus{border-color:var(--border2)}
+.notes-input::placeholder{color:var(--ink4)}
+
+/* RAW DATA TOGGLE */
+.raw-toggle{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink4);cursor:pointer;border:none;background:transparent;padding:0;margin-top:12px;display:flex;align-items:center;gap:6px;transition:color .12s}
+.raw-toggle:hover{color:var(--ink3)}
+.raw-data{display:none;margin-top:10px;background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:14px;font-family:var(--mono);font-size:10px;color:var(--ink4);overflow-x:auto;white-space:pre-wrap;line-height:1.6;max-height:300px;overflow-y:auto}
+.raw-data.show{display:block}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);background:#f4efe5;color:#1a1714;font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;padding:10px 18px;border-radius:2px;opacity:0;transition:all .25s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* LOADING */
+.loading-overlay{display:none;align-items:center;justify-content:center;min-height:200px}
+.loading-overlay.on{display:flex}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{max-height:none;position:relative;top:0}
+  .quadrants{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<header>
+  <div class="logo"><b>Traced</b> Health · Draft Review Queue</div>
+  <div class="hright">
+    <div class="api-status" id="apiStatus">Checking API…</div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Draft Profiles</span>
+      <span class="sidebar-count" id="sidebarCount">—</span>
+    </div>
+    <div class="filter-row">
+      <button class="filter-btn f-all active" onclick="setFilter('all')">All</button>
+      <button class="filter-btn f-draft" onclick="setFilter('draft')">Draft</button>
+      <button class="filter-btn f-approved" onclick="setFilter('approved')">Approved</button>
+      <button class="filter-btn f-flagged" onclick="setFilter('needs_research')">Flagged</button>
+    </div>
+    <div class="brand-list" id="brandList">
+      <div style="padding:20px 18px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink4)">Loading drafts…</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="mainPanel">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-state-title">No profile selected</div>
+      <div class="empty-state-sub">Select a brand from the sidebar to begin review</div>
+    </div>
+    <div id="profileView" style="display:none"></div>
+  </div>
+
+</div>
+
+<script>
+const API = "http://localhost:5001";
+let allDrafts = [];
+let current = null;
+let filterState = "all";
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", async () => {
+  await checkApi();
+  await loadDrafts();
+});
+
+async function checkApi() {
+  const el = document.getElementById("apiStatus");
+  try {
+    const r = await fetch(API + "/api/health", { signal: AbortSignal.timeout(3000) });
+    if (r.ok) {
+      el.textContent = "API Connected";
+      el.classList.add("ok");
+    } else { throw new Error(); }
+  } catch {
+    el.textContent = "API Offline";
+    el.classList.add("err");
+    el.title = "Start Flask: cd ~/Desktop/traceddatabase && python3 traced_app.py";
+  }
+}
+
+async function loadDrafts() {
+  try {
+    const r = await fetch(API + "/api/drafts");
+    if (!r.ok) throw new Error("API not available");
+    allDrafts = await r.json();
+    renderSidebar();
+  } catch (e) {
+    // Demo mode — show placeholder brands when API offline
+    allDrafts = DEMO_BRANDS;
+    renderSidebar();
+    showToast("Demo mode — API offline");
+  }
+}
+
+// ── SIDEBAR ───────────────────────────────────────────────────────────────────
+function setFilter(f) {
+  filterState = f;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  document.querySelector(`.filter-btn.f-${f === "all" ? "all" : f === "draft" ? "draft" : f === "approved" ? "approved" : "flagged"}`).classList.add("active");
+  renderSidebar();
+}
+
+function renderSidebar() {
+  const filtered = filterState === "all" ? allDrafts
+    : allDrafts.filter(b => b.review_status === filterState);
+
+  document.getElementById("sidebarCount").textContent = filtered.length + " brands";
+
+  const list = document.getElementById("brandList");
+  list.innerHTML = "";
+
+  if (!filtered.length) {
+    list.innerHTML = '<div style="padding:20px 18px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink4)">None in this filter</div>';
+    return;
+  }
+
+  filtered.forEach(b => {
+    const div = document.createElement("div");
+    div.className = "brand-item" + (current && current.slug === b.slug ? " active" : "");
+    div.onclick = () => loadProfile(b.slug);
+    const dotClass = b.review_status === "approved" ? "dot-approved"
+      : b.review_status === "needs_research" ? "dot-flagged" : "dot-draft";
+    div.innerHTML =
+      '<div class="status-dot ' + dotClass + '"></div>' +
+      '<div><div class="brand-item-name">' + b.name + '</div>' +
+      '<div class="brand-item-cat">' + (b.category || "—") + '</div></div>';
+    list.appendChild(div);
+  });
+}
+
+// ── PROFILE ───────────────────────────────────────────────────────────────────
+async function loadProfile(slug) {
+  // Update sidebar active state
+  document.querySelectorAll(".brand-item").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".brand-item").forEach(el => {
+    const name = el.querySelector(".brand-item-name");
+    const brand = allDrafts.find(b => b.slug === slug);
+    if (brand && name && name.textContent === brand.name) el.classList.add("active");
+  });
+
+  try {
+    let profile;
+    if (document.getElementById("apiStatus").classList.contains("ok")) {
+      const r = await fetch(API + "/api/drafts/" + slug);
+      profile = await r.json();
+    } else {
+      profile = DEMO_BRANDS.find(b => b.slug === slug);
+    }
+    current = profile;
+    renderProfile(profile);
+  } catch (e) {
+    showToast("Error loading profile");
+  }
+}
+
+function renderProfile(p) {
+  document.getElementById("emptyState").style.display = "none";
+  const view = document.getElementById("profileView");
+  view.style.display = "block";
+
+  const statusClass = "badge-" + (p.review_status || "draft");
+  const statusLabel = p.review_status === "approved" ? "Approved"
+    : p.review_status === "needs_research" ? "Needs Research" : "Draft";
+
+  const flags = (p.review_flags || []).map(f =>
+    '<span class="flag-tag">' + f + '</span>'
+  ).join("");
+
+  const quads = (p.quadrants || []).map(q => {
+    const conf = q.confidence || 0;
+    const confClass = conf >= 0.7 ? "conf-high" : conf >= 0.4 ? "conf-mid" : "conf-low";
+    const confLabel = conf >= 0.7 ? "High" : conf >= 0.4 ? "Medium" : "Low";
+    const hasSource = q.sourceUrl && q.sourceUrl.length > 0;
+    return `
+      <div class="quad-card ${conf < 0.4 ? 'low-conf' : ''}">
+        <div class="quad-label">
+          ${q.label}
+          <span class="conf-badge ${confClass}">${confLabel} conf · ${(conf * 100).toFixed(0)}%</span>
+        </div>
+        <div class="quad-finding">${q.finding || "—"}</div>
+        <div class="quad-share">
+          <span class="quad-share-label">Share finding</span>
+          ${q.shareFind || "—"}
+        </div>
+        ${hasSource
+          ? '<a class="quad-source" href="' + q.sourceUrl + '" target="_blank"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 10 10 2M4 2h6v6"/></svg>' + q.sourceLabel + '</a>'
+          : '<span class="quad-source" style="cursor:default;opacity:.5">' + (q.sourceLabel || "No source") + '</span>'
+        }
+      </div>
+    `;
+  }).join("");
+
+  view.innerHTML = `
+    <div class="profile-top">
+      <div>
+        <div class="profile-name">${p.name || "—"}</div>
+        <div class="profile-meta">
+          <strong>${p.parent || "—"}</strong> · ${p.parentType || "—"}<br>
+          ${p.category || "—"} · <a href="${p.profileUrl || '#'}" target="_blank" style="color:var(--ink4);text-decoration:none">${p.profileUrl || "—"}</a>
+        </div>
+      </div>
+      <span class="status-badge ${statusClass}">${statusLabel}</span>
+    </div>
+
+    <div class="profile-summary">${p.summary || "No summary generated."}</div>
+
+    <div class="quadrants">${quads}</div>
+
+    ${flags ? '<div class="flags-section"><div class="flags-title">Review flags</div><div class="flag-list">' + flags + '</div></div>' : ''}
+
+    <div class="notes-wrap">
+      <div class="notes-label">Reviewer notes</div>
+      <textarea class="notes-input" id="reviewerNotes" placeholder="Add notes for this profile — what needs to be fixed, verified, or updated…">${p.reviewer_notes || ""}</textarea>
+    </div>
+
+    <div class="action-row">
+      <button class="action-btn btn-approve" onclick="approveProfile()">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 10 8 14 16 6"/></svg>
+        Approve Profile
+      </button>
+      <button class="action-btn btn-flag" onclick="flagProfile()">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h12l-2 5 2 5H4V4z"/><path d="M4 4v14"/></svg>
+        Needs Research
+      </button>
+      <button class="action-btn btn-research" onclick="openTracedProfile()">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2l8 16H2z"/><path d="M10 8v4M10 14v1"/></svg>
+        View on Traced
+      </button>
+    </div>
+
+    <button class="raw-toggle" onclick="toggleRaw()">
+      <svg width="10" height="10" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9l4 4 4-4"/></svg>
+      Show raw research data
+    </button>
+    <div class="raw-data" id="rawData">${JSON.stringify(p._raw_research || {}, null, 2)}</div>
+  `;
+}
+
+function toggleRaw() {
+  const el = document.getElementById("rawData");
+  el.classList.toggle("show");
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+async function approveProfile() {
+  if (!current) return;
+  const notes = document.getElementById("reviewerNotes").value;
+  try {
+    const r = await fetch(API + "/api/drafts/" + current.slug + "/approve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reviewer_notes: notes })
+    });
+    if (r.ok) {
+      current.review_status = "approved";
+      allDrafts = allDrafts.map(b => b.slug === current.slug ? { ...b, review_status: "approved" } : b);
+      renderSidebar();
+      renderProfile(current);
+      showToast("Profile approved ✓");
+    } else {
+      showToast("Error — check API");
+    }
+  } catch {
+    // Demo mode
+    current.review_status = "approved";
+    allDrafts = allDrafts.map(b => b.slug === current.slug ? { ...b, review_status: "approved" } : b);
+    renderSidebar();
+    renderProfile(current);
+    showToast("Demo: marked as approved");
+  }
+}
+
+async function flagProfile() {
+  if (!current) return;
+  const notes = document.getElementById("reviewerNotes").value;
+  const reason = notes || "Needs additional research";
+  try {
+    const r = await fetch(API + "/api/drafts/" + current.slug + "/flag", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason, reviewer_notes: notes })
+    });
+    if (r.ok) {
+      current.review_status = "needs_research";
+      allDrafts = allDrafts.map(b => b.slug === current.slug ? { ...b, review_status: "needs_research" } : b);
+      renderSidebar();
+      renderProfile(current);
+      showToast("Flagged for research");
+    } else { showToast("Error — check API"); }
+  } catch {
+    current.review_status = "needs_research";
+    allDrafts = allDrafts.map(b => b.slug === current.slug ? { ...b, review_status: "needs_research" } : b);
+    renderSidebar();
+    renderProfile(current);
+    showToast("Demo: flagged");
+  }
+}
+
+function openTracedProfile() {
+  if (!current) return;
+  window.open("https://tracedhealth.com/brand/" + current.slug, "_blank");
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("on");
+  setTimeout(() => t.classList.remove("on"), 2400);
+}
+
+// ── DEMO DATA (shown when API offline) ────────────────────────────────────────
+const DEMO_BRANDS = [
+  {
+    name: "Liquid I.V.", slug: "liquid-iv", category: "Hydration", review_status: "draft",
+    parent: "Unilever", parentType: "Public — NYSE: UL",
+    summary: "Liquid I.V. is a hydration multiplier brand acquired by Unilever in 2020, marketed on cellular transport technology claims.",
+    profileUrl: "https://tracedhealth.com/brand/liquid-iv",
+    reviewer_notes: "",
+    review_flags: ["marketing", "clinical_claims"],
+    quadrants: [
+      { label: "Ownership & Structure", shareFind: "Acquired by Unilever in 2020.", finding: "Unilever acquired Liquid I.V. in 2020. Unilever's portfolio includes Hellmann's, Dove, and Ben & Jerry's.", sourceLabel: "Wikidata", sourceUrl: "", confidence: 0.85 },
+      { label: "Ingredient Transparency", shareFind: "Research required.", finding: "Ingredient research in progress.", sourceLabel: "Open Food Facts", sourceUrl: "", confidence: 0.3 },
+      { label: "Regulatory & Recalls", shareFind: "No FDA recalls found.", finding: "No FDA enforcement actions or recalls on file for Liquid I.V. as of 2025.", sourceLabel: "FDA Enforcement Database", sourceUrl: "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts", confidence: 0.9 },
+      { label: "Marketing & Endorsements", shareFind: "Cellular Transport Technology marketing claim.", finding: "Liquid I.V. markets via a 'Cellular Transport Technology' claim. The mechanism is based on WHO Oral Rehydration Solution formulation. Marketing research in progress.", sourceLabel: "Brand site", sourceUrl: "", confidence: 0.5 }
+    ]
+  },
+  {
+    name: "LMNT", slug: "lmnt", category: "Electrolytes", review_status: "draft",
+    parent: "Elemental Labs (Independent)", parentType: "Private — Independent",
+    summary: "LMNT is an independently operated electrolyte brand co-founded by Robb Wolf, built on a high-sodium ketogenic diet positioning.",
+    profileUrl: "https://tracedhealth.com/brand/lmnt",
+    reviewer_notes: "",
+    review_flags: ["ownership_verification"],
+    quadrants: [
+      { label: "Ownership & Structure", shareFind: "Independent. Co-founded by Robb Wolf.", finding: "LMNT is operated by Elemental Labs as an independent company. Co-founded with Robb Wolf, a prominent paleo/keto diet author.", sourceLabel: "Crunchbase / brand site", sourceUrl: "", confidence: 0.75 },
+      { label: "Ingredient Transparency", shareFind: "1000mg sodium. Full disclosure.", finding: "LMNT's flagship product contains 1000mg sodium, 200mg potassium, 60mg magnesium. No proprietary blends. Full ingredient and dose disclosure.", sourceLabel: "LMNT product label", sourceUrl: "https://drinklmnt.com", confidence: 0.9 },
+      { label: "Regulatory & Recalls", shareFind: "No FDA actions found.", finding: "No FDA enforcement actions or recalls on file for LMNT/Elemental Labs as of 2025.", sourceLabel: "FDA Enforcement Database", sourceUrl: "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts", confidence: 0.9 },
+      { label: "Marketing & Endorsements", shareFind: "Heavy podcast affiliate model.", finding: "LMNT built distribution primarily through podcast affiliates and the keto/carnivore community. Robb Wolf's audience was the founding channel.", sourceLabel: "Brand origin story", sourceUrl: "", confidence: 0.7 }
+    ]
+  },
+  {
+    name: "Seed", slug: "seed", category: "Probiotics", review_status: "approved",
+    parent: "Seed Health (Independent)", parentType: "Private — Independent",
+    summary: "Seed is an independently operated science-focused probiotic brand, known for its DS-01 Daily Synbiotic and academic research partnerships.",
+    profileUrl: "https://tracedhealth.com/brand/seed",
+    reviewer_notes: "Confirmed independent. Strong research citations. Approved.",
+    review_flags: [],
+    quadrants: [
+      { label: "Ownership & Structure", shareFind: "Independent. VC-backed, no acquisition.", finding: "Seed Health operates independently. Raised Series A funding. No acquisition history on file as of 2025.", sourceLabel: "Crunchbase", sourceUrl: "", confidence: 0.8 },
+      { label: "Ingredient Transparency", shareFind: "53 strains. Viability testing published.", finding: "Seed's DS-01 contains 53.6 billion AFU from 24 strains. Third-party viability testing published. No proprietary blend opacity.", sourceLabel: "Seed product specifications", sourceUrl: "https://seed.com", confidence: 0.9 },
+      { label: "Regulatory & Recalls", shareFind: "No FDA actions on file.", finding: "No FDA enforcement actions or recalls on file for Seed Health as of 2025.", sourceLabel: "FDA Enforcement Database", sourceUrl: "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts", confidence: 0.9 },
+      { label: "Marketing & Endorsements", shareFind: "Academic partnerships cited in marketing.", finding: "Seed cites research partnerships with academic institutions in its marketing. Clinical references are linked directly. No major FTC complaints on file.", sourceLabel: "Seed.com", sourceUrl: "https://seed.com/science", confidence: 0.75 }
+    ]
+  },
+  {
+    name: "Olipop", slug: "olipop", category: "Functional Soda", review_status: "needs_research",
+    parent: "Olipop PBC (Independent)", parentType: "Private — VC-backed",
+    summary: "Olipop is a VC-backed prebiotic soda brand positioning itself as a healthier alternative to conventional soda.",
+    profileUrl: "https://tracedhealth.com/brand/olipop",
+    reviewer_notes: "Need to verify celeb investors and recent funding round details.",
+    review_flags: ["ownership", "marketing_claims"],
+    quadrants: [
+      { label: "Ownership & Structure", shareFind: "VC-backed. Celebrity investors. Research needed.", finding: "Olipop has raised significant VC funding. Celebrity investors include Camila Cabello and others. Ownership structure research in progress.", sourceLabel: "Crunchbase", sourceUrl: "", confidence: 0.5 },
+      { label: "Ingredient Transparency", shareFind: "9g fiber. Prebiotic plant fiber blend.", finding: "Olipop contains 9g dietary fiber per can from cassava root, chicory root, Jerusalem artichoke, and other plant sources. Full ingredient disclosure.", sourceLabel: "Olipop product label", sourceUrl: "https://drinkolipop.com", confidence: 0.9 },
+      { label: "Regulatory & Recalls", shareFind: "No FDA actions found.", finding: "No FDA enforcement actions on file for Olipop as of 2025.", sourceLabel: "FDA Enforcement Database", sourceUrl: "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts", confidence: 0.9 },
+      { label: "Marketing & Endorsements", shareFind: "Gut health claims. FTC review needed.", finding: "Olipop's marketing makes gut health and digestive benefit claims. Clinical support for these claims requires review against FTC substantiation standards.", sourceLabel: "Olipop.com", sourceUrl: "", confidence: 0.4 }
+    ]
+  }
+];
+</script>
+</body>
+</html>

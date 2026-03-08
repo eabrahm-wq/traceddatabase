@@ -1,0 +1,77 @@
+{
+  "profile": {
+    "name": "Chomps",
+    "slug": "chomps",
+    "category": "other",
+    "parent_company": null,
+    "founded_year": null,
+    "hq_country": null,
+    "ownership_notes": null,
+    "product_summary": null,
+    "ingredient_notes": null,
+    "regulatory_history": "No FDA enforcement actions found",
+    "recent_news_summary": null,
+    "key_findings": [],
+    "data_sources": [
+      "wikidata",
+      "google_news",
+      "fda",
+      "open_food_facts"
+    ],
+    "research_completeness": "minimal"
+  },
+  "raw": {
+    "wikidata": {
+      "parent_company": null,
+      "founded_year": null,
+      "country": null,
+      "qid": "Q5006108"
+    },
+    "news": [
+      {
+        "title": "Chomps debuts new chicken meat snacks - Supermarket Perimeter",
+        "pub_date": "Tue, 03 Mar 2026 17:47:52 GMT",
+        "source": ""
+      },
+      {
+        "title": "Chomps debuts chicken sticks - The National Provisioner",
+        "pub_date": "Mon, 02 Mar 2026 14:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Chomps Broadens Protein Portfolio With Chicken Stick Debut - Nosh.com",
+        "pub_date": "Mon, 02 Mar 2026 14:00:15 GMT",
+        "source": ""
+      },
+      {
+        "title": "Chomps Debuts Premium Chicken Sticks, Fueling Incremental Category Growth in Better-For-You Snacks - Yahoo Finance",
+        "pub_date": "Mon, 02 Mar 2026 14:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Chomps Is Debuting an All-New Protein Snack for the First Time in 8 Years\u2014and We Tried It - AOL.com",
+        "pub_date": "Mon, 02 Mar 2026 16:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Floppy-Eared Cocker Spaniel Puppy Chomps at the Air Like a Tiny Crocodile - ParadePets",
+        "pub_date": "Sun, 01 Mar 2026 01:20:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Chomps Enters Underserved Chicken Snack Segment With New Three-Flavor Line - TipRanks",
+        "pub_date": "Mon, 02 Mar 2026 15:57:27 GMT",
+        "source": ""
+      },
+      {
+        "title": "Chomps Takes a Bite Out of Barriers to Growth with NetSuite - NetSuite",
+        "pub_date": "Tue, 07 Oct 2025 07:00:00 GMT",
+        "source": ""
+      }
+    ],
+    "fda": [],
+    "open_food_facts": [],
+    "research_text": "Brand: Chomps\n\nRecent news headlines:\n- Chomps debuts new chicken meat snacks - Supermarket Perimeter\n- Chomps debuts chicken sticks - The National Provisioner\n- Chomps Broadens Protein Portfolio With Chicken Stick Debut - Nosh.com\n- Chomps Debuts Premium Chicken Sticks, Fueling Incremental Category Growth in Better-For-You Snacks - Yahoo Finance\n- Chomps Is Debuting an All-New Protein Snack for the First Time in 8 Years\u2014and We Tried It - AOL.com\n\nFDA recalls: none found"
+  },
+  "indexed_at": "2026-03-04T18:34:43.119921Z"
+}

@@ -1,0 +1,216 @@
+# TracedHealth — Priority 200 brand indexing list
+# Health, wellness, supplement, and functional food brands
+# Grouped by category
+
+# === PROTEIN & PERFORMANCE ===
+AG1
+Momentous
+Ghost
+MusclePharm
+Transparent Labs
+Optimum Nutrition
+Garden of Life
+Vega
+Orgain
+Dymatize
+BSN
+MuscleTech
+Cellucor
+Klean Athlete
+Thorne
+Designs for Health
+Pure Encapsulations
+Nutrabolt
+Legion Athletics
+Naked Nutrition
+NOW Sports
+Source Naturals
+Country Life Vitamins
+Jarrow Formulas
+Solgar
+
+# === PROTEIN BARS & SNACKS ===
+RXBar
+Quest Nutrition
+KIND
+Larabar
+Think! (thinkThin)
+Clif Bar
+RXBAR
+One Bar (1 Bar)
+Built Bar
+No Cow
+Atlas Bar
+Barebells
+GoMacro
+NuGo
+Bobo's
+
+# === ELECTROLYTES & HYDRATION ===
+Liquid I.V.
+LMNT
+Nuun
+DripDrop
+Skratch Labs
+Pedialyte
+Waterboy
+Cure Hydration
+Basis
+SOS Hydration
+
+# === GREENS & SUPERFOODS ===
+Athletic Greens (AG1)
+Bloom Nutrition
+Organifi
+Amazing Grass
+Navitas Organics
+Sunfood Superfoods
+Terrasoul
+Ora Organic
+Sun Warrior
+Earthen Pantry
+
+# === GUT HEALTH & PROBIOTICS ===
+Seed
+Ritual
+Garden of Life Probiotics
+BioSchwartz
+Align
+Culturelle
+Florastor
+Renew Life
+Hyperbiotics
+Jarrow EPS
+
+# === FUNCTIONAL BEVERAGES ===
+Olipop
+Poppi
+Health-Ade Kombucha
+GT's Kombucha
+Kevita
+Humm Kombucha
+Live Soda
+Brew Dr. Kombucha
+Rowdy Mermaid
+Lifeway Kefir
+
+# === MEAT SNACKS & HIGH-PROTEIN ===
+Chomps
+Paleovalley
+Epic Bar
+Nick's Sticks
+Vermont Smoke & Cure
+Krave Jerky
+Country Archer
+People's Choice Beef Jerky
+Wild Zora
+Lorissa's Kitchen
+
+# === DAIRY & DAIRY-ALT ===
+fairlife
+Chobani
+Siggi's
+Two Good Yogurt
+Califia Farms
+Oatly
+Ripple
+Forager Project
+Kite Hill
+Vital Farms
+
+# === CEREALS & BREAKFAST ===
+Cheerios
+Kind Granola
+Seven Sundays
+Purely Elizabeth
+Bob's Red Mill
+One Degree Organics
+Nature's Path
+Cascadian Farm
+Kashi
+Three Wishes
+
+# === NUTRITION FOR WOMEN ===
+HUM Nutrition
+Binto
+FLO Vitamins
+Needed
+Perelel
+Ritual Essential for Women
+Majka
+Dumai
+Megafood Women
+New Chapter Women's
+
+# === COLLAGEN & BEAUTY-FROM-WITHIN ===
+Vital Proteins
+Primal Kitchen
+Further Food
+NeoCell
+Ancient Nutrition
+Great Lakes Wellness
+Sports Research
+BioSil
+Reserveage
+Youtheory
+
+# === OMEGA & FISH OIL ===
+Nordic Naturals
+Carlson Labs
+Wiley's Finest
+Coromega
+Nature Made Fish Oil
+Minami
+OmegaVia
+Viva Naturals
+WHC UnoCardio
+Barlean's
+
+# === KIDS NUTRITION ===
+Hiya Health
+SmartyPants
+Llama Naturals
+Dino Drops
+Garden of Life Kids
+Culturelle Kids
+Zarbee's
+Zesty Paws
+Olly Kids
+Nature's Way Kids
+
+# === CHOCOLATE & SWEETS ===
+Annie's
+Hu Chocolate
+Lily's Sweets
+Alter Eco
+Endangered Species
+Theo Chocolate
+Raaka
+Taza Chocolate
+Equal Exchange
+Enjoy Life Foods
+
+# === WEIGHT MANAGEMENT ===
+Optavia
+Isagenix
+Medifast
+Jenny Craig
+Profile by Sanford
+IdealShape
+18Shake
+SlimFast
+Golo
+Nutrisystem
+
+# === NOOTROPICS & BRAIN ===
+Four Sigmatic
+Host Defense
+Om Mushrooms
+Real Mushrooms
+Ryze Mushroom Coffee
+MindBodyGreen
+Nested Naturals
+Natural Stacks
+Onnit
+Qualia Mind
+

@@ -1,0 +1,77 @@
+{
+  "profile": {
+    "name": "LMNT",
+    "slug": "lmnt",
+    "category": "other",
+    "parent_company": null,
+    "founded_year": null,
+    "hq_country": null,
+    "ownership_notes": null,
+    "product_summary": null,
+    "ingredient_notes": null,
+    "regulatory_history": "No FDA enforcement actions found",
+    "recent_news_summary": null,
+    "key_findings": [],
+    "data_sources": [
+      "wikidata",
+      "google_news",
+      "fda",
+      "open_food_facts"
+    ],
+    "research_completeness": "minimal"
+  },
+  "raw": {
+    "wikidata": {
+      "parent_company": null,
+      "founded_year": null,
+      "country": null,
+      "qid": "Q6459053"
+    },
+    "news": [
+      {
+        "title": "EWG's Food Scores just took the work out of grocery shopping for me! - EWG",
+        "pub_date": "Fri, 04 Jul 2025 13:27:01 GMT",
+        "source": ""
+      },
+      {
+        "title": "New facility to accelerate materials solutions for fusion energy - MIT News",
+        "pub_date": "Mon, 09 Jun 2025 07:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "LMNT announces plans for \u2018Salt House\u2019 storefront in Town Center - Explore Big Sky",
+        "pub_date": "Fri, 18 Jul 2025 07:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "LMNT vs. Gatorade: I Tried Both (Who Wins In 2026?) - Athletic Insight",
+        "pub_date": "Mon, 15 Dec 2025 08:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "New MIT lab to speed fusion materials testing - American Nuclear Society -- ANS",
+        "pub_date": "Fri, 13 Jun 2025 07:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Lawsuit targets electrolyte brand over \u2018All Natural\u2019 and \u2018Keto-Friendly\u2019 claims - NutraIngredients.com",
+        "pub_date": "Thu, 28 Aug 2025 07:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "LMNT 115 and Daya Turn Longing Into Forward Motion on New Single, \"Paradise\" - edm.com",
+        "pub_date": "Sat, 29 Nov 2025 08:00:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "The Best LMNT Flavors to Quench Your Thirst - Sporked",
+        "pub_date": "Fri, 29 Aug 2025 07:00:00 GMT",
+        "source": ""
+      }
+    ],
+    "fda": [],
+    "open_food_facts": [],
+    "research_text": "Brand: LMNT\n\nRecent news headlines:\n- EWG's Food Scores just took the work out of grocery shopping for me! - EWG\n- New facility to accelerate materials solutions for fusion energy - MIT News\n- LMNT announces plans for \u2018Salt House\u2019 storefront in Town Center - Explore Big Sky\n- LMNT vs. Gatorade: I Tried Both (Who Wins In 2026?) - Athletic Insight\n- New MIT lab to speed fusion materials testing - American Nuclear Society -- ANS\n\nFDA recalls: none found"
+  },
+  "indexed_at": "2026-03-04T18:33:46.184756Z"
+}

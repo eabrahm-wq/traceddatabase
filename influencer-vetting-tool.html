@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traced Health — Creator Vetting Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a08;
+  --surface: #111110;
+  --surface2: #1a1a18;
+  --border: #2a2a26;
+  --border-light: #333330;
+  --text: #e8e6df;
+  --text-2: #9a9890;
+  --text-3: #5a5854;
+  --red: #e8412a;
+  --yellow: #d4a017;
+  --green: #3d9e5f;
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--border);
+}
+.header-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: .02em;
+  text-decoration: none;
+}
+.header-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text-3);
+  letter-spacing: .04em;
+}
+
+/* ── Hero ── */
+.hero {
+  max-width: 600px;
+  margin: 72px auto 0;
+  padding: 0 24px;
+  text-align: center;
+}
+.hero-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+.hero-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-2);
+  margin-bottom: 16px;
+}
+.hero-body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--text-3);
+  max-width: 480px;
+  margin: 0 auto 48px;
+  line-height: 1.75;
+}
+
+/* ── Search ── */
+.search-wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+}
+.search-input-row {
+  position: relative;
+}
+.search-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 18px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.search-input::placeholder { color: var(--text-3); }
+.search-input:focus {
+  border-color: var(--text-2);
+  box-shadow: 0 0 0 1px var(--border-light);
+}
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 100;
+  display: none;
+}
+.search-result-item {
+  padding: 13px 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item:hover { background: var(--surface2); }
+.search-result-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+.search-result-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text-3);
+}
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 20px;
+}
+.pill {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+  background: none;
+}
+.pill:hover {
+  border-color: var(--text-2);
+  color: var(--text);
+}
+
+/* ── Report area ── */
+.report-area {
+  max-width: 700px;
+  margin: 64px auto 100px;
+  padding: 0 24px;
+}
+
+/* ── Loading ── */
+.loading {
+  text-align: center;
+  padding: 60px 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text-3);
+}
+.loading-dots span {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--text-3);
+  margin: 0 3px;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: .2s; }
+.loading-dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes pulse {
+  0%, 80%, 100% { transform: scale(.6); opacity: .3; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 0;
+  font-family: 'DM Sans', sans-serif;
+}
+.empty-state-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-2);
+  margin-bottom: 10px;
+}
+.empty-state-body {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text-3);
+}
+.empty-state-body a {
+  color: var(--text-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Report card ── */
+.report { animation: fadein .3s ease; }
+@keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.report-block {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: var(--surface);
+}
+
+/* Block 1 — Brand Identity */
+.brand-identity {
+  padding: 32px 32px 28px;
+}
+.brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.ownership-line {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text-3);
+  margin-bottom: 12px;
+}
+.category-tag {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text-3);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 3px 10px;
+  margin-bottom: 20px;
+}
+.vetting-summary {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--text-2);
+  line-height: 1.65;
+}
+
+/* Block 2 — Research Findings */
+.block-header {
+  padding: 18px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.block-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--text-3);
+}
+.block-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text-3);
+}
+.finding-card {
+  padding: 22px 28px;
+  border-bottom: 1px solid var(--border);
+}
+.finding-card:last-child { border-bottom: none; }
+.finding-category {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+.finding-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--text);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+.finding-source {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+}
+.finding-source a {
+  color: var(--text-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-style: dotted;
+}
+.finding-source a:hover { color: var(--text); }
+
+/* Block 3 — Completeness */
+.completeness-block {
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.completeness-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.completeness-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+/* Block 4 — Copy & Share */
+.share-header {
+  padding: 18px 28px;
+  border-bottom: 1px solid var(--border);
+}
+.share-buttons {
+  padding: 24px 28px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.copy-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  padding: 11px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  background: var(--surface2);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.copy-btn:hover {
+  background: var(--border-light);
+  color: var(--text);
+  border-color: var(--text-3);
+}
+.copy-btn.copied {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface2);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text-2);
+  opacity: 0;
+  transition: opacity .2s, transform .2s;
+  pointer-events: none;
+  z-index: 999;
+  white-space: nowrap;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Footer ── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.footer-left, .footer-right {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text-3);
+}
+.footer-left a {
+  color: var(--text-3);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .header { padding: 16px 20px; }
+  .hero { margin-top: 48px; }
+  .hero-headline { font-size: 34px; }
+  .search-wrap { padding: 0 16px; }
+  .report-area { padding: 0 16px; }
+  .brand-identity { padding: 24px 20px; }
+  .block-header, .finding-card, .finding-card, .share-header { padding-left: 20px; padding-right: 20px; }
+  .share-buttons { padding: 20px; flex-direction: column; }
+  .copy-btn { width: 100%; text-align: center; }
+  .footer { padding: 20px; flex-direction: column; gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <span class="header-logo">Traced Health</span>
+  <span class="header-label">Creator Vetting Tool · Development Build</span>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <h1 class="hero-headline">Know what you're endorsing.</h1>
+  <p class="hero-sub">Independent brand research for creators — powered by Traced Health</p>
+  <p class="hero-body">Before you recommend a brand to your audience, run it through Traced. Sourced facts on ownership, ingredients, and regulatory history. No spin. No scores. You decide.</p>
+</section>
+
+<!-- Search -->
+<div class="search-wrap">
+  <div class="search-input-row">
+    <input
+      type="text"
+      class="search-input"
+      id="search-input"
+      placeholder="Search any brand — Momentous, Fairlife, Annie's, Chobani..."
+      autocomplete="off"
+      spellcheck="false"
+    >
+    <div class="search-dropdown" id="search-dropdown"></div>
+  </div>
+  <div class="pills" id="pills">
+    <button class="pill" onclick="loadBrand('annies')">Annie's</button>
+    <button class="pill" onclick="loadBrand('ag1')">AG1</button>
+    <button class="pill" onclick="loadBrand('momentous')">Momentous</button>
+    <button class="pill" onclick="loadBrand('fairlife')">fairlife</button>
+    <button class="pill" onclick="loadBrand('david')">David</button>
+    <button class="pill" onclick="loadBrand('ghost')">Ghost</button>
+    <button class="pill" onclick="loadBrand('musclepharm')">MusclePharm</button>
+    <button class="pill" onclick="loadBrand('cheerios')">Cheerios</button>
+    <button class="pill" onclick="loadBrand('chobani')">Chobani</button>
+    <button class="pill" onclick="loadBrand('transparent-labs')">Transparent Labs</button>
+  </div>
+</div>
+
+<!-- Report area -->
+<main class="report-area" id="report-area"></main>
+
+<!-- Toast -->
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <span class="footer-left">© Traced Health · <a href="https://tracedhealth.com" target="_blank">tracedhealth.com</a></span>
+  <span class="footer-right">Brand research data is provided for informational purposes only. Not legal or financial advice. Data accuracy is ongoing.</span>
+</footer>
+
+<script>
+const API = 'http://localhost:5001';
+let _currentData = null;
+let _debounce = null;
+
+// ── Search input ──────────────────────────────────────────────────
+const input = document.getElementById('search-input');
+const dropdown = document.getElementById('search-dropdown');
+
+input.addEventListener('input', () => {
+  clearTimeout(_debounce);
+  const q = input.value.trim();
+  if (q.length < 2) { dropdown.style.display = 'none'; return; }
+  _debounce = setTimeout(() => fetchSearch(q), 500);
+});
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    dropdown.style.display = 'none';
+    const q = input.value.trim();
+    if (q) loadByQuery(q);
+  }
+  if (e.key === 'Escape') dropdown.style.display = 'none';
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-wrap')) dropdown.style.display = 'none';
+});
+
+function fetchSearch(q) {
+  fetch(API + '/api/vet/search?q=' + encodeURIComponent(q))
+    .then(r => r.json())
+    .then(results => {
+      if (!results.length) { dropdown.style.display = 'none'; return; }
+      dropdown.innerHTML = '';
+      results.forEach(b => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.innerHTML =
+          '<span class="search-result-name">' + esc(b.name) + '</span>' +
+          '<span class="search-result-meta">' + esc(b.category || b.parent_company || '') + '</span>';
+        item.addEventListener('click', () => {
+          input.value = b.name;
+          dropdown.style.display = 'none';
+          loadBrand(b.slug || toSlug(b.name));
+        });
+        dropdown.appendChild(item);
+      });
+      dropdown.style.display = 'block';
+    })
+    .catch(() => { dropdown.style.display = 'none'; });
+}
+
+function loadByQuery(q) {
+  showLoading();
+  fetch(API + '/api/vet/search?q=' + encodeURIComponent(q))
+    .then(r => r.json())
+    .then(results => {
+      if (results.length) {
+        loadBrand(results[0].slug || toSlug(results[0].name));
+      } else {
+        showEmpty(q);
+      }
+    })
+    .catch(() => showEmpty(q));
+}
+
+function loadBrand(slug) {
+  showLoading();
+  input.value = input.value || slug;
+  fetch(API + '/api/vet/' + encodeURIComponent(slug))
+    .then(r => {
+      if (r.status === 404) throw new Error('not_found');
+      return r.json();
+    })
+    .then(data => {
+      _currentData = data;
+      renderReport(data);
+    })
+    .catch(err => {
+      if (err.message === 'not_found') showEmpty(slug);
+      else showError();
+    });
+}
+
+// ── Render report ─────────────────────────────────────────────────
+function renderReport(d) {
+  const area = document.getElementById('report-area');
+
+  // Block 1 — Brand Identity
+  const catTag = d.category
+    ? '<span class="category-tag">' + esc(d.category) + '</span>'
+    : '';
+  const ownerLine = d.parent_company.includes('Independent')
+    ? 'Independent · ' + esc(d.parent_type)
+    : 'Owned by ' + esc(d.parent_company) + ' · ' + esc(d.parent_type);
+
+  const block1 =
+    '<div class="report-block brand-identity">' +
+    '<div class="brand-name">' + esc(d.brand) + '</div>' +
+    '<div class="ownership-line">' + ownerLine + '</div>' +
+    catTag +
+    '<div class="vetting-summary">' + esc(d.vetting_summary) + '</div>' +
+    '</div>';
+
+  // Block 2 — Research Findings
+  let findingsHTML = '';
+  d.findings.forEach(f => {
+    let sourceHTML;
+    if (f.source_url) {
+      const label = f.source_label || shortenUrl(f.source_url);
+      sourceHTML = 'Source: <a href="' + esc(f.source_url) + '" target="_blank" rel="noopener">' + esc(label) + ' ↗</a>';
+    } else {
+      sourceHTML = '<span style="color:var(--text-3)">Source not on file</span>';
+    }
+    findingsHTML +=
+      '<div class="finding-card">' +
+      '<div class="finding-category">' + esc(f.category) + '</div>' +
+      '<div class="finding-text">' + esc(f.text) + '</div>' +
+      '<div class="finding-source">' + sourceHTML + '</div>' +
+      '</div>';
+  });
+
+  const metaLine = d.findings_count + ' finding' + (d.findings_count !== 1 ? 's' : '') +
+    ' · ' + d.sources_count + ' sourced · via Traced Health';
+
+  const block2 =
+    '<div class="report-block">' +
+    '<div class="block-header">' +
+    '<span class="block-label">Research Findings</span>' +
+    '<span class="block-meta">' + esc(metaLine) + '</span>' +
+    '</div>' +
+    (findingsHTML || '<div class="finding-card"><div class="finding-text" style="color:var(--text-3)">No findings on file for this brand.</div></div>') +
+    '</div>';
+
+  // Block 3 — Data Completeness
+  let dotColor, completenessMsg;
+  if (d.data_completeness === 'full') {
+    dotColor = 'var(--green)';
+    completenessMsg = 'Research complete for this brand';
+  } else if (d.data_completeness === 'partial') {
+    dotColor = 'var(--yellow)';
+    completenessMsg = 'Partial data — additional research in progress';
+  } else {
+    dotColor = 'var(--text-3)';
+    completenessMsg = 'Limited data available. Full vetting report in development at Traced Health.';
+  }
+
+  const block3 =
+    '<div class="report-block">' +
+    '<div class="completeness-block">' +
+    '<div class="completeness-dot" style="background:' + dotColor + '"></div>' +
+    '<span class="completeness-text">' + esc(completenessMsg) + '</span>' +
+    '</div>' +
+    '</div>';
+
+  // Block 4 — Copy & Share
+  const block4 =
+    '<div class="report-block">' +
+    '<div class="block-header share-header">' +
+    '<span class="block-label">Share This Research</span>' +
+    '</div>' +
+    '<div class="share-buttons">' +
+    '<button class="copy-btn" id="btn-brief" onclick="copyBrief()">Copy Vetting Brief</button>' +
+    '<button class="copy-btn" id="btn-caption" onclick="copyCaption()">Copy for Caption</button>' +
+    '<button class="copy-btn" id="btn-stories" onclick="copyStories()">Copy for Stories</button>' +
+    '</div>' +
+    '</div>';
+
+  area.innerHTML =
+    '<div class="report">' +
+    block1 + block2 + block3 + block4 +
+    '<div style="margin-top:12px;text-align:center;font-family:DM Mono,monospace;font-size:10px;color:var(--text-3)">' +
+    'Data provided by <a href="https://tracedhealth.com/brand/' + esc(d.slug) + '" target="_blank" style="color:var(--text-2);text-decoration:underline;text-underline-offset:3px">Traced Health</a>' +
+    ' · Full research: <a href="https://tracedhealth.com/brand/' + esc(d.slug) + '" target="_blank" style="color:var(--text-2);text-decoration:underline;text-underline-offset:3px">tracedhealth.com/brand/' + esc(d.slug) + '</a>' +
+    '</div>' +
+    '</div>';
+}
+
+// ── Copy functions ────────────────────────────────────────────────
+function copyBrief() {
+  if (!_currentData) return;
+  const d = _currentData;
+  let text = '---\nBRAND VETTING BRIEF\nPowered by Traced Health · tracedhealth.com\n\n';
+  text += 'Brand: ' + d.brand + '\n';
+  text += 'Parent Company: ' + d.parent_company + ' (' + d.parent_type + ')\n';
+  text += 'Category: ' + (d.category || 'N/A') + '\n\n';
+  text += 'Overview: ' + d.vetting_summary + '\n\n';
+  text += 'Research Findings:\n\n';
+  d.findings.forEach(f => {
+    text += '[' + f.category + ']\n';
+    text += f.text + '\n';
+    text += 'Source: ' + (f.source_url || 'Not on file') + '\n\n';
+  });
+  text += 'Data provided by Traced Health\n';
+  text += 'Full brand research: tracedhealth.com/brand/' + d.slug + '\n---';
+  copyToClipboard(text, 'btn-brief');
+}
+
+function copyCaption() {
+  if (!_currentData) return;
+  const d = _currentData;
+  const bullets = d.findings.slice(0, 3).map(f => {
+    let s = f.text;
+    if (s.includes('. ')) s = s.split('. ')[0] + '.';
+    if (s.length > 120) s = s.substring(0, 117) + '...';
+    return '• ' + s;
+  }).join('\n');
+  const text =
+    'I always vet brands before recommending them to you. ' +
+    "Here's what @TracedHealth found on " + d.brand + ':\n\n' +
+    bullets + '\n\n' +
+    'Make your own call: tracedhealth.com/brand/' + d.slug + '\n\n' +
+    '#BrandTransparency #TracedHealth #CreatorDueDiligence';
+  copyToClipboard(text, 'btn-caption');
+}
+
+function copyStories() {
+  if (!_currentData) return;
+  const d = _currentData;
+  const text =
+    'I vetted ' + d.brand + ' before this partnership.\n' +
+    'Research by @TracedHealth:\n\n' +
+    d.vetting_summary + '\n\n' +
+    'Full findings → tracedhealth.com/brand/' + d.slug;
+  copyToClipboard(text, 'btn-stories');
+}
+
+function copyToClipboard(text, btnId) {
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      btn.classList.add('copied');
+      btn.textContent = 'Copied ✓';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.textContent = btn.id === 'btn-brief' ? 'Copy Vetting Brief' :
+                          btn.id === 'btn-caption' ? 'Copy for Caption' : 'Copy for Stories';
+      }, 2000);
+    }
+    showToast();
+  }).catch(() => {
+    // Fallback for file:// context
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      btn.classList.add('copied');
+      btn.textContent = 'Copied ✓';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.textContent = btn.id === 'btn-brief' ? 'Copy Vetting Brief' :
+                          btn.id === 'btn-caption' ? 'Copy for Caption' : 'Copy for Stories';
+      }, 2000);
+    }
+    showToast();
+  });
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ── State helpers ─────────────────────────────────────────────────
+function showLoading() {
+  document.getElementById('report-area').innerHTML =
+    '<div class="loading">Pulling research data...' +
+    '<div class="loading-dots" style="margin-top:16px">' +
+    '<span></span><span></span><span></span>' +
+    '</div></div>';
+}
+
+function showEmpty(query) {
+  _currentData = null;
+  document.getElementById('report-area').innerHTML =
+    '<div class="empty-state">' +
+    '<div class="empty-state-title">Not yet in the Traced database.</div>' +
+    '<div class="empty-state-body">' +
+    '<a href="https://tracedhealth.com" target="_blank">Request this brand →</a>' +
+    '</div>' +
+    '</div>';
+}
+
+function showError() {
+  _currentData = null;
+  document.getElementById('report-area').innerHTML =
+    '<div class="empty-state">' +
+    '<div class="empty-state-title">Could not connect to Traced.</div>' +
+    '<div class="empty-state-body">Make sure the server is running at localhost:5001.</div>' +
+    '</div>';
+}
+
+// ── Utilities ─────────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function toSlug(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function shortenUrl(url) {
+  try {
+    const u = new URL(url);
+    return u.hostname.replace('www.', '') + '...';
+  } catch {
+    return url.substring(0, 40) + '...';
+  }
+}
+</script>
+</body>
+</html>

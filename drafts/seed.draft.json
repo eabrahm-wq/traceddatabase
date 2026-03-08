@@ -1,0 +1,108 @@
+{
+  "profile": {
+    "name": "Seed",
+    "slug": "seed",
+    "category": "other",
+    "parent_company": null,
+    "founded_year": null,
+    "hq_country": null,
+    "ownership_notes": null,
+    "product_summary": null,
+    "ingredient_notes": null,
+    "regulatory_history": "5 FDA enforcement action(s) found",
+    "recent_news_summary": null,
+    "key_findings": [],
+    "data_sources": [
+      "wikidata",
+      "google_news",
+      "fda",
+      "open_food_facts"
+    ],
+    "research_completeness": "minimal"
+  },
+  "raw": {
+    "wikidata": {
+      "parent_company": null,
+      "founded_year": null,
+      "country": null,
+      "qid": "Q2574811"
+    },
+    "news": [
+      {
+        "title": "Turkish mobile developer Vento Games secures $4m in seed round funding - GamesIndustry.biz",
+        "pub_date": "Wed, 04 Mar 2026 16:27:16 GMT",
+        "source": ""
+      },
+      {
+        "title": "March Madness bracket predictions: Top seed lines projected on March 3 - NCAA.com",
+        "pub_date": "Tue, 03 Mar 2026 22:09:47 GMT",
+        "source": ""
+      },
+      {
+        "title": "NCAA Tournament Bracket Watch: The fight for a No. 3 seed is intense, and worthwhile - The New York Times",
+        "pub_date": "Tue, 03 Mar 2026 19:08:52 GMT",
+        "source": ""
+      },
+      {
+        "title": "SEC basketball tournament bracket, projected seeds live updates - USA Today",
+        "pub_date": "Wed, 04 Mar 2026 16:30:20 GMT",
+        "source": ""
+      },
+      {
+        "title": "Cavs prove that the No. 1 seed doesn\u2019t mean better, top Pistons 113-109 - Cleveland.com",
+        "pub_date": "Wed, 04 Mar 2026 02:33:00 GMT",
+        "source": ""
+      },
+      {
+        "title": "Big Ten Releases Pre-Seeds For 2026 Conference Tournament - Iowa Hawkeyes Athletics",
+        "pub_date": "Mon, 02 Mar 2026 17:44:08 GMT",
+        "source": ""
+      },
+      {
+        "title": "2026 Big Ten Conference Championship Seeds Are Out! - FloWrestling",
+        "pub_date": "Mon, 02 Mar 2026 18:11:09 GMT",
+        "source": ""
+      },
+      {
+        "title": "2026 Big 12 Wrestling Championships Brackets and Seeds Released - USA Wrestling",
+        "pub_date": "Mon, 02 Mar 2026 20:56:53 GMT",
+        "source": ""
+      }
+    ],
+    "fda": [
+      {
+        "reason": "Three sauces contain undeclared soy.",
+        "date": "20221020",
+        "classification": "Class I",
+        "product": "Umami Everyday Savory Spice, 5 fl. oz. (148 mL) glass bottle, UPC 8-50000-72724-3, Co-Packed with Seed Ranch Flavor Co., Denver, CO 80216 Ambient storage - minimum 35 degrees, maximum 85 degrees."
+      },
+      {
+        "reason": "Contains undeclared wheat",
+        "date": "20140228",
+        "classification": "Class II",
+        "product": "High Mowing Organic Sprouting Seeds Ancient Eastern Blend , 4 oz. resealable plastic bag  UPC Code: 872724005445"
+      },
+      {
+        "reason": "Good Seed Inc. of Springfield, VA is recalling all packages of soybean sprouts and mung bean sprouts because they have the potential to be contaminated with Listeria monocytogenes, an organism which can cause serious and sometimes fatal infections to individuals with weakened immune systems.      The contamination was discovered after sampling by the Virginia Department of Agriculture and Consumer Services Food Safety Program and subsequent analysis by the Virginia Division of Consolidated Laboratory Services revealed the presence of Listeria monocytogenes in the product.",
+        "date": "20150508",
+        "classification": "Class I",
+        "product": "1-lb, 2-lb and 10-lb bags of Mung Bean Sprouts in clear plastic bags labeled GOODSEED Mung Bean Sprouts Keep Refrigerated"
+      },
+      {
+        "reason": "Three sauces contain undeclared soy.",
+        "date": "20221020",
+        "classification": "Class I",
+        "product": "Everything But The Sushi & Dumplings, 5 fl. oz. (148 mL) glass bottle, UPC 8-60008-58851-7, Made for Seed Ranch Flavor Co., LLC Boulder, CO 80302. Ambient storage - minimum 35 degrees, maximum 85 degrees."
+      },
+      {
+        "reason": "Product contains undeclared milk.",
+        "date": "20160329",
+        "classification": "Class I",
+        "product": "Yogurt Super Soynuts packaged in 16 oz. plastic bags and packaged in holiday tins. Lee Seed Company, Inc., Inwood, Iowa."
+      }
+    ],
+    "open_food_facts": [],
+    "research_text": "Brand: Seed\n\nRecent news headlines:\n- Turkish mobile developer Vento Games secures $4m in seed round funding - GamesIndustry.biz\n- March Madness bracket predictions: Top seed lines projected on March 3 - NCAA.com\n- NCAA Tournament Bracket Watch: The fight for a No. 3 seed is intense, and worthwhile - The New York Times\n- SEC basketball tournament bracket, projected seeds live updates - USA Today\n- Cavs prove that the No. 1 seed doesn\u2019t mean better, top Pistons 113-109 - Cleveland.com\n\nFDA recalls (5 found):\n- 20221020: Three sauces contain undeclared soy. [Class I]\n- 20140228: Contains undeclared wheat [Class II]\n- 20150508: Good Seed Inc. of Springfield, VA is recalling all packages of soybean sprouts and mung bean sprouts because they have t [Class I]"
+  },
+  "indexed_at": "2026-03-04T18:33:46.184773Z"
+}
