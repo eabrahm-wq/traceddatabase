@@ -107,3 +107,8 @@
 .tp-copy:hover { background:#d4a84b; }
 .tp-link { flex:1; padding:6px; background:transparent; color:#9a9284; border:1px solid #2d2a20; border-radius:2px; font-size:9px; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; }
 .tp-link:hover { color:#c8943a; }
+.tc-teaser { font-size:11px !important; color:#c94d3c !important; font-family:monospace !important; margin-top:4px !important; }
+.te-section-warn { background:rgba(201,77,60,0.05) !important; border:1px solid rgba(201,77,60,0.15) !important; border-radius:6px !important; padding:10px 12px !important; margin-bottom:10px !important; }
+.te-stat-red { color:#c94d3c !important; font-weight:700 !important; }
+.te-stat-amber { color:#d4a84b !important; font-weight:700 !important; }
+.te-violation-note { font-size:11px !important; color:#9ca3af !important; margin-top:4px !important; line-height:1.5 !important; }

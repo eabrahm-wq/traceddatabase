@@ -1,4 +1,4 @@
-// TRACED Maps v4 — debounced, Better Nearby, street name filter
+// TRACED Maps v5 — full profile panels with parent record, ingredient drift, founder story
 
 (function() {
   'use strict';
@@ -9,7 +9,6 @@
   let debounceTimer = null;
   let lastInjectedName = null;
 
-  // Street/area words to ignore
   const IGNORE_PATTERNS = /^(fillmore|market|mission|castro|haight|divisadero|valencia|geary|post|bush|pine|california|broadway|union|chestnut|lombard|columbus|north beach|the embarcadero|financial district|soma|nopa|richmond|sunset|st|ave|blvd|dr|rd|way|place|court|lane)\b/i;
 
   const TYPES = {
@@ -31,16 +30,19 @@
     return TYPES.unknown;
   }
 
+  function fmtLobbying(n) {
+    if (!n) return null;
+    return n >= 1000000 ? `$${(n/1000000).toFixed(1)}M/yr` : `$${(n/1000).toFixed(0)}K/yr`;
+  }
+
   async function lookup(name) {
     const key = name.toLowerCase().trim();
     if (key in cache) return cache[key];
     try {
-      const res = await fetch(`${API_BASE}/lookup?name=${encodeURIComponent(name)}&surface=google_maps&v=2`);
+      const res = await fetch(`${API_BASE}/lookup?name=${encodeURIComponent(name)}&surface=google_maps&v=3`);
       const data = await res.json();
       cache[key] = data.matched ? data : null;
-    } catch(e) {
-      cache[key] = null;
-    }
+    } catch(e) { cache[key] = null; }
     return cache[key];
   }
 
@@ -55,23 +57,6 @@
     } catch(e) { return []; }
   }
 
-  function buildNearbyHTML(nearby) {
-    if (!nearby.length) return '';
-    const items = nearby.map(n => `
-      <div class="te-nearby-item">
-        <span class="te-nearby-dot" style="background:#4e9b6f"></span>
-        <div>
-          <div class="te-nearby-name">${n.name}</div>
-          <div class="te-nearby-note">${n.note || n.neighborhood || ''}</div>
-        </div>
-      </div>`).join('');
-    return `
-      <div class="te-section te-section-green">
-        <div class="te-section-label" style="color:#4e9b6f">BETTER NEARBY</div>
-        ${items}
-      </div>`;
-  }
-
   async function createDetailCard(result, rawName) {
     const brand = result.brand;
     const t = getType(brand);
@@ -79,16 +64,22 @@
     const owner = brand.owner || 'Independent';
     const ultimate = brand.owner_type === 'public' ? `${owner} (NYSE/NASDAQ)` : owner;
     const isIndie = brand.independent;
+    const pr = brand.parent_record;
     const profileUrl = `${TRACED_URL}/brand/${slug}`;
-
-    // Fetch nearby in parallel
     const nearby = isIndie ? [] : await fetchNearby(brand.category, brand.price_tier, brand.format);
 
     const card = document.createElement('div');
     card.className = 'traced-card';
 
+    // COMPACT ROW
     const compact = document.createElement('div');
     compact.className = 'traced-compact';
+    const violationTeaser = pr && pr.violations ? `⚠ ${pr.violations} violations · ` : '';
+    const lobbyTeaser = pr && pr.lobbying_annual ? fmtLobbying(pr.lobbying_annual) + ' lobbying' : '';
+    const teaserLine = (violationTeaser || lobbyTeaser)
+      ? `<div class="tc-teaser">${violationTeaser}${lobbyTeaser}</div>`
+      : '';
+
     compact.innerHTML = `
       <div class="tc-row">
         <div class="tc-logo">T</div>
@@ -98,13 +89,18 @@
         <div class="tc-owner">${owner}</div>
         <button class="tc-expand-btn">See why ↓</button>
       </div>
-      <div class="tc-note">${brand.headline_finding || ''}</div>`;
+      <div class="tc-note">${brand.headline_finding || ''}</div>
+      ${teaserLine}`;
 
+    // EXPANDED PANEL
     const expanded = document.createElement('div');
     expanded.className = 'traced-expanded';
     expanded.style.display = 'none';
 
-    let html = `
+    let html = '';
+
+    // OWNERSHIP CHAIN
+    html += `
       <div class="te-section">
         <div class="te-section-label">OWNERSHIP CHAIN</div>
         <div class="te-chain">
@@ -115,7 +111,7 @@
           <div class="te-chain-line"></div>
           <div class="te-chain-item">
             <div class="te-chain-dot" style="border-color:#625c50"></div>
-            <div><div class="te-chain-name">${brand.name}</div><div class="te-chain-role">PARENT COMPANY</div></div>
+            <div><div class="te-chain-name">${brand.name}</div><div class="te-chain-role">BRAND</div></div>
           </div>
           <div class="te-chain-line"></div>
           <div class="te-chain-item">
@@ -128,7 +124,16 @@
         </div>
       </div>`;
 
-    if (!isIndie && brand.founded_year) {
+    // FOUNDER STORY (both indie and acquired)
+    if (brand.founder_story) {
+      const sectionColor = isIndie ? '#4e9b6f' : '#9ca3af';
+      const sectionBg = isIndie ? 'te-section-green' : '';
+      html += `
+        <div class="te-section ${sectionBg}">
+          <div class="te-section-label" style="color:${sectionColor}">${isIndie ? 'FOUNDER STORY' : 'ORIGIN'}</div>
+          <div class="te-founder-story">${brand.founder_story}</div>
+        </div>`;
+    } else if (brand.founded_year && !isIndie) {
       html += `
         <div class="te-section">
           <div class="te-section-label">ORIGIN</div>
@@ -137,21 +142,59 @@
         </div>`;
     }
 
-    if (isIndie && brand.headline_finding) {
+    // PARENT COMPANY RECORD
+    if (pr && pr.violations && !isIndie) {
+      const lf = fmtLobbying(pr.lobbying_annual);
       html += `
-        <div class="te-section te-section-green">
-          <div class="te-section-label" style="color:#4e9b6f">INDEPENDENT BUSINESS</div>
-          <div class="te-founder-story">${brand.headline_finding}</div>
-          ${brand.founded_year ? `<div class="te-founded">Since ${brand.founded_year}</div>` : ''}
+        <div class="te-section te-section-warn">
+          <div class="te-section-label" style="color:#c94d3c">PARENT COMPANY RECORD</div>
+          <div class="te-stat-row">
+            <span class="te-stat-label">Violations</span>
+            <span class="te-stat-val te-stat-red">${pr.violations} documented</span>
+          </div>
+          <div class="te-violation-note">${pr.violation_summary}</div>
+          ${lf ? `<div class="te-stat-row" style="margin-top:8px">
+            <span class="te-stat-label">Lobbying</span>
+            <span class="te-stat-val te-stat-amber">${lf}</span>
+          </div>
+          <div class="te-violation-note">${pr.lobbying_issues}</div>` : ''}
         </div>`;
     }
 
-    html += buildNearbyHTML(nearby);
+    // INGREDIENT DRIFT
+    if (brand.ingredient_drift && brand.ingredient_drift_note) {
+      html += `
+        <div class="te-section te-section-warn">
+          <div class="te-section-label" style="color:#f59e0b">⚗ INGREDIENT DRIFT</div>
+          <div class="te-violation-note">${brand.ingredient_drift_note}</div>
+        </div>`;
+    }
 
+    // BETTER NEARBY
+    if (nearby.length > 0) {
+      const items = nearby.map(n => `
+        <div class="te-nearby-item">
+          <span class="te-nearby-dot" style="background:#4e9b6f"></span>
+          <div>
+            <div class="te-nearby-name">${n.name}</div>
+            <div class="te-nearby-note">${n.note || n.neighborhood || ''}</div>
+          </div>
+        </div>`).join('');
+      html += `
+        <div class="te-section te-section-green">
+          <div class="te-section-label" style="color:#4e9b6f">BETTER NEARBY</div>
+          ${items}
+        </div>`;
+    }
+
+    // ACTIONS
+    const ctaLabel = pr && pr.violations
+      ? `See ${pr.violations} violations on TracedHealth →`
+      : `Full profile on TracedHealth →`;
     html += `
       <div class="te-actions">
         <button class="te-btn-copy" id="te-copy-${slug}">Copy finding</button>
-        <a class="te-btn-full" href="${profileUrl}" target="_blank">Full record →</a>
+        <a class="te-btn-full" href="${profileUrl}" target="_blank">${ctaLabel}</a>
       </div>
       <div class="te-footer">Powered by TracedHealth · tracedhealth.com</div>`;
 
@@ -184,21 +227,15 @@
     const panel = document.querySelector('[role="main"]');
     if (!panel) return;
     if (document.querySelector('.traced-card')) return;
-
     const h1 = panel.querySelector('h1');
     if (!h1 || injected.has(h1)) return;
-
     const name = h1.textContent.trim();
     if (name.length < 3 || name.length > 80) return;
     if (IGNORE_PATTERNS.test(name)) return;
     if (name === lastInjectedName) return;
-
     const result = await lookup(name);
     if (!result) return;
-
-    // Double-check nothing injected while we awaited
     if (document.querySelector('.traced-card')) return;
-
     lastInjectedName = name;
     injected.add(h1);
     const card = await createDetailCard(result, name);
@@ -229,5 +266,5 @@
     ? document.addEventListener('DOMContentLoaded', init)
     : init();
 
-  console.log('[Traced Maps v4] active');
+  console.log('[Traced Maps v5] active');
 })();

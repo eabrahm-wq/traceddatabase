@@ -124,11 +124,22 @@ def _format_brand(row):
         "watch_list": bool(row.get("watch_list")),
         "price_tier": row.get("price_tier"),
         "format": row.get("format"),
+        "ingredient_drift": bool(row.get("ingredient_drift")),
+        "ingredient_drift_note": row.get("ingredient_drift_note"),
+        "founder_story": row.get("founder_story"),
+        "parent_record": {
+            "violations": row.get("co_violations"),
+            "violation_summary": row.get("co_violation_summary"),
+            "lobbying_annual": row.get("co_lobbying"),
+            "lobbying_issues": row.get("co_lobbying_issues"),
+        } if row.get("co_violations") else None,
     }
 
 def _fetch_brand(brand_id, conn):
     c = conn.cursor()
-    c.execute("""SELECT b.*, co.name as co_name, co.type as co_type
+    c.execute("""SELECT b.*, co.name as co_name, co.type as co_type,
+                     co.violation_count as co_violations, co.violation_summary as co_violation_summary,
+                     co.lobbying_annual as co_lobbying, co.lobbying_issues as co_lobbying_issues
                  FROM brands b LEFT JOIN companies co ON b.parent_company_id = co.id
                  WHERE b.id = ?""", (brand_id,))
     row = c.fetchone()
