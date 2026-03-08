@@ -1029,6 +1029,21 @@ def api_nearby():
     resp.headers["Access-Control-Allow-Origin"] = "*"
     return resp
 
+
+@app.route("/api/debug")
+def api_debug():
+    import os, sqlite3 as sq
+    db_path = DB
+    size = os.path.getsize(db_path) if os.path.exists(db_path) else -1
+    try:
+        conn = sq.connect(db_path)
+        count = conn.execute("SELECT COUNT(*) FROM brands").fetchone()[0]
+        conn.close()
+        return jsonify({"db_size": size, "brands": count, "db_path": db_path})
+    except Exception as e:
+        return jsonify({"db_size": size, "error": str(e), "db_path": db_path})
+
+
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 5001))
