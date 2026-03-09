@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Traced Scanner</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #1a1a1a;
+      --surface: #242424;
+      --surface2: #2e2e2e;
+      --gold: #d4a843;
+      --gold-dim: #a07d2e;
+      --text: #e8e0d4;
+      --muted: #7a7166;
+      --green: #4e9b6f;
+      --yellow: #c9922a;
+      --red: #c94a3a;
+      --red-dim: #7a2e26;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── Camera layer ── */
+    #video {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    /* ── Overlay dimming ── */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .overlay-top, .overlay-bottom, .overlay-left, .overlay-right {
+      position: absolute;
+      background: rgba(0,0,0,0.55);
+    }
+    .overlay-top    { top:0; left:0; right:0; height: calc(50% - 90px); }
+    .overlay-bottom { bottom:0; left:0; right:0; height: calc(50% - 90px); }
+    .overlay-left   { top: calc(50% - 90px); left:0; width: calc(50% - 140px); height: 180px; }
+    .overlay-right  { top: calc(50% - 90px); right:0; width: calc(50% - 140px); height: 180px; }
+
+    /* ── Reticle ── */
+    #reticle {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 280px; height: 180px;
+      z-index: 3;
+      pointer-events: none;
+    }
+    #reticle::before, #reticle::after,
+    #reticle .r-bl, #reticle .r-br {
+      content: '';
+      position: absolute;
+      width: 28px; height: 28px;
+      border-color: var(--gold);
+      border-style: solid;
+    }
+    #reticle::before  { top:0; left:0;  border-width: 3px 0 0 3px; }
+    #reticle::after   { top:0; right:0; border-width: 3px 3px 0 0; }
+    #reticle .r-bl    { bottom:0; left:0;  border-width: 0 0 3px 3px; }
+    #reticle .r-br    { bottom:0; right:0; border-width: 0 3px 3px 0; }
+
+    #scan-line {
+      position: absolute;
+      left: 6px; right: 6px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      animation: scan 2s ease-in-out infinite;
+      box-shadow: 0 0 8px var(--gold);
+    }
+    @keyframes scan {
+      0%   { top: 10%; opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { top: 90%; opacity: 0; }
+    }
+
+    /* ── Header ── */
+    #header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 5;
+      padding: env(safe-area-inset-top, 16px) 20px 16px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-mark {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Status pill ── */
+    #status {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, calc(-50% + 110px));
+      z-index: 5;
+      background: rgba(0,0,0,0.65);
+      border: 1px solid rgba(212,168,67,0.25);
+      border-radius: 20px;
+      padding: 7px 18px;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      backdrop-filter: blur(6px);
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    /* ── Spinner ── */
+    #spinner {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 6;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .spin-ring {
+      width: 48px; height: 48px;
+      border: 3px solid rgba(212,168,67,0.2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #spinner-text {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Result card ── */
+    #result-card {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 10;
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      padding: 0 0 env(safe-area-inset-bottom, 24px);
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 82vh;
+      overflow-y: auto;
+    }
+    #result-card.open { transform: translateY(0); }
+
+    .card-handle {
+      width: 36px; height: 4px;
+      background: var(--surface2);
+      border-radius: 2px;
+      margin: 14px auto 20px;
+    }
+
+    .card-body { padding: 0 20px 12px; }
+
+    .product-name {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+    .brand-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      line-height: 1.2;
+    }
+
+    /* Zone badge */
+    .zone-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .zone-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .zone-badge.green  { background: rgba(78,155,111,0.18); color: var(--green); border: 1px solid rgba(78,155,111,0.3); }
+    .zone-badge.yellow { background: rgba(201,146,42,0.18); color: var(--yellow); border: 1px solid rgba(201,146,42,0.3); }
+    .zone-badge.red    { background: rgba(201,74,58,0.18);  color: var(--red);    border: 1px solid rgba(201,74,58,0.3); }
+    .zone-badge.grey   { background: rgba(122,113,102,0.18); color: var(--muted); border: 1px solid rgba(122,113,102,0.3); }
+    .zone-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .green .zone-dot  { background: var(--green); }
+    .yellow .zone-dot { background: var(--yellow); }
+    .red .zone-dot    { background: var(--red); }
+    .grey .zone-dot   { background: var(--muted); }
+
+    /* Sections */
+    .card-section {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    .section-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .section-text {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Alert sections */
+    .alert-section {
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    .alert-section.red  { background: rgba(201,74,58,0.12); border: 1px solid rgba(201,74,58,0.25); }
+    .alert-section.gold { background: rgba(212,168,67,0.1); border: 1px solid rgba(212,168,67,0.2); }
+    .alert-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .alert-section.red  .alert-label { color: var(--red); }
+    .alert-section.gold .alert-label { color: var(--gold); }
+    .alert-text {
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .alert-section.red  .alert-text { color: #e8a09a; }
+    .alert-section.gold .alert-text { color: #c9a96e; }
+
+    /* Stat row */
+    .stat-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .stat-chip {
+      flex: 1;
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+    .stat-val {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--red);
+    }
+    .stat-val.ok { color: var(--green); }
+    .stat-lab {
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* Unknown / not-found card */
+    .not-found-body {
+      text-align: center;
+      padding: 24px 20px 12px;
+    }
+    .nf-icon { font-size: 36px; margin-bottom: 12px; }
+    .nf-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+    .nf-sub   { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .nf-upc   { font-size: 11px; color: var(--muted); margin-top: 10px; font-family: monospace; }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      padding: 6px 20px 4px;
+    }
+    .btn {
+      flex: 1;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn:active { opacity: 0.7; }
+    .btn-primary {
+      background: var(--gold);
+      color: #1a1200;
+    }
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    /* Error state */
+    #error-banner {
+      position: fixed;
+      top: 80px; left: 16px; right: 16px;
+      z-index: 8;
+      background: rgba(201,74,58,0.9);
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      display: none;
+      backdrop-filter: blur(6px);
+    }
+  </style>
+</head>
+<body>
+
+<video id="video" autoplay playsinline muted></video>
+
+<div id="overlay">
+  <div class="overlay-top"></div>
+  <div class="overlay-bottom"></div>
+  <div class="overlay-left"></div>
+  <div class="overlay-right"></div>
+</div>
+
+<div id="reticle">
+  <div class="r-bl"></div>
+  <div class="r-br"></div>
+  <div id="scan-line"></div>
+</div>
+
+<div id="header">
+  <span class="logo-mark">Traced</span>
+  <span class="logo-sub">/ Scanner</span>
+</div>
+
+<div id="status">Point camera at a barcode</div>
+
+<div id="spinner">
+  <div class="spin-ring"></div>
+  <div id="spinner-text">Looking up barcode…</div>
+</div>
+
+<div id="error-banner"></div>
+
+<div id="result-card">
+  <div class="card-handle"></div>
+  <div id="card-content"></div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn-scan-again">Scan Another</button>
+    <button class="btn btn-primary"   id="btn-copy" style="display:none">Copy Finding</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.1/umd/index.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ── Config ──────────────────────────────────────────────────────────────────
+  const API_BASE = window.location.origin;  // works over local network
+
+  // ── State ───────────────────────────────────────────────────────────────────
+  let scanning   = true;
+  let lastScan   = null;
+  let copyText   = '';
+  let codeReader = null;
+
+  // ── Elements ─────────────────────────────────────────────────────────────────
+  const video      = document.getElementById('video');
+  const status     = document.getElementById('status');
+  const spinner    = document.getElementById('spinner');
+  const spinText   = document.getElementById('spinner-text');
+  const resultCard = document.getElementById('result-card');
+  const cardContent= document.getElementById('card-content');
+  const btnCopy    = document.getElementById('btn-copy');
+  const btnAgain   = document.getElementById('btn-scan-again');
+  const errBanner  = document.getElementById('error-banner');
+
+  // ── Start scanner ────────────────────────────────────────────────────────────
+  async function startScanner() {
+    try {
+      codeReader = new ZXingBrowser.BrowserMultiFormatReader();
+      const devices = await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
+      // Prefer back camera
+      const deviceId = (devices.find(d => /back|rear|environment/i.test(d.label)) || devices[0])?.deviceId;
+
+      codeReader.decodeFromVideoDevice(deviceId || undefined, video, (result, err) => {
+        if (!scanning || !result) return;
+        const text = result.getText();
+        if (text === lastScan) return;  // debounce duplicate reads
+        lastScan = text;
+        scanning = false;
+        handleScan(text);
+      });
+    } catch (e) {
+      showError('Camera permission denied. Allow camera access and reload.');
+    }
+  }
+
+  // ── Handle scan ──────────────────────────────────────────────────────────────
+  async function handleScan(upc) {
+    setStatus('');
+    showSpinner(`Looking up ${upc}…`);
+
+    try {
+      // 1. Check local DB
+      let data = await fetchJSON(`${API_BASE}/api/barcode?upc=${encodeURIComponent(upc)}`);
+
+      // 2. If not found locally → try Open Food Facts
+      if (!data.found) {
+        spinText.textContent = 'Checking Open Food Facts…';
+        data = await fetchJSON(`${API_BASE}/api/barcode/lookup-external?upc=${encodeURIComponent(upc)}`);
+        data._source = 'external';
+      }
+
+      hideSpinner();
+      renderResult(data, upc);
+
+    } catch (e) {
+      hideSpinner();
+      showError(`Network error: ${e.message}`);
+      resetScan();
+    }
+  }
+
+  // ── Render result ────────────────────────────────────────────────────────────
+  function renderResult(data, upc) {
+    copyText = '';
+    btnCopy.style.display = 'none';
+
+    if (!data.found) {
+      cardContent.innerHTML = `
+        <div class="not-found-body">
+          <div class="nf-icon">🔍</div>
+          <div class="nf-title">Product Not Found</div>
+          <div class="nf-sub">This barcode isn't in Traced or Open Food Facts yet.<br>It might be a store brand or regional product.</div>
+          <div class="nf-upc">UPC: ${escHtml(upc)}</div>
+        </div>`;
+      openCard();
+      return;
+    }
+
+    // Found but not traced (brand unknown)
+    if (!data.traced) {
+      const brandName = data.brand_name || data.brand?.name || '—';
+      cardContent.innerHTML = `
+        <div class="card-body">
+          <div class="product-name">${escHtml(data.product_name || 'Product')}</div>
+          <div class="brand-name">${escHtml(brandName)}</div>
+          <div class="zone-row">
+            <span class="zone-badge grey"><span class="zone-dot"></span>Not Yet Researched</span>
+          </div>
+          <div class="card-section">
+            <div class="section-label">About</div>
+            <div class="section-text">Traced hasn't researched ${escHtml(brandName)} yet. We know the product exists, but ownership data isn't available.</div>
+          </div>
+        </div>`;
+      openCard();
+      return;
+    }
+
+    // Full traced result
+    const b = data.brand;
+    const p = data.parent;
+    const zone = (b.zone || 'grey').toLowerCase();
+    const zoneLabel = { green: 'Independent', yellow: 'Chain / Public', red: 'Corporate / PE', grey: 'Unknown' }[zone] || zone;
+
+    let html = `<div class="card-body">`;
+    html += `<div class="product-name">${escHtml(data.product_name || 'Product')}</div>`;
+    html += `<div class="brand-name">${escHtml(b.name)}</div>`;
+    html += `<div class="zone-row"><span class="zone-badge ${zone}"><span class="zone-dot"></span>${zoneLabel}</span></div>`;
+
+    if (b.headline) {
+      html += `<div class="card-section">
+        <div class="section-label">Finding</div>
+        <div class="section-text">${escHtml(b.headline)}</div>
+      </div>`;
+    }
+
+    if (p && (p.violations || p.lobbying_annual)) {
+      const fmt = n => n >= 1e6 ? `$${(n/1e6).toFixed(1)}M` : n >= 1e3 ? `$${(n/1e3).toFixed(0)}K` : `$${n}`;
+      html += `<div class="stat-row">`;
+      if (p.violations != null) {
+        html += `<div class="stat-chip"><div class="stat-val${p.violations === 0 ? ' ok' : ''}">${p.violations}</div><div class="stat-lab">Violations</div></div>`;
+      }
+      if (p.lobbying_annual) {
+        html += `<div class="stat-chip"><div class="stat-val">${fmt(p.lobbying_annual)}/yr</div><div class="stat-lab">Lobbying</div></div>`;
+      }
+      html += `</div>`;
+      if (p.violation_summary) {
+        html += `<div class="alert-section red">
+          <div class="alert-label">⚠ Parent Company Record — ${escHtml(p.name || '')}</div>
+          <div class="alert-text">${escHtml(p.violation_summary)}</div>
+        </div>`;
+      }
+    }
+
+    if (b.ingredient_drift && b.ingredient_drift_note) {
+      html += `<div class="alert-section gold">
+        <div class="alert-label">⚗ Ingredient Drift</div>
+        <div class="alert-text">${escHtml(b.ingredient_drift_note)}</div>
+      </div>`;
+    }
+
+    if (b.founder_story && zone === 'green') {
+      html += `<div class="card-section">
+        <div class="section-label">Origin</div>
+        <div class="section-text">${escHtml(b.founder_story)}</div>
+      </div>`;
+    }
+
+    html += `</div>`;
+    cardContent.innerHTML = html;
+
+    // Build copy text
+    copyText = `${b.name} — ${zoneLabel}`;
+    if (b.headline) copyText += `\n${b.headline}`;
+    if (p?.violations) copyText += `\n${p.violations} violations`;
+    copyText += '\n\nvia Traced';
+    btnCopy.style.display = '';
+
+    openCard();
+  }
+
+  // ── UI helpers ───────────────────────────────────────────────────────────────
+  function openCard()  { resultCard.classList.add('open'); }
+  function closeCard() { resultCard.classList.remove('open'); }
+
+  function showSpinner(msg) {
+    spinner.style.display = 'flex';
+    spinText.textContent = msg || 'Looking up…';
+  }
+  function hideSpinner() { spinner.style.display = 'none'; }
+
+  function setStatus(msg) { status.textContent = msg; status.style.opacity = msg ? '1' : '0'; }
+
+  function showError(msg) {
+    errBanner.textContent = msg;
+    errBanner.style.display = 'block';
+    setTimeout(() => { errBanner.style.display = 'none'; }, 4000);
+  }
+
+  function resetScan() {
+    setTimeout(() => {
+      lastScan = null;
+      scanning = true;
+      setStatus('Point camera at a barcode');
+    }, 1500);
+  }
+
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function fetchJSON(url) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  }
+
+  // ── Button handlers ──────────────────────────────────────────────────────────
+  btnAgain.addEventListener('click', () => {
+    closeCard();
+    setTimeout(resetScan, 350);
+  });
+
+  btnCopy.addEventListener('click', () => {
+    navigator.clipboard.writeText(copyText).then(() => {
+      const orig = btnCopy.textContent;
+      btnCopy.textContent = 'Copied!';
+      setTimeout(() => { btnCopy.textContent = orig; }, 1800);
+    }).catch(() => {
+      // Fallback for older iOS
+      const ta = document.createElement('textarea');
+      ta.value = copyText;
+      ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    });
+  });
+
+  // Swipe down to close card
+  let touchStartY = 0;
+  resultCard.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, {passive: true});
+  resultCard.addEventListener('touchend', e => {
+    if (e.changedTouches[0].clientY - touchStartY > 60) {
+      closeCard();
+      setTimeout(resetScan, 350);
+    }
+  }, {passive: true});
+
+  // ── Init ─────────────────────────────────────────────────────────────────────
+  setStatus('Point camera at a barcode');
+  startScanner();
+
+})();
+</script>
+</body>
+</html>
