@@ -1,7 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 import sqlite3, os, json, re
 
 app = Flask(__name__)
+CORS(app)
 DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'traced.db')
 
 def get_db():
@@ -1043,6 +1045,184 @@ def api_debug():
     except Exception as e:
         return jsonify({"db_size": size, "error": str(e), "db_path": db_path})
 
+
+# ── Barcode scanner API (query-param version, CORS-enabled) ───────────────────
+
+@app.route('/api/barcode')
+def api_barcode_scan():
+    upc = request.args.get('upc', '').strip()
+    if not upc:
+        return jsonify({'error': 'upc required'}), 400
+
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT * FROM products WHERE upc = ? LIMIT 1", (upc,))
+    product = c.fetchone()
+
+    if not product:
+        conn.close()
+        resp = jsonify({'found': False, 'upc': upc,
+                        'message': 'Product not in Traced database yet'})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
+
+    if not product['brand_id']:
+        conn.close()
+        resp = jsonify({'found': True, 'traced': False,
+                        'product_name': product['name'],
+                        'brand_name': product['brand_name_raw'] or '',
+                        'message': 'Product found but brand not yet researched'})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
+
+    c.execute("""
+        SELECT b.*,
+               co.name          AS co_name,
+               co.type          AS co_type,
+               co.violation_count     AS co_violations,
+               co.violation_summary   AS co_violation_summary,
+               co.lobbying_annual     AS co_lobbying,
+               co.lobbying_issues     AS co_lobbying_issues
+        FROM brands b
+        LEFT JOIN companies co ON b.parent_company_id = co.id
+        WHERE b.id = ?
+    """, (product['brand_id'],))
+    brand = c.fetchone()
+    conn.close()
+
+    if not brand:
+        print(f"[barcode] brand_id={product['brand_id']} not found in brands table")
+        resp = jsonify({'found': True, 'traced': False, 'upc': upc,
+                        'product_name': product['name'],
+                        'brand_name': product['brand_name_raw'] or '',
+                        'message': 'Brand record missing from database'})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
+
+    brand_dict = {
+        'id': brand['id'],
+        'name': brand['name'],
+        'zone': brand['overall_zone'],          # primary field scanner uses
+        'overall_zone': brand['overall_zone'],  # redundant alias for safety
+        'independent': bool(brand['independent']),
+        'pe_owned': bool(brand['pe_owned']),
+        'headline': brand['headline_finding'],
+        'share_text': brand['share_text'],
+        'founder_story': brand['founder_story'],
+        'ingredient_drift': bool(brand['ingredient_drift']),
+        'ingredient_drift_note': brand['ingredient_drift_note'],
+    }
+    parent_dict = {
+        'name': brand['co_name'],
+        'type': brand['co_type'],
+        'violations': brand['co_violations'],
+        'violation_summary': brand['co_violation_summary'],
+        'lobbying_annual': brand['co_lobbying'],
+        'lobbying_issues': brand['co_lobbying_issues'],
+    } if brand['co_name'] else None
+
+    print(f"[barcode] upc={upc} brand={brand_dict}")
+
+    result = {
+        'found': True,
+        'traced': bool(brand['overall_zone']),
+        'upc': upc,
+        'product_name': product['name'],
+        'brand': brand_dict,
+        'parent': parent_dict,
+    }
+    resp = jsonify(result)
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
+
+@app.route('/api/barcode/lookup-external')
+def api_barcode_external():
+    upc = request.args.get('upc', '').strip()
+    if not upc:
+        return jsonify({'error': 'upc required'}), 400
+
+    import urllib.request
+    import json as jsonlib
+
+    try:
+        url = (f'https://world.openfoodfacts.org/api/v2/product/{upc}.json'
+               f'?fields=product_name,brands,categories,image_url')
+        req = urllib.request.Request(url, headers={'User-Agent': 'TracedHealth/1.0'})
+        with urllib.request.urlopen(req, timeout=4) as r:
+            data = jsonlib.loads(r.read())
+
+        if data.get('status') == 1:
+            p = data.get('product', {})
+            brand_name = (p.get('brands') or '').split(',')[0].strip()
+            brand_obj = None
+            parent_obj = None
+            traced = False
+            if brand_name:
+                from traced_resolver import resolve
+                res = resolve(brand_name)
+                if res.get('matched'):
+                    rb = res['brand']
+                    traced = bool(rb.get('overall_zone'))
+                    brand_obj = {
+                        'id': rb.get('slug') or rb.get('id'),
+                        'name': rb.get('name', brand_name),
+                        'zone': rb.get('overall_zone'),
+                        'independent': bool(rb.get('independent')),
+                        'pe_owned': bool(rb.get('pe_owned')),
+                        'headline': rb.get('headline_finding'),
+                        'share_text': rb.get('share_text'),
+                        'founder_story': rb.get('founder_story'),
+                        'ingredient_drift': bool(rb.get('ingredient_drift')),
+                        'ingredient_drift_note': rb.get('ingredient_drift_note'),
+                    }
+                    # Use parent_record from resolver if available
+                    pr = rb.get('parent_record')
+                    if pr:
+                        parent_obj = {
+                            'name': rb.get('owner'),
+                            'type': None,
+                            'violations': pr.get('violations'),
+                            'violation_summary': pr.get('violation_summary'),
+                            'lobbying_annual': pr.get('lobbying_annual'),
+                            'lobbying_issues': pr.get('lobbying_issues'),
+                        }
+            print(f"[barcode-ext] upc={upc} brand_name={brand_name} brand={brand_obj}")
+            resp = jsonify({
+                'found': True,
+                'source': 'open_food_facts',
+                'product_name': p.get('product_name', ''),
+                'brand_name': brand_name,
+                'traced': traced,
+                'brand': brand_obj,
+                'parent': parent_obj,
+                'image_url': p.get('image_url', ''),
+                'categories': p.get('categories', ''),
+            })
+        else:
+            resp = jsonify({'found': False, 'source': 'open_food_facts'})
+
+    except Exception as e:
+        resp = jsonify({'found': False, 'error': str(e)})
+
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
+
+@app.route('/scanner/')
+@app.route('/scanner')
+def scanner_ui():
+    import os
+    scanner_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scanner', 'index.html')
+    with open(scanner_path) as f:
+        return f.read(), 200, {'Content-Type': 'text/html'}
+
+
+
+@app.route('/research')
+def research_page():
+    static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+    return send_from_directory(static_dir, 'research.html')
 
 if __name__ == "__main__":
     import os
