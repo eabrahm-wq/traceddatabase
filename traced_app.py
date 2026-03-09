@@ -1,10 +1,42 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import sqlite3, os, json, re
+import sqlite3, os, json, re, uuid
 
 app = Flask(__name__)
 CORS(app)
 DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'traced.db')
+
+ADMIN_KEY = os.environ.get('ADMIN_KEY', 'traced-admin-2026')
+
+def _init_submissions_table():
+    with sqlite3.connect(DB) as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS submissions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ref_id TEXT UNIQUE NOT NULL,
+                biz_name TEXT NOT NULL,
+                category TEXT,
+                founded_year INTEGER,
+                address TEXT,
+                website TEXT,
+                google_maps_url TEXT,
+                ownership_type TEXT,
+                owner_names TEXT,
+                has_investors TEXT,
+                owner_story TEXT,
+                contact_name TEXT,
+                contact_role TEXT,
+                contact_email TEXT,
+                instagram TEXT,
+                status TEXT DEFAULT 'pending',
+                assigned_zone TEXT DEFAULT 'green',
+                reject_reason TEXT,
+                submitted_at TEXT DEFAULT (datetime('now')),
+                reviewed_at TEXT
+            )
+        """)
+
+_init_submissions_table()
 
 def get_db():
     conn = sqlite3.connect(DB)
@@ -1223,6 +1255,150 @@ def scanner_ui():
 def research_page():
     static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
     return send_from_directory(static_dir, 'research.html')
+
+
+# ── Submission flow ────────────────────────────────────────────────────────────
+
+def _check_admin(req):
+    return req.headers.get('X-Admin-Key') == ADMIN_KEY
+
+
+def _slugify(text):
+    slug = re.sub(r'[^a-z0-9]+', '-', text.lower().strip())
+    return slug.strip('-')
+
+
+@app.route('/submit')
+def submit_page():
+    static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+    return send_from_directory(static_dir, 'submit.html')
+
+
+@app.route('/admin/submissions')
+def admin_submissions_page():
+    static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+    return send_from_directory(static_dir, 'admin-submissions.html')
+
+
+@app.route('/api/submit-business', methods=['POST'])
+def api_submit_business():
+    data = request.get_json(silent=True) or {}
+    biz_name = (data.get('biz_name') or '').strip()
+    if not biz_name:
+        return jsonify({'error': 'biz_name is required'}), 400
+
+    ref_id = uuid.uuid4().hex[:8].upper()
+    with sqlite3.connect(DB) as conn:
+        conn.execute(
+            """INSERT INTO submissions
+               (ref_id, biz_name, category, founded_year, address, website,
+                google_maps_url, ownership_type, owner_names, has_investors,
+                owner_story, contact_name, contact_role, contact_email, instagram)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (
+                ref_id,
+                biz_name,
+                data.get('category'),
+                data.get('founded_year'),
+                data.get('address'),
+                data.get('website'),
+                data.get('google_maps_url'),
+                data.get('ownership_type'),
+                data.get('owner_names'),
+                data.get('has_investors'),
+                data.get('owner_story'),
+                data.get('contact_name'),
+                data.get('contact_role'),
+                data.get('contact_email'),
+                data.get('instagram'),
+            )
+        )
+    return jsonify({'success': True, 'ref_id': ref_id})
+
+
+@app.route('/api/admin/submissions', methods=['GET'])
+def api_admin_submissions():
+    if not _check_admin(request):
+        return jsonify({'error': 'unauthorized'}), 401
+
+    status_filter = request.args.get('status', 'all')
+    with sqlite3.connect(DB) as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+
+        # counts
+        c.execute("SELECT status, COUNT(*) FROM submissions GROUP BY status")
+        counts = {'pending': 0, 'approved': 0, 'rejected': 0}
+        for row in c.fetchall():
+            if row[0] in counts:
+                counts[row[0]] = row[1]
+
+        if status_filter == 'all':
+            c.execute("SELECT * FROM submissions ORDER BY submitted_at DESC")
+        else:
+            c.execute("SELECT * FROM submissions WHERE status=? ORDER BY submitted_at DESC", (status_filter,))
+        rows = [dict(r) for r in c.fetchall()]
+
+    return jsonify({'submissions': rows, 'counts': counts})
+
+
+@app.route('/api/admin/submissions/<int:sub_id>/approve', methods=['POST'])
+def api_admin_approve(sub_id):
+    if not _check_admin(request):
+        return jsonify({'error': 'unauthorized'}), 401
+
+    data = request.get_json(silent=True) or {}
+    zone = data.get('zone', 'green')
+    if zone not in ('green', 'yellow', 'red'):
+        return jsonify({'error': 'zone must be green, yellow, or red'}), 400
+
+    with sqlite3.connect(DB) as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute("SELECT * FROM submissions WHERE id=?", (sub_id,))
+        sub = c.fetchone()
+        if not sub:
+            return jsonify({'error': 'submission not found'}), 404
+        sub = dict(sub)
+
+        c.execute(
+            "UPDATE submissions SET status='approved', assigned_zone=?, reviewed_at=datetime('now') WHERE id=?",
+            (zone, sub_id)
+        )
+
+        slug = _slugify(sub['biz_name'])
+        c.execute(
+            """INSERT OR IGNORE INTO brands
+               (id, name, slug, category, founded_year, overall_zone,
+                independent, pe_owned, owner)
+               VALUES (?,?,?,?,?,?,1,0,?)""",
+            (slug, sub['biz_name'], slug, sub.get('category'),
+             sub.get('founded_year'), zone, sub.get('contact_name'))
+        )
+
+    return jsonify({'success': True, 'slug': slug})
+
+
+@app.route('/api/admin/submissions/<int:sub_id>/reject', methods=['POST'])
+def api_admin_reject(sub_id):
+    if not _check_admin(request):
+        return jsonify({'error': 'unauthorized'}), 401
+
+    data = request.get_json(silent=True) or {}
+    reason = data.get('reason', '')
+
+    with sqlite3.connect(DB) as conn:
+        c = conn.cursor()
+        c.execute("SELECT id FROM submissions WHERE id=?", (sub_id,))
+        if not c.fetchone():
+            return jsonify({'error': 'submission not found'}), 404
+        c.execute(
+            "UPDATE submissions SET status='rejected', reject_reason=?, reviewed_at=datetime('now') WHERE id=?",
+            (reason, sub_id)
+        )
+
+    return jsonify({'success': True})
+
 
 if __name__ == "__main__":
     import os
