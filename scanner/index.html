@@ -163,6 +163,47 @@
       letter-spacing: 0.06em;
     }
 
+    /* ── Manual entry bar ── */
+    #manual-bar {
+      position: fixed;
+      bottom: env(safe-area-inset-bottom, 24px);
+      left: 16px; right: 16px;
+      z-index: 7;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      transition: opacity 0.3s;
+    }
+    #manual-bar.hidden { opacity: 0; pointer-events: none; }
+    #manual-input {
+      flex: 1;
+      background: rgba(36,36,36,0.92);
+      border: 1px solid rgba(212,168,67,0.3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      backdrop-filter: blur(8px);
+      -webkit-appearance: none;
+      letter-spacing: 0.04em;
+    }
+    #manual-input::placeholder { color: var(--muted); }
+    #manual-input:focus { border-color: var(--gold); }
+    #manual-submit {
+      background: var(--gold);
+      color: #1a1200;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    #manual-submit:active { opacity: 0.75; }
+
     /* ── Result card ── */
     #result-card {
       position: fixed;
@@ -385,6 +426,12 @@
 
 <div id="error-banner"></div>
 
+<div id="manual-bar">
+  <input id="manual-input" type="number" inputmode="numeric" pattern="[0-9]*"
+         placeholder="Enter barcode manually…" autocomplete="off">
+  <button id="manual-submit">Go</button>
+</div>
+
 <div id="result-card">
   <div class="card-handle"></div>
   <div id="card-content"></div>
@@ -417,7 +464,10 @@
   const cardContent= document.getElementById('card-content');
   const btnCopy    = document.getElementById('btn-copy');
   const btnAgain   = document.getElementById('btn-scan-again');
-  const errBanner  = document.getElementById('error-banner');
+  const errBanner   = document.getElementById('error-banner');
+  const manualBar   = document.getElementById('manual-bar');
+  const manualInput = document.getElementById('manual-input');
+  const manualSubmit= document.getElementById('manual-submit');
 
   // ── Start scanner ────────────────────────────────────────────────────────────
   async function startScanner() {
@@ -566,9 +616,6 @@
   }
 
   // ── UI helpers ───────────────────────────────────────────────────────────────
-  function openCard()  { resultCard.classList.add('open'); }
-  function closeCard() { resultCard.classList.remove('open'); }
-
   function showSpinner(msg) {
     spinner.style.display = 'flex';
     spinText.textContent = msg || 'Looking up…';
@@ -623,6 +670,29 @@
       document.body.removeChild(ta);
     });
   });
+
+  // Manual entry
+  function submitManual() {
+    const upc = manualInput.value.trim();
+    if (!upc) return;
+    manualInput.blur();
+    scanning = false;
+    lastScan = upc;
+    handleScan(upc);
+    manualInput.value = '';
+  }
+  manualSubmit.addEventListener('click', submitManual);
+  manualInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitManual(); });
+
+  // Hide/show manual bar with card
+  function openCard()  {
+    resultCard.classList.add('open');
+    manualBar.classList.add('hidden');
+  }
+  function closeCard() {
+    resultCard.classList.remove('open');
+    manualBar.classList.remove('hidden');
+  }
 
   // Swipe down to close card
   let touchStartY = 0;
