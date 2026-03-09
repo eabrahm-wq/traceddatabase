@@ -1224,6 +1224,10 @@ def research_page():
     static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
     return send_from_directory(static_dir, 'research.html')
 
+@app.route('/brands/<slug>')
+def brand_profile_page(slug):
+    return send_from_directory('static', 'brand-profile.html')
+
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 5001))
