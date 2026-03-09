@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Brand Profile — TracedHealth</title>
+<meta name="description" id="pageDesc" content="Who really owns this brand?">
+
+<!-- Open Graph for social sharing -->
+<meta property="og:title" id="ogTitle" content="Brand Profile — TracedHealth">
+<meta property="og:description" id="ogDesc" content="Who really owns this brand?">
+<meta property="og:url" id="ogUrl" content="">
+<meta property="og:site_name" content="TracedHealth">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Instrument+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #faf8f3;
+  --bg2: #f2ede2;
+  --bg3: #e8e0d0;
+  --ink: #1c1a15;
+  --mid: #5a5448;
+  --dim: #9a9080;
+  --rule: #ddd5c0;
+  --rule2: #ccc3ae;
+
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --red-border: #f0c4bc;
+  --red-mid: #e05040;
+
+  --green: #2a6b3c;
+  --green-bg: #edf5f0;
+  --green-border: #b8d8c4;
+  --green-mid: #3a8a52;
+
+  --yellow: #b07820;
+  --yellow-bg: #fdf6e8;
+  --yellow-border: #e8d090;
+
+  --gold: #b8860a;
+
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans: 'Instrument Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.65;
+  min-height: 100vh;
+}
+
+/* ── NAV ──────────────────────────────────────── */
+nav {
+  height: 52px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--rule);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+}
+.nav-logo { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--gold); text-decoration: none; text-transform: uppercase; }
+.nav-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-search input {
+  padding: 6px 14px;
+  background: var(--bg2);
+  border: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink);
+  outline: none;
+  width: 200px;
+  letter-spacing: 0.05em;
+}
+.nav-search input:focus { border-color: var(--ink); }
+.nav-search input::placeholder { color: var(--dim); }
+.nav-search button {
+  padding: 6px 14px;
+  background: var(--ink);
+  color: var(--bg);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+}
+
+/* ── LOADING / ERROR ──────────────────────────── */
+.state-loading, .state-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  text-align: center;
+  padding: 40px;
+}
+.state-loading { display: flex; }
+.state-error { display: none; }
+.state-content { display: none; }
+
+.loading-pulse {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  text-transform: uppercase;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+.error-title { font-family: var(--serif); font-size: 28px; color: var(--ink); }
+.error-sub { font-size: 15px; color: var(--mid); }
+
+/* ── HERO BAND ────────────────────────────────── */
+.hero-band {
+  padding: 56px 40px 48px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-band::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231c1a15' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.hero-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 48px;
+  align-items: start;
+  position: relative;
+}
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.hero-category {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.hero-watchlist {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  background: #fff3cd;
+  color: var(--yellow);
+  border: 1px solid var(--yellow-border);
+}
+
+.hero-name {
+  font-family: var(--serif);
+  font-size: clamp(48px, 7vw, 88px);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+  color: var(--ink);
+}
+
+.hero-headline {
+  font-size: 18px;
+  color: var(--mid);
+  line-height: 1.6;
+  max-width: 580px;
+  margin-bottom: 28px;
+  font-weight: 400;
+}
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.hero-meta-item {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hero-meta-item strong { color: var(--ink); font-weight: 500; }
+.hero-meta-sep { color: var(--rule2); }
+
+/* ZONE BADGE — right side */
+.zone-badge-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.zone-badge {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: 3px solid currentColor;
+  position: relative;
+}
+
+.zone-badge.red { color: var(--red); background: var(--red-bg); }
+.zone-badge.green { color: var(--green); background: var(--green-bg); }
+.zone-badge.yellow { color: var(--yellow); background: var(--yellow-bg); }
+
+.zone-badge-icon { font-size: 28px; line-height: 1; }
+.zone-badge-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.zone-badge-desc {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-align: center;
+  line-height: 1.4;
+}
+.zone-badge-desc.red { color: var(--red); }
+.zone-badge-desc.green { color: var(--green); }
+.zone-badge-desc.yellow { color: var(--yellow); }
+
+/* ── BODY LAYOUT ──────────────────────────────── */
+.body-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 40px 120px;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 64px;
+  align-items: start;
+}
+
+/* ── SECTIONS ─────────────────────────────────── */
+.section { margin-bottom: 48px; }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid var(--rule);
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.section-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+/* OWNERSHIP CHAIN */
+.ownership-chain {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.chain-node {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+
+.chain-connector {
+  position: absolute;
+  left: 19px;
+  top: 44px;
+  bottom: -1px;
+  width: 1px;
+  background: var(--rule);
+}
+
+.chain-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--rule);
+  background: var(--bg2);
+  position: relative;
+  z-index: 1;
+}
+
+.chain-content { flex: 1; }
+.chain-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.chain-name { font-size: 16px; font-weight: 500; color: var(--ink); line-height: 1.2; }
+.chain-detail { font-size: 13px; color: var(--mid); margin-top: 2px; }
+
+.chain-node.acquisition .chain-icon { background: var(--red-bg); border-color: var(--red-border); }
+.chain-node.independent .chain-icon { background: var(--green-bg); border-color: var(--green-border); }
+
+/* ACQUISITION CALLOUT */
+.acquisition-callout {
+  padding: 20px 24px;
+  border-left: 3px solid var(--red);
+  background: var(--red-bg);
+  margin: 20px 0;
+}
+.acquisition-callout.green { border-left-color: var(--green); background: var(--green-bg); }
+.acquisition-callout-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.acquisition-callout-text { font-size: 15px; color: var(--ink); line-height: 1.6; font-weight: 400; }
+
+/* FORMULA / INGREDIENT DRIFT */
+.drift-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  border: 1px solid var(--rule);
+  background: var(--bg2);
+}
+.drift-indicator.flagged { border-color: var(--red-border); background: var(--red-bg); }
+.drift-indicator.clean { border-color: var(--green-border); background: var(--green-bg); }
+.drift-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.drift-dot.flagged { background: var(--red); }
+.drift-dot.clean { background: var(--green); }
+.drift-dot.unknown { background: var(--dim); }
+.drift-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--mid); }
+.drift-label strong { color: var(--ink); font-weight: 500; }
+
+/* VIOLATIONS */
+.violation-stat {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.violation-number {
+  font-family: var(--serif);
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--red);
+  line-height: 1;
+}
+.violation-detail { font-size: 13px; color: var(--mid); line-height: 1.55; }
+.violation-detail strong { color: var(--ink); display: block; margin-bottom: 2px; font-weight: 500; font-size: 14px; }
+
+.lobbying-bar-wrap { margin-top: 16px; }
+.lobbying-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.lobbying-bar-label span { color: var(--red); font-weight: 500; }
+.lobbying-bar-track {
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 0;
+  overflow: hidden;
+}
+.lobbying-bar-fill {
+  height: 100%;
+  background: var(--red);
+  transition: width 1s ease;
+}
+
+/* 7-DIMENSION SCORECARD */
+.scorecard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.score-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 40px;
+  align-items: center;
+  gap: 12px;
+}
+
+.score-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--mid);
+  text-transform: uppercase;
+}
+
+.score-bar-track {
+  height: 4px;
+  background: var(--bg3);
+  position: relative;
+}
+
+.score-bar-fill {
+  height: 100%;
+  transition: width 0.8s ease;
+}
+.score-bar-fill.red { background: var(--red); }
+.score-bar-fill.green { background: var(--green); }
+.score-bar-fill.yellow { background: var(--yellow); }
+
+.score-val {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-align: right;
+}
+.score-val.red { color: var(--red); }
+.score-val.green { color: var(--green); }
+.score-val.yellow { color: var(--yellow); }
+
+/* FOUNDER STORY */
+.founder-story {
+  font-size: 15px;
+  color: var(--mid);
+  line-height: 1.75;
+  font-style: italic;
+  padding: 20px 24px;
+  border-left: 2px solid var(--rule2);
+  background: var(--bg2);
+  position: relative;
+}
+.founder-story::before {
+  content: '"';
+  font-family: var(--serif);
+  font-size: 64px;
+  color: var(--rule2);
+  position: absolute;
+  top: -8px;
+  left: 16px;
+  line-height: 1;
+}
+
+/* CLEAN SWAPS */
+.swap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.swap-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+.swap-item:hover { border-color: var(--green); }
+.swap-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.swap-name { font-size: 14px; color: var(--green); font-weight: 500; }
+.swap-arrow { margin-left: auto; color: var(--green); font-size: 12px; }
+
+/* ── SIDEBAR ──────────────────────────────────── */
+.sidebar { position: sticky; top: 72px; }
+
+.sidebar-card {
+  border: 1px solid var(--rule);
+  background: white;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.sidebar-card-header {
+  padding: 14px 18px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.sidebar-card-body { padding: 18px; }
+
+/* QUICK FACTS */
+.quick-facts { display: flex; flex-direction: column; gap: 0; }
+.fact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  gap: 12px;
+}
+.fact-row:last-child { border-bottom: none; }
+.fact-key { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.06em; text-transform: uppercase; flex-shrink: 0; }
+.fact-val { font-size: 13px; color: var(--ink); font-weight: 500; text-align: right; }
+.fact-val.red { color: var(--red); }
+.fact-val.green { color: var(--green); }
+.fact-val.yellow { color: var(--yellow); }
+
+/* SHARE BUTTON */
+.share-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--ink);
+  color: var(--bg);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.15s;
+  margin-bottom: 8px;
+}
+.share-btn:hover { opacity: 0.85; }
+
+.share-btn.copied {
+  background: var(--green);
+}
+
+.share-caption-wrap {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.share-caption-wrap.visible { display: flex; }
+.share-caption {
+  padding: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--rule);
+  font-size: 12px;
+  color: var(--mid);
+  line-height: 1.55;
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+}
+.copy-caption-btn {
+  padding: 10px;
+  background: var(--green);
+  color: white;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* PARENT COMPANY CARD */
+.parent-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.parent-num {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+}
+.parent-num.red { color: var(--red); }
+.parent-label { font-size: 12px; color: var(--mid); }
+
+.parent-violations-text {
+  font-size: 12px;
+  color: var(--mid);
+  line-height: 1.55;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--rule);
+}
+
+/* ── FOOTER ───────────────────────────────────── */
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+footer span { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.06em; }
+footer a { font-family: var(--mono); font-size: 10px; color: var(--gold); text-decoration: none; }
+
+/* ── RESPONSIVE ───────────────────────────────── */
+@media (max-width: 900px) {
+  .body-wrap { grid-template-columns: 1fr; gap: 32px; }
+  .sidebar { position: static; }
+  .hero-inner { grid-template-columns: 1fr; }
+  .zone-badge-wrap { flex-direction: row; align-items: center; }
+  nav { padding: 0 20px; }
+  .hero-band { padding: 36px 20px 32px; }
+  .body-wrap { padding: 32px 20px 80px; }
+  .score-row { grid-template-columns: 140px 1fr 36px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://traceddatabase.onrender.com" class="nav-logo">TracedHealth</a>
+  <div class="nav-search">
+    <input type="text" id="navSearch" placeholder="Search a brand…" onkeydown="if(event.key==='Enter')goSearch()" />
+    <button onclick="goSearch()">Search</button>
+  </div>
+</nav>
+
+<!-- LOADING -->
+<div class="state-loading" id="stateLoading">
+  <div class="loading-pulse">Looking up brand…</div>
+</div>
+
+<!-- ERROR -->
+<div class="state-error" id="stateError">
+  <div class="error-title">Brand not found</div>
+  <div class="error-sub">We don't have this brand in our database yet. Try searching for another.</div>
+</div>
+
+<!-- CONTENT -->
+<div class="state-content" id="stateContent">
+
+  <!-- HERO -->
+  <div class="hero-band" id="heroBand">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-eyebrow">
+          <span class="hero-category" id="heroCategory"></span>
+          <span class="hero-watchlist" id="heroWatchlist" style="display:none">⚠ Watch List</span>
+        </div>
+        <h1 class="hero-name" id="heroName"></h1>
+        <p class="hero-headline" id="heroHeadline"></p>
+        <div class="hero-meta" id="heroMeta"></div>
+      </div>
+      <div class="zone-badge-wrap">
+        <div class="zone-badge" id="zoneBadge">
+          <span class="zone-badge-icon" id="zoneBadgeIcon"></span>
+          <span class="zone-badge-label" id="zoneBadgeLabel"></span>
+        </div>
+        <div class="zone-badge-desc" id="zoneBadgeDesc"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body-wrap">
+    <div class="main-col">
+
+      <!-- OWNERSHIP -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">Ownership Chain</span>
+          <span class="section-tag">Who really owns this</span>
+        </div>
+        <div class="ownership-chain" id="ownershipChain"></div>
+        <div id="acquisitionCallout"></div>
+      </div>
+
+      <!-- FORMULA / INGREDIENT DRIFT -->
+      <div class="section" id="formulaSection">
+        <div class="section-header">
+          <span class="section-title">Formula & Ingredients</span>
+          <span class="section-tag">What changed after acquisition</span>
+        </div>
+        <div id="formulaContent"></div>
+      </div>
+
+      <!-- FOUNDER STORY -->
+      <div class="section" id="founderSection" style="display:none">
+        <div class="section-header">
+          <span class="section-title">The Origin Story</span>
+          <span class="section-tag">How it started</span>
+        </div>
+        <div class="founder-story" id="founderStory"></div>
+      </div>
+
+      <!-- VIOLATIONS -->
+      <div class="section" id="violationsSection" style="display:none">
+        <div class="section-header">
+          <span class="section-title">Parent Company Record</span>
+          <span class="section-tag">Violations &amp; lobbying</span>
+        </div>
+        <div id="violationsContent"></div>
+      </div>
+
+      <!-- SCORECARD -->
+      <div class="section" id="scorecardSection" style="display:none">
+        <div class="section-header">
+          <span class="section-title">Transparency Scorecard</span>
+          <span class="section-tag">7-dimension analysis</span>
+        </div>
+        <div class="scorecard" id="scorecardContent"></div>
+      </div>
+
+      <!-- CLEAN SWAPS -->
+      <div class="section" id="swapsSection" style="display:none">
+        <div class="section-header">
+          <span class="section-title">Independent Alternatives</span>
+          <span class="section-tag">Who does it without the baggage</span>
+        </div>
+        <div class="swap-list" id="swapsList"></div>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- SHARE -->
+      <div class="sidebar-card">
+        <div class="sidebar-card-header">Share This Finding</div>
+        <div class="sidebar-card-body">
+          <button class="share-btn" id="shareUrlBtn" onclick="shareUrl()">
+            🔗 Copy Profile Link
+          </button>
+          <button class="share-btn" style="background:var(--green)" onclick="toggleCaption()">
+            📲 Copy for Instagram
+          </button>
+          <div class="share-caption-wrap" id="captionWrap">
+            <div class="share-caption" id="shareCaption"></div>
+            <button class="copy-caption-btn" onclick="copyCaption()">Copy Caption</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUICK FACTS -->
+      <div class="sidebar-card">
+        <div class="sidebar-card-header">Quick Facts</div>
+        <div class="sidebar-card-body">
+          <div class="quick-facts" id="quickFacts"></div>
+        </div>
+      </div>
+
+      <!-- PARENT CO -->
+      <div class="sidebar-card" id="parentCard" style="display:none">
+        <div class="sidebar-card-header" id="parentCardHeader">Parent Company</div>
+        <div class="sidebar-card-body" id="parentCardBody"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>© 2026 TracedHealth — Consumer transparency database</span>
+  <a href="https://traceddatabase.onrender.com/scanner">← Scanner</a>
+</footer>
+
+<script>
+const API_BASE = 'https://traceddatabase.onrender.com';
+
+// ── UTILS ──────────────────────────────────────────────────────────────────
+
+function getSlug() {
+  const path = window.location.pathname;
+  const parts = path.split('/').filter(Boolean);
+  // expects /brands/siete or ?brand=siete
+  if (parts[0] === 'brands' && parts[1]) return parts[1];
+  const params = new URLSearchParams(window.location.search);
+  return params.get('brand') || params.get('slug') || '';
+}
+
+function formatMoney(n) {
+  if (!n) return null;
+  if (n >= 1e9) return `$${(n/1e9).toFixed(1)}B`;
+  if (n >= 1e6) return `$${(n/1e6).toFixed(0)}M`;
+  return `$${n.toLocaleString()}`;
+}
+
+function formatLobbying(n) {
+  if (!n) return null;
+  if (n >= 1e6) return `$${(n/1e6).toFixed(1)}M/yr`;
+  if (n >= 1e3) return `$${(n/1e3).toFixed(0)}K/yr`;
+  return `$${n}/yr`;
+}
+
+function show(id) { const el = document.getElementById(id); if(el) el.style.display = ''; }
+function hide(id) { const el = document.getElementById(id); if(el) el.style.display = 'none'; }
+
+function setState(state) {
+  ['Loading','Error','Content'].forEach(s => {
+    const el = document.getElementById('state'+s);
+    if (s === 'Loading') el.style.display = state === 'loading' ? 'flex' : 'none';
+    else if (s === 'Error') el.style.display = state === 'error' ? 'flex' : 'none';
+    else el.style.display = state === 'content' ? 'block' : 'none';
+  });
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+
+function renderProfile(b) {
+  const zone = (b.overall_zone || 'grey').toLowerCase();
+  const zoneColor = zone === 'red' ? 'red' : zone === 'green' ? 'green' : 'yellow';
+  const zoneIcon = zone === 'red' ? '🔴' : zone === 'green' ? '🟢' : '🟡';
+  const zoneLabel = zone === 'red' ? 'Red Zone' : zone === 'green' ? 'Independent' : 'Yellow Zone';
+  const zoneDesc = zone === 'red' ? 'Corporate\nowned' : zone === 'green' ? 'Verified\nindependent' : 'Caution\nadvised';
+
+  // Page meta
+  document.title = `${b.name} — TracedHealth`;
+  document.getElementById('pageDesc').content = b.headline_finding || `Who owns ${b.name}?`;
+  document.getElementById('ogTitle').content = `${b.name} — TracedHealth`;
+  document.getElementById('ogDesc').content = b.headline_finding || '';
+
+  // Hero
+  document.getElementById('heroCategory').textContent = (b.category || 'brand').toUpperCase();
+  if (b.watch_list) show('heroWatchlist');
+  document.getElementById('heroName').textContent = b.name;
+  document.getElementById('heroHeadline').textContent = b.headline_finding || b.share_text || '';
+
+  // Hero meta
+  const metaParts = [];
+  if (b.founded_year) metaParts.push(`<span class="hero-meta-item">Founded <strong>${b.founded_year}</strong></span>`);
+  if (b.acquired_year) metaParts.push(`<span class="hero-meta-item">Acquired <strong>${b.acquired_year}</strong></span>`);
+  if (b.owner) metaParts.push(`<span class="hero-meta-item">Owner <strong>${b.owner}</strong></span>`);
+  document.getElementById('heroMeta').innerHTML = metaParts.join('<span class="hero-meta-sep">·</span>');
+
+  // Zone badge
+  const badge = document.getElementById('zoneBadge');
+  badge.className = `zone-badge ${zoneColor}`;
+  document.getElementById('zoneBadgeIcon').textContent = zoneIcon;
+  document.getElementById('zoneBadgeLabel').textContent = zoneLabel;
+  const descEl = document.getElementById('zoneBadgeDesc');
+  descEl.className = `zone-badge-desc ${zoneColor}`;
+  descEl.textContent = zoneDesc;
+
+  // Hero band tint
+  const band = document.getElementById('heroBand');
+  if (zone === 'red') band.style.borderBottom = '3px solid ' + getComputedStyle(document.documentElement).getPropertyValue('--red-border');
+  else if (zone === 'green') band.style.borderBottom = '3px solid ' + getComputedStyle(document.documentElement).getPropertyValue('--green-border');
+
+  // ── OWNERSHIP CHAIN ──
+  const chain = document.getElementById('ownershipChain');
+  chain.innerHTML = '';
+
+  // Brand node
+  chain.innerHTML += `
+    <div class="chain-node ${b.independent ? 'independent' : 'acquisition'}" style="position:relative">
+      <div class="chain-icon">${b.independent ? '🏠' : '📦'}</div>
+      <div class="chain-content">
+        <div class="chain-label">This Brand</div>
+        <div class="chain-name">${b.name}</div>
+        <div class="chain-detail">Founded ${b.founded_year || '—'}${b.founder_names ? ' by ' + b.founder_names : ''}</div>
+      </div>
+      ${b.owner ? '<div class="chain-connector"></div>' : ''}
+    </div>`;
+
+  if (b.acquired_year && b.acquisition_price) {
+    chain.innerHTML += `
+      <div class="chain-node" style="position:relative">
+        <div class="chain-icon">💰</div>
+        <div class="chain-content">
+          <div class="chain-label">Acquisition Event</div>
+          <div class="chain-name">${b.acquired_year} — ${formatMoney(b.acquisition_price)}</div>
+          <div class="chain-detail">Sold to ${b.owner || 'parent company'}</div>
+        </div>
+        <div class="chain-connector"></div>
+      </div>`;
+  }
+
+  if (b.owner) {
+    const ownerType = b.ownership_tier === 'pe_owned' ? '🏦' : b.owner_type === 'public' ? '📈' : '🏢';
+    chain.innerHTML += `
+      <div class="chain-node acquisition">
+        <div class="chain-icon">${ownerType}</div>
+        <div class="chain-content">
+          <div class="chain-label">Current Owner</div>
+          <div class="chain-name">${b.owner}</div>
+          <div class="chain-detail">${b.ownership_tier ? b.ownership_tier.replace(/_/g,' ') : b.owner_type || ''}</div>
+        </div>
+      </div>`;
+  }
+
+  // Acquisition callout
+  const calloutEl = document.getElementById('acquisitionCallout');
+  if (b.share_text) {
+    calloutEl.innerHTML = `
+      <div class="acquisition-callout ${b.independent ? 'green' : ''}">
+        <div class="acquisition-callout-label">${b.independent ? 'Independent Status' : 'Acquisition Summary'}</div>
+        <div class="acquisition-callout-text">${b.share_text}</div>
+      </div>`;
+  }
+
+  // ── FORMULA / INGREDIENTS ──
+  const formulaContent = document.getElementById('formulaContent');
+  const driftClass = b.ingredient_drift ? 'flagged' : 'clean';
+  const driftDot = b.ingredient_drift ? 'flagged' : (b.formula_changed ? 'flagged' : 'clean');
+  formulaContent.innerHTML = `
+    <div class="drift-indicator ${driftClass}">
+      <div class="drift-dot ${driftDot}"></div>
+      <div class="drift-label">
+        <strong>Formula Changes: </strong>
+        ${b.ingredient_drift ? 'Ingredient drift detected' : b.formula_changed ? 'Formula changed post-acquisition' : 'No confirmed formula changes'}
+      </div>
+    </div>`;
+
+  if (b.ingredient_drift_note) {
+    formulaContent.innerHTML += `<div style="font-size:14px;color:var(--mid);line-height:1.6;padding:12px 0">${b.ingredient_drift_note}</div>`;
+  }
+
+  if (b.certifications) {
+    formulaContent.innerHTML += `
+      <div class="drift-indicator" style="margin-top:8px">
+        <div class="drift-dot clean"></div>
+        <div class="drift-label"><strong>Certifications: </strong>${Array.isArray(b.certifications) ? b.certifications.join(', ') : b.certifications}</div>
+      </div>`;
+  }
+
+  // ── FOUNDER STORY ──
+  if (b.founder_story || b.origin_story) {
+    show('founderSection');
+    document.getElementById('founderStory').textContent = b.founder_story || b.origin_story;
+  }
+
+  // ── VIOLATIONS ──
+  const parent = b.parent_record;
+  if (parent && (parent.violations > 0 || parent.lobbying_annual > 0)) {
+    show('violationsSection');
+    let html = '';
+    if (parent.violations > 0) {
+      html += `<div class="violation-stat">
+        <div class="violation-number">${parent.violations}</div>
+        <div class="violation-detail">
+          <strong>Regulatory Violations</strong>
+          ${parent.violation_summary || 'Violations on record with FDA and FTC'}
+        </div>
+      </div>`;
+    }
+    if (parent.lobbying_annual > 0) {
+      const pct = Math.min(100, (parent.lobbying_annual / 15000000) * 100);
+      html += `<div class="lobbying-bar-wrap">
+        <div class="lobbying-bar-label">
+          <span>Annual Lobbying Spend</span>
+          <span>${formatLobbying(parent.lobbying_annual)}</span>
+        </div>
+        <div class="lobbying-bar-track">
+          <div class="lobbying-bar-fill" style="width:${pct}%"></div>
+        </div>
+      </div>`;
+    }
+    if (parent.lobbying_issues) {
+      html += `<div style="font-size:13px;color:var(--mid);line-height:1.6;margin-top:16px;padding-top:16px;border-top:1px solid var(--rule)">${parent.lobbying_issues}</div>`;
+    }
+    document.getElementById('violationsContent').innerHTML = html;
+
+    // Sidebar parent card
+    show('parentCard');
+    document.getElementById('parentCardHeader').textContent = `${b.owner || 'Parent Company'} — Record`;
+    let phtml = '';
+    if (parent.violations > 0) {
+      phtml += `<div class="parent-stat">
+        <div class="parent-num red">${parent.violations}</div>
+        <div class="parent-label">regulatory violations</div>
+      </div>`;
+    }
+    if (parent.lobbying_annual > 0) {
+      phtml += `<div class="parent-stat">
+        <div class="parent-num red">${formatLobbying(parent.lobbying_annual)}</div>
+        <div class="parent-label">lobbying annually</div>
+      </div>`;
+    }
+    if (parent.violation_summary) {
+      phtml += `<div class="parent-violations-text">${parent.violation_summary}</div>`;
+    }
+    document.getElementById('parentCardBody').innerHTML = phtml;
+  }
+
+  // ── SCORECARD ──
+  const dims = [
+    { key: 'dim_ownership', label: 'Ownership Disclosure' },
+    { key: 'dim_ingredient_integrity', label: 'Ingredient Integrity' },
+    { key: 'dim_marketing_alignment', label: 'Marketing Alignment' },
+    { key: 'dim_label_accuracy', label: 'Label Accuracy' },
+    { key: 'dim_scientific_backing', label: 'Scientific Backing' },
+    { key: 'dim_safety_transparency', label: 'Safety Transparency' },
+    { key: 'dim_revenue_model', label: 'Revenue Model' },
+  ];
+
+  const dimData = dims.filter(d => b[d.key]);
+  if (dimData.length >= 3) {
+    show('scorecardSection');
+    document.getElementById('scorecardContent').innerHTML = dims.map(d => {
+      const val = b[d.key];
+      if (!val) return '';
+      const color = val === 'red' ? 'red' : val === 'green' ? 'green' : 'yellow';
+      const pct = val === 'red' ? 85 : val === 'green' ? 92 : 55;
+      return `<div class="score-row">
+        <div class="score-label">${d.label}</div>
+        <div class="score-bar-track"><div class="score-bar-fill ${color}" style="width:${pct}%"></div></div>
+        <div class="score-val ${color}">${val.toUpperCase()}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── CLEAN SWAPS ──
+  if (b.clean_swap_brands) {
+    const swaps = Array.isArray(b.clean_swap_brands) ? b.clean_swap_brands :
+      (typeof b.clean_swap_brands === 'string' ? b.clean_swap_brands.split(',').map(s=>s.trim()).filter(Boolean) : []);
+    if (swaps.length > 0) {
+      show('swapsSection');
+      document.getElementById('swapsList').innerHTML = swaps.map(s =>
+        `<a class="swap-item" href="/brands/${s.toLowerCase().replace(/\s+/g,'-')}">
+          <div class="swap-dot"></div>
+          <div class="swap-name">${s}</div>
+          <div class="swap-arrow">→</div>
+        </a>`
+      ).join('');
+    }
+  }
+
+  // ── QUICK FACTS (sidebar) ──
+  const facts = [];
+  if (b.founded_year) facts.push(['Founded', b.founded_year]);
+  if (b.acquired_year) facts.push(['Acquired', b.acquired_year, 'red']);
+  if (b.acquisition_price) facts.push(['Price', formatMoney(b.acquisition_price), 'red']);
+  if (b.owner) facts.push(['Owner', b.owner, b.independent ? 'green' : 'red']);
+  if (b.pe_owned) facts.push(['PE Owned', 'Yes', 'red']);
+  if (b.watch_list) facts.push(['Watch List', 'Yes', 'red']);
+  if (b.category) facts.push(['Category', b.category]);
+
+  document.getElementById('quickFacts').innerHTML = facts.map(([k,v,cls]) =>
+    `<div class="fact-row"><span class="fact-key">${k}</span><span class="fact-val ${cls||''}">${v}</span></div>`
+  ).join('');
+
+  // ── SHARE CAPTION ──
+  const caption = buildCaption(b);
+  document.getElementById('shareCaption').textContent = caption;
+}
+
+function buildCaption(b) {
+  const zone = (b.overall_zone || '').toLowerCase();
+  if (zone === 'red') {
+    return `🔴 ${b.name} is NOT independent.\n\n${b.share_text || b.headline_finding || ''}\n\n${b.parent_record?.violations > 0 ? `Their parent company has ${b.parent_record.violations} regulatory violations on record.\n\n` : ''}Use @TracedHealth to check before you buy.\n\n#FoodTransparency #KnowYourBrands #Traced`;
+  } else if (zone === 'green') {
+    return `🟢 ${b.name} is genuinely independent.\n\n${b.founder_story || b.origin_story || ''}\n\nVerified by @TracedHealth — no PE, no conglomerate.\n\n#IndependentBrands #FoodTransparency #Traced`;
+  } else {
+    return `🟡 ${b.name} — proceed with caution.\n\n${b.headline_finding || ''}\n\nCheck the full profile at @TracedHealth.\n\n#FoodTransparency #Traced`;
+  }
+}
+
+// ── SHARE ACTIONS ──────────────────────────────────────────────────────────
+
+function shareUrl() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('shareUrlBtn');
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '🔗 Copy Profile Link';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function toggleCaption() {
+  const wrap = document.getElementById('captionWrap');
+  wrap.classList.toggle('visible');
+}
+
+function copyCaption() {
+  const text = document.getElementById('shareCaption').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-caption-btn');
+    btn.textContent = '✓ Copied to clipboard';
+    setTimeout(() => btn.textContent = 'Copy Caption', 2000);
+  });
+}
+
+function goSearch() {
+  const q = document.getElementById('navSearch').value.trim();
+  if (q) window.location.href = `/brands/${encodeURIComponent(q.toLowerCase().replace(/\s+/g,'-'))}`;
+}
+
+// ── LOAD ───────────────────────────────────────────────────────────────────
+
+async function load() {
+  const slug = getSlug();
+  if (!slug) { setState('error'); return; }
+
+  setState('loading');
+
+  try {
+    const res = await fetch(`${API_BASE}/api/lookup?name=${encodeURIComponent(slug)}`);
+    const data = await res.json();
+
+    if (!data.matched || !data.brand) {
+      setState('error');
+      return;
+    }
+
+    renderProfile(data.brand);
+    setState('content');
+
+    // Update URL to canonical slug
+    const canonicalSlug = data.brand.slug || slug;
+    const canonicalUrl = `${window.location.origin}/brands/${canonicalSlug}`;
+    window.history.replaceState({}, '', canonicalUrl);
+    document.getElementById('ogUrl').content = canonicalUrl;
+
+  } catch(e) {
+    setState('error');
+  }
+}
+
+load();
+</script>
+</body>
+</html>
