@@ -154,7 +154,7 @@ python3 -c "import sqlite3; c=sqlite3.connect('traced.db').cursor(); c.execute('
 2. ✅ Flask API (lookup + nearby + misses)
 3. ✅ Google Maps panel UI (v5 with WHY THIS MATTERS + Better Nearby)
 4. ✅ Seed: 100+ SF restaurants, 50+ coffee, all major chains, grocery
-5. 🔄 **IN PROGRESS**: Add fast food chains + SF indie brands (see below)
+5. ✅ Add fast food chains + SF indie brands (seed_v3.py — done, 15/15 resolver tests pass)
 6. ⬜ Yelp surface (`content/yelp.js`)
 7. ⬜ Extension popup (`popup.html`)
 8. ⬜ Deployment (Render + Postgres)
