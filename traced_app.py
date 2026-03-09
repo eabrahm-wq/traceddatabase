@@ -3,7 +3,13 @@ from flask_cors import CORS
 import sqlite3, os, json, re, uuid
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=[
+    'https://tracedhealth.com',
+    'https://www.tracedhealth.com',
+    'https://traced-frontend.pages.dev',
+    'http://localhost:5001',
+    'http://127.0.0.1:5001',
+])
 DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'traced.db')
 
 ADMIN_KEY = os.environ.get('ADMIN_KEY', 'traced-admin-2026')
@@ -1398,6 +1404,71 @@ def api_admin_reject(sub_id):
         )
 
     return jsonify({'success': True})
+
+
+# ── Health check ─────────────────────────────────────────────────────────────
+@app.route('/health')
+def health():
+    try:
+        with sqlite3.connect(DB) as conn:
+            count = conn.execute("SELECT COUNT(*) FROM brands").fetchone()[0]
+    except Exception:
+        count = 0
+    return jsonify({'status': 'ok', 'brands': count, 'version': '2.0'})
+
+
+# ── Notify / waitlist stub ────────────────────────────────────────────────────
+@app.route('/api/notify', methods=['POST', 'OPTIONS'])
+def notify():
+    if request.method == 'OPTIONS':
+        return '', 204
+    data = request.get_json(silent=True) or {}
+    email = data.get('email', '').strip()
+    # TODO: persist to a waitlist table or forward to an email service
+    return jsonify({'success': True, 'message': 'Added to waitlist', 'email': email})
+
+
+# ── News feed ─────────────────────────────────────────────────────────────────
+@app.route('/api/news')
+def get_news():
+    limit = min(int(request.args.get('limit', 20)), 100)
+    try:
+        with sqlite3.connect(DB) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT * FROM news_items ORDER BY published_at DESC LIMIT ?", (limit,)
+            ).fetchall()
+        return jsonify([dict(r) for r in rows])
+    except Exception:
+        # Table may not exist yet — return empty list gracefully
+        return jsonify([])
+
+
+# ── Brands by city ────────────────────────────────────────────────────────────
+@app.route('/api/brands/city/<city>')
+def brands_by_city(city):
+    zone = request.args.get('zone')
+    category = request.args.get('category')
+    limit = min(int(request.args.get('limit', 50)), 200)
+
+    query = "SELECT * FROM brands WHERE lower(city) = lower(?)"
+    params = [city]
+
+    if zone:
+        query += " AND overall_zone = ?"
+        params.append(zone)
+    if category:
+        query += " AND category = ?"
+        params.append(category)
+
+    query += " ORDER BY name LIMIT ?"
+    params.append(limit)
+
+    with sqlite3.connect(DB) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(query, params).fetchall()
+
+    return jsonify([dict(r) for r in rows])
 
 
 if __name__ == "__main__":
