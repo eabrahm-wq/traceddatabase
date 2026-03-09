@@ -9,7 +9,7 @@
   let debounceTimer = null;
   let lastInjectedName = null;
 
-  const IGNORE_PATTERNS = /^(fillmore|market|mission|castro|haight|divisadero|valencia|geary|post|bush|pine|california|broadway|union|chestnut|lombard|columbus|north beach|the embarcadero|financial district|soma|nopa|richmond|sunset|st|ave|blvd|dr|rd|way|place|court|lane)\b/i;
+  const IGNORE_PATTERNS = /^(fillmore st|fillmore|market st|market|mission st|mission district|castro|haight|divisadero|valencia|geary|post st|bush st|pine st|california st|broadway|union st|chestnut|lombard|columbus|north beach|the embarcadero|financial district|soma|nopa|richmond|sunset|st|ave|blvd|dr|rd|way|place|court|lane|via |street|district|neighborhood)\b/i;
 
   const TYPES = {
     conglomerate: { label: "Conglomerate",  color: "#d4a84b", bg: "rgba(212,168,75,0.12)"  },
