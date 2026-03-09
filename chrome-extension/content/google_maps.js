@@ -142,6 +142,19 @@
         </div>`;
     }
 
+    // WHY THIS MATTERS (indie only)
+    if (isIndie) {
+      html += `
+        <div class="te-section te-section-green">
+          <div class="te-section-label" style="color:#4e9b6f">WHY THIS MATTERS</div>
+          <div class="te-why-list">
+            <div class="te-why-item"><span class="te-why-icon">🌱</span><div><strong>Money stays local.</strong> Profits don't flow to private equity partners or public shareholders — they recirculate in SF.</div></div>
+            <div class="te-why-item"><span class="te-why-icon">🍳</span><div><strong>Menu decisions are human.</strong> A founder or chef decides what's on the menu — not a corporate product team optimizing for cost reduction and shelf life.</div></div>
+            <div class="te-why-item"><span class="te-why-icon">👥</span><div><strong>Better labor outcomes.</strong> Independent businesses are statistically more likely to pay living wages, offer benefits, and build long-term teams vs. high-turnover franchise models.</div></div>
+          </div>
+        </div>`;
+    }
+
     // PARENT COMPANY RECORD
     if (pr && pr.violations && !isIndie) {
       const lf = fmtLobbying(pr.lobbying_annual);
@@ -172,14 +185,22 @@
 
     // BETTER NEARBY
     if (nearby.length > 0) {
-      const items = nearby.map(n => `
+      const items = nearby.map(n => {
+        const meta = [
+          n.years_open ? `${n.years_open}+ yrs independent` : null,
+          n.neighborhood || null,
+        ].filter(Boolean).join(' · ');
+        const detail = n.community_note || n.note || '';
+        return `
         <div class="te-nearby-item">
           <span class="te-nearby-dot" style="background:#4e9b6f"></span>
           <div>
             <div class="te-nearby-name">${n.name}</div>
-            <div class="te-nearby-note">${n.note || n.neighborhood || ''}</div>
+            ${meta ? `<div class="te-nearby-meta">${meta}</div>` : ''}
+            ${detail ? `<div class="te-nearby-note">${detail}</div>` : ''}
           </div>
-        </div>`).join('');
+        </div>`;
+      }).join('');
       html += `
         <div class="te-section te-section-green">
           <div class="te-section-label" style="color:#4e9b6f">BETTER NEARBY</div>
