@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Builder — TracedHealth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=Martian+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f1eb;
+    --bg2: #ece8e0;
+    --bg3: #e4dfd5;
+    --ink: #18160f;
+    --mid: #6b6455;
+    --dim: #a09888;
+    --rule: #d4cec4;
+    --red: #c0321e;
+    --red-bg: #fdf0ed;
+    --red-border: #f0c4bc;
+    --yellow: #b88c0a;
+    --yellow-bg: #fdf6e3;
+    --yellow-border: #e8d890;
+    --green: #2a6b3c;
+    --green-bg: #edf5f0;
+    --green-border: #b8d8c4;
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'Instrument Sans', sans-serif;
+    --mono: 'Martian Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    height: 52px;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--rule);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 200;
+  }
+  .nav-logo { font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em; color: var(--yellow); text-decoration: none; text-transform: uppercase; font-weight: 400; }
+  .nav-title { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.15em; text-transform: uppercase; }
+
+  /* LAYOUT */
+  .layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* LEFT PANEL — SEARCH */
+  .search-panel {
+    border-right: 1px solid var(--rule);
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    background: var(--bg);
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+
+  .search-heading {
+    font-family: var(--serif);
+    font-size: 28px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .search-heading em { font-style: italic; color: var(--mid); }
+
+  .search-box {
+    position: relative;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 14px 48px 14px 16px;
+    background: white;
+    border: 1.5px solid var(--rule);
+    font-family: var(--sans);
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+  .search-input:focus { border-color: var(--ink); }
+  .search-input::placeholder { color: var(--dim); }
+
+  .search-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 48px;
+    background: var(--ink);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg);
+    font-size: 16px;
+    transition: opacity 0.15s;
+  }
+  .search-btn:hover { opacity: 0.8; }
+  .search-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .search-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .search-examples-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .example-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--mid);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    width: 100%;
+  }
+  .example-pill:hover { background: white; border-color: var(--ink); color: var(--ink); }
+
+  .example-pill-zone {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .zone-red { background: var(--red); }
+  .zone-yellow { background: var(--yellow); }
+  .zone-green { background: var(--green); }
+
+  /* BRAND MINI CARD in sidebar after search */
+  .brand-mini {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background: white;
+    border: 1px solid var(--rule);
+  }
+  .brand-mini.visible { display: flex; }
+
+  .brand-mini-name {
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 1.1;
+  }
+
+  .brand-mini-zone {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    font-weight: 500;
+  }
+  .brand-mini-zone.red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .brand-mini-zone.yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+  .brand-mini-zone.green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+
+  .brand-mini-owner {
+    font-size: 13px;
+    color: var(--mid);
+    line-height: 1.45;
+  }
+  .brand-mini-owner strong { color: var(--ink); font-weight: 600; }
+
+  /* OUTPUT FORMAT SELECTOR */
+  .format-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .format-selector-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .format-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg2);
+    border: 1.5px solid var(--rule);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    width: 100%;
+    font-family: var(--sans);
+  }
+  .format-btn:hover { background: white; border-color: var(--ink); }
+  .format-btn.active { background: var(--ink); border-color: var(--ink); }
+
+  .format-btn-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+  }
+
+  .format-btn-text { flex: 1; }
+  .format-btn-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .format-btn.active .format-btn-title { color: var(--bg); }
+  .format-btn-desc {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--mid);
+    display: block;
+    letter-spacing: 0.05em;
+  }
+  .format-btn.active .format-btn-desc { color: rgba(244,241,235,0.6); }
+
+  /* RIGHT PANEL — OUTPUT */
+  .output-panel {
+    padding: 40px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    opacity: 0.3;
+  }
+
+  .empty-title {
+    font-family: var(--serif);
+    font-size: 24px;
+    color: var(--mid);
+    font-style: italic;
+  }
+
+  .empty-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+    max-width: 320px;
+    line-height: 1.6;
+  }
+
+  /* LOADING STATE */
+  .loading-state {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    padding: 60px 0;
+    align-items: center;
+  }
+  .loading-state.visible { display: flex; }
+
+  .loading-bar {
+    width: 200px;
+    height: 2px;
+    background: var(--rule);
+    position: relative;
+    overflow: hidden;
+  }
+  .loading-bar::after {
+    content: '';
+    position: absolute;
+    left: -40%;
+    top: 0;
+    width: 40%;
+    height: 100%;
+    background: var(--ink);
+    animation: loading 1s ease-in-out infinite;
+  }
+  @keyframes loading {
+    0% { left: -40%; }
+    100% { left: 100%; }
+  }
+
+  .loading-text {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* ERROR STATE */
+  .error-state {
+    display: none;
+    padding: 24px;
+    background: var(--red-bg);
+    border: 1px solid var(--red-border);
+    color: var(--red);
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .error-state.visible { display: block; }
+
+  /* BRAND PROFILE HEADER */
+  .brand-header {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .brand-header.visible { display: flex; }
+
+  .brand-header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .brand-name-block { flex: 1; }
+  .brand-name {
+    font-family: var(--serif);
+    font-size: 48px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .brand-founded {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+  }
+
+  .zone-badge {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 20px;
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .zone-badge.red { background: var(--red-bg); border: 1.5px solid var(--red-border); }
+  .zone-badge.yellow { background: var(--yellow-bg); border: 1.5px solid var(--yellow-border); }
+  .zone-badge.green { background: var(--green-bg); border: 1.5px solid var(--green-border); }
+
+  .zone-badge-label { font-size: 9px; color: var(--dim); }
+  .zone-badge-value { font-size: 22px; font-weight: 500; line-height: 1; }
+  .zone-badge.red .zone-badge-value { color: var(--red); }
+  .zone-badge.yellow .zone-badge-value { color: var(--yellow); }
+  .zone-badge.green .zone-badge-value { color: var(--green); }
+
+  .brand-headline {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-style: italic;
+    color: var(--mid);
+    line-height: 1.5;
+    max-width: 640px;
+  }
+
+  .brand-stats {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--rule);
+  }
+
+  .brand-stat {
+    flex: 1;
+    padding: 16px 20px;
+    border-right: 1px solid var(--rule);
+  }
+  .brand-stat:last-child { border-right: none; }
+
+  .brand-stat-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .brand-stat-value {
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .brand-stat-value.red { color: var(--red); }
+
+  /* OUTPUT SECTIONS */
+  .output-section {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .output-section.visible { display: flex; }
+
+  .output-section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--dim);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .output-section-title::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+
+  /* INSTAGRAM OUTPUT */
+  .instagram-output {
+    background: white;
+    border: 1px solid var(--rule);
+    overflow: hidden;
+  }
+
+  .ig-toolbar {
+    padding: 12px 16px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ig-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+  }
+
+  .ig-char-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+  }
+  .ig-char-count.over { color: var(--red); }
+
+  .ig-caption {
+    padding: 20px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 160px;
+    outline: none;
+    cursor: text;
+    font-family: var(--sans);
+  }
+
+  .ig-caption:empty::before {
+    content: attr(data-placeholder);
+    color: var(--dim);
+  }
+
+  .ig-actions {
+    padding: 12px 16px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .ig-tone-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+    margin-right: auto;
+  }
+
+  .tone-btn {
+    padding: 6px 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--rule);
+    background: var(--bg);
+    color: var(--mid);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tone-btn:hover, .tone-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  .copy-btn {
+    padding: 10px 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .copy-btn:hover { opacity: 0.8; }
+  .copy-btn.copied { background: var(--green); }
+
+  /* FACT SHEET OUTPUT */
+  .factsheet-output {
+    background: white;
+    border: 1px solid var(--rule);
+    overflow: hidden;
+  }
+
+  .fs-header {
+    padding: 16px 20px;
+    background: var(--ink);
+    color: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .fs-header-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .fs-content {
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .fs-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+    gap: 16px;
+    align-items: baseline;
+  }
+  .fs-row:last-child { border-bottom: none; }
+
+  .fs-key {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+
+  .fs-val {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .fs-val.red { color: var(--red); font-weight: 600; }
+  .fs-val.green { color: var(--green); font-weight: 600; }
+
+  .fs-actions {
+    padding: 12px 16px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    background: var(--bg2);
+  }
+
+  /* REPORT CARD OUTPUT */
+  .reportcard-output {
+    background: white;
+    border: 1px solid var(--rule);
+    overflow: hidden;
+  }
+
+  .rc-header {
+    padding: 28px 28px 20px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .rc-brand-name {
+    font-family: var(--serif);
+    font-size: 32px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+
+  .rc-brand-owner {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 0.08em;
+  }
+
+  .rc-overall {
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .rc-overall-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .rc-overall-zone {
+    font-family: var(--serif);
+    font-size: 48px;
+    font-style: italic;
+    line-height: 1;
+    font-weight: 700;
+  }
+  .rc-overall-zone.red { color: var(--red); }
+  .rc-overall-zone.yellow { color: var(--yellow); }
+  .rc-overall-zone.green { color: var(--green); }
+
+  .rc-dimensions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border-top: none;
+  }
+
+  .rc-dim {
+    background: white;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .rc-dim-name {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--mid);
+    text-transform: uppercase;
+  }
+
+  .rc-dim-bar {
+    height: 4px;
+    background: var(--rule);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rc-dim-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    transition: width 0.8s ease;
+  }
+
+  .rc-dim-fill.red { background: var(--red); }
+  .rc-dim-fill.yellow { background: var(--yellow); }
+  .rc-dim-fill.green { background: var(--green); }
+
+  .rc-dim-score {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .rc-dim-score.red { color: var(--red); }
+  .rc-dim-score.yellow { color: var(--yellow); }
+  .rc-dim-score.green { color: var(--green); }
+
+  .rc-finding {
+    padding: 16px 20px;
+    background: var(--bg2);
+    border-top: 1px solid var(--rule);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--mid);
+    line-height: 1.55;
+  }
+
+  .rc-actions {
+    padding: 12px 16px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    background: var(--bg2);
+  }
+
+  .dl-btn {
+    padding: 10px 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: white;
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dl-btn:hover { background: var(--ink); color: var(--bg); }
+
+  /* FTC DISCLAIMER */
+  .ftc-block {
+    padding: 14px 16px;
+    background: var(--yellow-bg);
+    border: 1px solid var(--yellow-border);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .ftc-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .ftc-text { font-family: var(--mono); font-size: 11px; color: var(--yellow); line-height: 1.5; letter-spacing: 0.04em; }
+  .ftc-text strong { font-weight: 500; display: block; margin-bottom: 2px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--rule); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .search-panel { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--rule); }
+    .output-panel { padding: 24px; }
+    .brand-name { font-size: 36px; }
+    .rc-dimensions { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://tracedhealth.com" class="nav-logo">TracedHealth</a>
+  <span class="nav-title">Research Builder</span>
+</nav>
+
+<div class="layout">
+
+  <!-- LEFT: SEARCH + FORMAT -->
+  <div class="search-panel">
+    <div class="search-heading">Research any brand.<br><em>Export what you find.</em></div>
+
+    <div class="search-box">
+      <input
+        type="text"
+        class="search-input"
+        id="searchInput"
+        placeholder="Brand name (e.g. siggi's, Clif Bar…)"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+      />
+      <button class="search-btn" id="searchBtn" onclick="doSearch()">→</button>
+    </div>
+
+    <div class="search-examples">
+      <div class="search-examples-label">Try these</div>
+      <button class="example-pill" onclick="searchBrand('siggi\'s')">
+        <span class="example-pill-zone zone-red"></span>siggi's — China Mengniu
+      </button>
+      <button class="example-pill" onclick="searchBrand('Clif Bar')">
+        <span class="example-pill-zone zone-red"></span>Clif Bar — Mondelēz $2.9B
+      </button>
+      <button class="example-pill" onclick="searchBrand('RXBAR')">
+        <span class="example-pill-zone zone-red"></span>RXBAR — Mars acquisition
+      </button>
+      <button class="example-pill" onclick="searchBrand('Siete Foods')">
+        <span class="example-pill-zone zone-red"></span>Siete Foods — PepsiCo $1.2B
+      </button>
+      <button class="example-pill" onclick="searchBrand('GT\'s Kombucha')">
+        <span class="example-pill-zone zone-green"></span>GT's Kombucha — Independent
+      </button>
+      <button class="example-pill" onclick="searchBrand('Olipop')">
+        <span class="example-pill-zone zone-green"></span>Olipop — Founder-led
+      </button>
+    </div>
+
+    <!-- BRAND MINI CARD -->
+    <div class="brand-mini" id="brandMini">
+      <div class="brand-mini-name" id="miniName"></div>
+      <div class="brand-mini-zone" id="miniZone"></div>
+      <div class="brand-mini-owner" id="miniOwner"></div>
+    </div>
+
+    <!-- FORMAT SELECTOR -->
+    <div class="format-selector" id="formatSelector" style="display:none">
+      <div class="format-selector-label">Export format</div>
+      <button class="format-btn active" id="fmtInstagram" onclick="setFormat('instagram')">
+        <span class="format-btn-icon">📸</span>
+        <span class="format-btn-text">
+          <span class="format-btn-title">Copy for Instagram</span>
+          <span class="format-btn-desc">Caption · hashtags · FTC disclosure</span>
+        </span>
+      </button>
+      <button class="format-btn" id="fmtFactsheet" onclick="setFormat('factsheet')">
+        <span class="format-btn-icon">📋</span>
+        <span class="format-btn-text">
+          <span class="format-btn-title">Fact Sheet</span>
+          <span class="format-btn-desc">Plain text · newsletter · YouTube desc</span>
+        </span>
+      </button>
+      <button class="format-btn" id="fmtReportcard" onclick="setFormat('reportcard')">
+        <span class="format-btn-icon">📊</span>
+        <span class="format-btn-text">
+          <span class="format-btn-title">Report Card</span>
+          <span class="format-btn-desc">7-dimension scores · shareable screenshot</span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- RIGHT: OUTPUT -->
+  <div class="output-panel" id="outputPanel">
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">Search a brand to start</div>
+      <div class="empty-sub">Type any food, supplement, or beverage brand. See who owns it, what they've done, and export your findings in seconds.</div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="loading-state" id="loadingState">
+      <div class="loading-bar"></div>
+      <div class="loading-text">Looking up brand…</div>
+    </div>
+
+    <!-- ERROR -->
+    <div class="error-state" id="errorState"></div>
+
+    <!-- BRAND HEADER -->
+    <div class="brand-header" id="brandHeader">
+      <div class="brand-header-top">
+        <div class="brand-name-block">
+          <div class="brand-name" id="brandName"></div>
+          <div class="brand-founded" id="brandFounded"></div>
+        </div>
+        <div class="zone-badge" id="zoneBadge">
+          <span class="zone-badge-label">ZONE</span>
+          <span class="zone-badge-value" id="zoneBadgeValue"></span>
+        </div>
+      </div>
+      <div class="brand-headline" id="brandHeadline"></div>
+      <div class="brand-stats" id="brandStats"></div>
+    </div>
+
+    <!-- INSTAGRAM OUTPUT -->
+    <div class="output-section" id="instagramSection">
+      <div class="output-section-title">Instagram Caption</div>
+      <div class="instagram-output">
+        <div class="ig-toolbar">
+          <div class="ig-toolbar-left">
+            <span>✏️</span>
+            <span>Editable · click to modify</span>
+          </div>
+          <span class="ig-char-count" id="charCount">0 / 2200</span>
+        </div>
+        <div class="ig-caption" id="igCaption" contenteditable="true" data-placeholder="Search a brand to generate caption…"></div>
+        <div class="ig-actions">
+          <span class="ig-tone-label">Tone:</span>
+          <button class="tone-btn active" id="toneFactual" onclick="setTone('factual')">Factual</button>
+          <button class="tone-btn" id="toneUrgent" onclick="setTone('urgent')">Urgent</button>
+          <button class="tone-btn" id="toneNeutral" onclick="setTone('neutral')">Neutral</button>
+          <button class="copy-btn" id="copyIgBtn" onclick="copyInstagram()">
+            <span>Copy</span><span>📋</span>
+          </button>
+        </div>
+      </div>
+      <div class="ftc-block">
+        <span class="ftc-icon">⚠️</span>
+        <div class="ftc-text">
+          <strong>FTC Disclosure reminder</strong>
+          If you received payment, free product, or have an affiliate relationship with this brand or its competitors, you must disclose that in your post. The generated caption includes a standard disclosure placeholder — edit it to reflect your actual situation.
+        </div>
+      </div>
+    </div>
+
+    <!-- FACT SHEET OUTPUT -->
+    <div class="output-section" id="factsheetSection">
+      <div class="output-section-title">Fact Sheet</div>
+      <div class="factsheet-output">
+        <div class="fs-header">
+          <span class="fs-header-title">Brand Fact Sheet — TracedHealth</span>
+          <span style="font-family:var(--mono);font-size:10px;color:rgba(244,241,235,0.4);letter-spacing:0.1em;" id="fsDate"></span>
+        </div>
+        <div class="fs-content" id="fsContent"></div>
+        <div class="fs-actions">
+          <button class="copy-btn" id="copyFsBtn" onclick="copyFactsheet()">Copy Text <span>📋</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORT CARD OUTPUT -->
+    <div class="output-section" id="reportcardSection">
+      <div class="output-section-title">Report Card</div>
+      <div class="reportcard-output" id="reportCard">
+        <div class="rc-header">
+          <div>
+            <div class="rc-brand-name" id="rcBrandName"></div>
+            <div class="rc-brand-owner" id="rcBrandOwner"></div>
+          </div>
+          <div class="rc-overall">
+            <div class="rc-overall-label">Overall Zone</div>
+            <div class="rc-overall-zone" id="rcZone"></div>
+          </div>
+        </div>
+        <div class="rc-dimensions" id="rcDimensions"></div>
+        <div class="rc-finding" id="rcFinding"></div>
+        <div class="rc-actions">
+          <button class="dl-btn" onclick="printReportCard()">Save as Image <span>🖼️</span></button>
+          <button class="copy-btn" id="copyRcBtn" onclick="copyReportCard()">Copy Summary <span>📋</span></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const API_BASE = 'http://localhost:5001';
+  let currentBrand = null;
+  let currentTone = 'factual';
+  let currentFormat = 'instagram';
+
+  // ─── SEARCH ───────────────────────────────────────────────────────────────
+
+  document.getElementById('searchInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+  });
+
+  function searchBrand(name) {
+    document.getElementById('searchInput').value = name;
+    doSearch();
+  }
+
+  async function doSearch() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) return;
+
+    setState('loading');
+
+    try {
+      const res = await fetch(`${API_BASE}/api/lookup?name=${encodeURIComponent(query)}`);
+      const data = await res.json();
+
+      if (!data.matched || !data.brand) {
+        setState('error', `No brand found for "${query}". Try checking the spelling or using a common name.`);
+        return;
+      }
+
+      currentBrand = data.brand;
+      renderBrand(data.brand);
+      setState('brand');
+    } catch (err) {
+      setState('error', `Could not reach TracedHealth API. Make sure Flask is running on port 5001.\n\n${err.message}`);
+    }
+  }
+
+  // ─── STATE MANAGEMENT ─────────────────────────────────────────────────────
+
+  function setState(state, msg = '') {
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('loadingState').classList.remove('visible');
+    document.getElementById('errorState').classList.remove('visible');
+    document.getElementById('brandHeader').classList.remove('visible');
+    document.getElementById('formatSelector').style.display = 'none';
+    document.getElementById('brandMini').classList.remove('visible');
+    hideAllOutputs();
+
+    if (state === 'loading') {
+      document.getElementById('loadingState').classList.add('visible');
+    } else if (state === 'error') {
+      document.getElementById('errorState').classList.add('visible');
+      document.getElementById('errorState').textContent = msg;
+    } else if (state === 'brand') {
+      document.getElementById('brandHeader').classList.add('visible');
+      document.getElementById('formatSelector').style.display = 'flex';
+      document.getElementById('brandMini').classList.add('visible');
+      showFormat(currentFormat);
+    }
+  }
+
+  function hideAllOutputs() {
+    ['instagramSection','factsheetSection','reportcardSection'].forEach(id => {
+      document.getElementById(id).classList.remove('visible');
+    });
+  }
+
+  function showFormat(fmt) {
+    hideAllOutputs();
+    if (fmt === 'instagram') document.getElementById('instagramSection').classList.add('visible');
+    if (fmt === 'factsheet') document.getElementById('factsheetSection').classList.add('visible');
+    if (fmt === 'reportcard') document.getElementById('reportcardSection').classList.add('visible');
+  }
+
+  function setFormat(fmt) {
+    currentFormat = fmt;
+    ['fmtInstagram','fmtFactsheet','fmtReportcard'].forEach(id => {
+      document.getElementById(id).classList.remove('active');
+    });
+    const map = { instagram:'fmtInstagram', factsheet:'fmtFactsheet', reportcard:'fmtReportcard' };
+    document.getElementById(map[fmt]).classList.add('active');
+    if (currentBrand) showFormat(fmt);
+  }
+
+  function setTone(tone) {
+    currentTone = tone;
+    ['toneFactual','toneUrgent','toneNeutral'].forEach(id => {
+      document.getElementById(id).classList.remove('active');
+    });
+    const map = { factual:'toneFactual', urgent:'toneUrgent', neutral:'toneNeutral' };
+    document.getElementById(map[tone]).classList.add('active');
+    if (currentBrand) renderInstagram(currentBrand);
+  }
+
+  // ─── RENDER BRAND ─────────────────────────────────────────────────────────
+
+  function renderBrand(b) {
+    const zone = b.overall_zone || 'unknown';
+    const acqPrice = b.acquisition_price ? formatMoney(b.acquisition_price) : null;
+    const violations = b.parent_record?.violations || 0;
+    const lobbying = b.parent_record?.lobbying_annual ? formatMoney(b.parent_record.lobbying_annual) : null;
+
+    // MINI CARD
+    document.getElementById('miniName').textContent = b.name;
+    const miniZone = document.getElementById('miniZone');
+    miniZone.className = `brand-mini-zone ${zone}`;
+    miniZone.textContent = zone.toUpperCase() + ' ZONE';
+    document.getElementById('miniOwner').innerHTML = `Owned by <strong>${b.owner || 'Unknown'}</strong>${acqPrice ? ` · acquired for ${acqPrice}` : ''}`;
+
+    // MAIN HEADER
+    document.getElementById('brandName').textContent = b.name;
+    document.getElementById('brandFounded').textContent = b.founded_year ? `Founded ${b.founded_year}` : '';
+    document.getElementById('brandHeadline').textContent = b.headline_finding || '';
+
+    const badge = document.getElementById('zoneBadge');
+    badge.className = `zone-badge ${zone}`;
+    document.getElementById('zoneBadgeValue').textContent = zone.toUpperCase();
+
+    // STATS
+    const stats = [];
+    if (b.owner) stats.push({ label: 'Owner', value: b.owner });
+    if (b.acquired_year) stats.push({ label: 'Acquired', value: b.acquired_year });
+    if (acqPrice) stats.push({ label: 'Price', value: acqPrice, cls: zone === 'red' ? 'red' : '' });
+    if (violations) stats.push({ label: 'Violations', value: violations, cls: violations > 10 ? 'red' : '' });
+
+    document.getElementById('brandStats').innerHTML = stats.map(s =>
+      `<div class="brand-stat">
+        <div class="brand-stat-label">${s.label}</div>
+        <div class="brand-stat-value ${s.cls || ''}">${s.value}</div>
+      </div>`
+    ).join('');
+
+    // SET DATE
+    document.getElementById('fsDate').textContent = new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+
+    // RENDER OUTPUTS
+    renderInstagram(b);
+    renderFactsheet(b);
+    renderReportCard(b);
+  }
+
+  // ─── INSTAGRAM CAPTION ────────────────────────────────────────────────────
+
+  function renderInstagram(b) {
+    const zone = b.overall_zone || 'unknown';
+    const acqYear = b.acquired_year;
+    const acqPrice = b.acquisition_price ? formatMoney(b.acquisition_price) : null;
+    const violations = b.parent_record?.violations;
+    const lobbying = b.parent_record?.lobbying_annual ? formatMoney(b.parent_record.lobbying_annual) : null;
+    const founderStory = b.founder_story;
+    const formula = b.formula_changed;
+
+    let caption = '';
+
+    if (currentTone === 'factual') {
+      if (zone === 'red') {
+        caption = `🔴 ${b.name} — ownership check.
+
+${b.share_text || `${b.name} is now owned by ${b.owner}.`}
+
+${founderStory ? `The brand was ${founderStory.substring(0, 120)}…` : ''}
+${violations ? `\n${b.owner} has ${violations} documented regulatory violations.` : ''}
+${lobbying ? `${b.owner} spends ${lobbying}/year lobbying against food labeling requirements.` : ''}
+${formula ? `\n⚠️ Formula changes have been documented since acquisition.` : ''}
+
+I use TracedHealth to check brand ownership before posting. Link in bio.
+
+[Disclosure: I was not paid to post this. All data from tracedhealth.com]
+
+#FoodTransparency #KnowYourBrands #TracedHealth #${b.name.replace(/[^a-zA-Z0-9]/g,'')} #FoodIndustry`;
+      } else if (zone === 'green') {
+        caption = `🟢 ${b.name} — still independent.
+
+${b.share_text || `${b.name} remains independently owned.`}
+
+${founderStory ? founderStory.substring(0, 200) + '…' : ''}
+
+Independently owned brands don't have a PE firm or conglomerate setting the agenda. I check tracedhealth.com before recommending brands.
+
+[Disclosure: I was not paid to post this. All data from tracedhealth.com]
+
+#FoodTransparency #IndependentBrands #TracedHealth #${b.name.replace(/[^a-zA-Z0-9]/g,'')}`;
+      } else {
+        caption = `🟡 ${b.name} — ownership check.
+
+${b.share_text || `${b.name} — ownership: ${b.owner || 'unclear'}.`}
+
+${founderStory ? founderStory.substring(0, 160) + '…' : ''}
+
+Source: tracedhealth.com
+
+[Disclosure: I was not paid to post this. All data from tracedhealth.com]
+
+#FoodTransparency #TracedHealth #${b.name.replace(/[^a-zA-Z0-9]/g,'')}`;
+      }
+    } else if (currentTone === 'urgent') {
+      caption = `⚠️ I need to talk about ${b.name}.
+
+${b.headline_finding || b.share_text || ''}
+
+${violations ? `${b.owner} — ${violations} regulatory violations on record.` : ''}
+${lobbying ? `${lobbying}/year spent lobbying AGAINST food labeling.` : ''}
+${formula ? `\nThe formula has changed since acquisition.` : ''}
+
+This is why I check every brand before recommending it. 
+
+Full report: tracedhealth.com/brand/${b.slug || b.name.toLowerCase()}
+
+[Disclosure: Not sponsored. Data from @tracedhealth]
+
+#FoodTruth #${b.name.replace(/[^a-zA-Z0-9]/g,'')} #KnowWhoOwnsYourFood #FoodTransparency`;
+    } else {
+      caption = `Looked up ${b.name} on TracedHealth.
+
+${b.share_text || ''}
+
+${b.independent ? 'Still independently owned.' : `Now owned by ${b.owner}${acqYear ? ` (since ${acqYear})` : ''}.`}
+
+tracedhealth.com
+
+[Disclosure: not sponsored]
+
+#FoodTransparency #${b.name.replace(/[^a-zA-Z0-9]/g,'')}`;
+    }
+
+    caption = caption.replace(/\n{3,}/g, '\n\n').trim();
+
+    const el = document.getElementById('igCaption');
+    el.textContent = caption;
+    updateCharCount();
+  }
+
+  document.getElementById('igCaption').addEventListener('input', updateCharCount);
+
+  function updateCharCount() {
+    const text = document.getElementById('igCaption').textContent;
+    const len = text.length;
+    const el = document.getElementById('charCount');
+    el.textContent = `${len} / 2200`;
+    el.classList.toggle('over', len > 2200);
+  }
+
+  // ─── FACT SHEET ───────────────────────────────────────────────────────────
+
+  function renderFactsheet(b) {
+    const zone = b.overall_zone || 'unknown';
+    const acqPrice = b.acquisition_price ? formatMoney(b.acquisition_price) : '—';
+    const violations = b.parent_record?.violations || '—';
+    const lobbying = b.parent_record?.lobbying_annual ? formatMoney(b.parent_record.lobbying_annual) + '/year' : '—';
+
+    const rows = [
+      { key: 'Brand', val: b.name },
+      { key: 'Zone', val: zone.toUpperCase(), cls: zone },
+      { key: 'Current Owner', val: b.owner || 'Independent / Unknown' },
+      { key: 'Owner Type', val: b.owner_type ? b.owner_type.replace('_', ' ').toUpperCase() : '—' },
+      { key: 'Acquired', val: b.acquired_year ? `${b.acquired_year}` : (b.independent ? 'Not acquired — independent' : '—') },
+      { key: 'Acquisition Price', val: acqPrice },
+      { key: 'Founded', val: b.founded_year || '—' },
+      { key: 'Violations (parent)', val: violations, cls: (violations > 10 ? 'red' : '') },
+      { key: 'Lobbying (annual)', val: lobbying },
+      { key: 'Formula Changed', val: b.formula_changed ? 'Yes — documented changes post-acquisition' : 'No documented changes', cls: b.formula_changed ? 'red' : '' },
+      { key: 'Key Finding', val: b.headline_finding || b.share_text || '—' },
+      { key: 'Source', val: `tracedhealth.com — verified ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}` },
+    ];
+
+    document.getElementById('fsContent').innerHTML = rows.map(r =>
+      `<div class="fs-row">
+        <span class="fs-key">${r.key}</span>
+        <span class="fs-val ${r.cls || ''}">${r.val}</span>
+      </div>`
+    ).join('');
+  }
+
+  // ─── REPORT CARD ──────────────────────────────────────────────────────────
+
+  function renderReportCard(b) {
+    const zone = b.overall_zone || 'unknown';
+    document.getElementById('rcBrandName').textContent = b.name;
+    document.getElementById('rcBrandOwner').textContent = b.owner ? `Owned by ${b.owner}` : 'Independent';
+    const rcZone = document.getElementById('rcZone');
+    rcZone.className = `rc-overall-zone ${zone}`;
+    rcZone.textContent = zone === 'red' ? '🔴' : zone === 'green' ? '🟢' : '🟡';
+
+    // Derive scores from available data
+    const violations = b.parent_record?.violations || 0;
+    const lobbying = b.parent_record?.lobbying_annual || 0;
+    const pe = b.pe_owned;
+    const isIndependent = b.independent;
+    const formulaChanged = b.formula_changed;
+
+    function scoreColor(s) { return s >= 70 ? 'green' : s >= 40 ? 'yellow' : 'red'; }
+    function zoneScore(z) { return z === 'green' ? 85 : z === 'yellow' ? 55 : 20; }
+
+    const dims = [
+      {
+        name: 'Ownership Disclosure',
+        score: isIndependent ? 90 : (b.owner ? 60 : 25),
+        note: isIndependent ? 'Founder-owned' : b.owner ? `Owned by ${b.owner}` : 'Ownership unclear'
+      },
+      {
+        name: 'Ingredient Disclosure',
+        score: formulaChanged ? 30 : 70,
+        note: formulaChanged ? 'Formula changes documented' : 'No documented changes'
+      },
+      {
+        name: 'Marketing Alignment',
+        score: zone === 'red' && !isIndependent ? 35 : zone === 'green' ? 80 : 55,
+        note: zone === 'red' ? 'Corporate-owned, wellness positioning' : 'Aligned'
+      },
+      {
+        name: 'Scientific Substantiation',
+        score: violations > 20 ? 20 : violations > 5 ? 45 : 75,
+        note: violations > 0 ? `${violations} violations on record` : 'No violations found'
+      },
+      {
+        name: 'Risk Disclosure',
+        score: lobbying > 5000000 ? 15 : lobbying > 1000000 ? 40 : 75,
+        note: lobbying > 0 ? `${formatMoney(lobbying)}/yr lobbying` : 'No significant lobbying'
+      },
+      {
+        name: 'Safety Transparency',
+        score: zoneScore(zone),
+        note: `Overall zone: ${zone.toUpperCase()}`
+      },
+      {
+        name: 'Founder Alignment',
+        score: isIndependent ? 92 : pe ? 20 : 45,
+        note: isIndependent ? 'Founder still in control' : pe ? 'PE-owned — founder exited' : 'Post-acquisition'
+      },
+    ];
+
+    document.getElementById('rcDimensions').innerHTML = dims.map(d => {
+      const cls = scoreColor(d.score);
+      return `<div class="rc-dim">
+        <div class="rc-dim-name">${d.name}</div>
+        <div class="rc-dim-bar"><div class="rc-dim-fill ${cls}" style="width:${d.score}%"></div></div>
+        <div class="rc-dim-score ${cls}">${d.score}/100 · ${d.note}</div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('rcFinding').textContent = b.headline_finding || b.share_text || '';
+  }
+
+  // ─── COPY FUNCTIONS ───────────────────────────────────────────────────────
+
+  function copyInstagram() {
+    const text = document.getElementById('igCaption').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyIgBtn');
+      btn.innerHTML = 'Copied ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.innerHTML = 'Copy 📋'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  function copyFactsheet() {
+    if (!currentBrand) return;
+    const b = currentBrand;
+    const zone = b.overall_zone || 'unknown';
+    const text = [
+      `BRAND FACT SHEET — TracedHealth`,
+      `Generated: ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}`,
+      `─────────────────────────────`,
+      `Brand: ${b.name}`,
+      `Zone: ${zone.toUpperCase()}`,
+      `Owner: ${b.owner || 'Independent'}`,
+      `Acquired: ${b.acquired_year || (b.independent ? 'Not acquired' : '—')}`,
+      `Price: ${b.acquisition_price ? formatMoney(b.acquisition_price) : '—'}`,
+      `Founded: ${b.founded_year || '—'}`,
+      `Violations: ${b.parent_record?.violations || 0}`,
+      `Lobbying: ${b.parent_record?.lobbying_annual ? formatMoney(b.parent_record.lobbying_annual)+'/yr' : '—'}`,
+      `Formula Changed: ${b.formula_changed ? 'Yes' : 'No'}`,
+      `─────────────────────────────`,
+      `Key Finding: ${b.headline_finding || b.share_text || '—'}`,
+      `─────────────────────────────`,
+      `Source: tracedhealth.com`,
+    ].join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyFsBtn');
+      btn.innerHTML = 'Copied ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.innerHTML = 'Copy Text 📋'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  function copyReportCard() {
+    if (!currentBrand) return;
+    const b = currentBrand;
+    const text = `${b.name} — TracedHealth Report Card\nZone: ${(b.overall_zone||'').toUpperCase()}\nOwner: ${b.owner||'Independent'}\n\n${b.headline_finding||b.share_text||''}\n\nFull report: tracedhealth.com/brand/${b.slug||b.name.toLowerCase()}`;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyRcBtn');
+      btn.innerHTML = 'Copied ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.innerHTML = 'Copy Summary 📋'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  function printReportCard() {
+    window.print();
+  }
+
+  // ─── UTILS ────────────────────────────────────────────────────────────────
+
+  function formatMoney(n) {
+    if (!n) return '—';
+    if (n >= 1e9) return `$${(n/1e9).toFixed(1)}B`;
+    if (n >= 1e6) return `$${(n/1e6).toFixed(1)}M`;
+    if (n >= 1e3) return `$${(n/1e3).toFixed(0)}K`;
+    return `$${n}`;
+  }
+</script>
+
+</body>
+</html>
