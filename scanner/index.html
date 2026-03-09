@@ -515,7 +515,7 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.1/umd/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js"></script>
 <script>
 (function () {
   'use strict';
@@ -546,16 +546,36 @@
   // ── Start scanner ────────────────────────────────────────────────────────────
   // Accepts an already-acquired MediaStream so getUserMedia stays in the
   // synchronous tap gesture — iOS Safari requirement.
+  function onFrame(result, err) {
+    if (!scanning || !result) return;
+    var text = result.getText();
+    if (text === lastScan) return;  // debounce duplicate reads
+    lastScan = text;
+    scanning = false;
+    handleScan(text);
+  }
+
   function startScannerWithStream(stream) {
-    codeReader = new ZXingBrowser.BrowserMultiFormatReader();
-    codeReader.decodeFromStream(stream, video, function(result, err) {
-      if (!scanning || !result) return;
-      var text = result.getText();
-      if (text === lastScan) return;  // debounce duplicate reads
-      lastScan = text;
-      scanning = false;
-      handleScan(text);
-    });
+    try {
+      if (typeof ZXingBrowser === 'undefined') {
+        throw new Error('ZXing library failed to load');
+      }
+      codeReader = new ZXingBrowser.BrowserMultiFormatReader();
+
+      // Attach stream to video first so decodeFromVideoElement can use it
+      video.srcObject = stream;
+
+      // decodeFromStream preferred; fall back to decodeFromVideoElement
+      if (typeof codeReader.decodeFromStream === 'function') {
+        codeReader.decodeFromStream(stream, video, onFrame);
+      } else {
+        codeReader.decodeFromVideoElement(video, onFrame);
+      }
+
+      setStatus('Scanning…');
+    } catch (e) {
+      showError('Scanner failed to start: ' + e.message + '. Try reloading the page.');
+    }
   }
 
   // ── Handle scan ──────────────────────────────────────────────────────────────
