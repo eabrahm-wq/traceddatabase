@@ -67,7 +67,13 @@
 .te-nearby-item { display:flex; align-items:flex-start; gap:8px; padding:4px 0; }
 .te-nearby-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:3px; }
 .te-nearby-name { font-size:12px; font-weight:500; color:#4e9b6f; }
-.te-nearby-note { font-size:10px; color:#625c50; }
+.te-nearby-meta { font-size:9px; color:#4e9b6f; opacity:0.7; margin-top:1px; }
+.te-nearby-note { font-size:10px; color:#625c50; margin-top:2px; line-height:1.5; }
+
+/* Why this matters (indie panel) */
+.te-why-list { display:flex; flex-direction:column; gap:8px; }
+.te-why-item { display:flex; align-items:flex-start; gap:8px; font-size:11px; color:#9a9284; line-height:1.6; }
+.te-why-icon { font-size:13px; flex-shrink:0; margin-top:1px; }
 
 /* Actions */
 .te-actions { display:flex; gap:8px; padding:10px 14px; }

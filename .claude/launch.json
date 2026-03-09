@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "traced-dev",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["traced_app.py"],
+      "runtimeExecutable": "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "runtimeArgs": ["/Users/evan/Desktop/Traceddatabase/.claude/worktrees/bold-johnson/traced_app.py"],
       "port": 5001
     }
   ]
