@@ -1471,6 +1471,47 @@ def brands_by_city(city):
     return jsonify([dict(r) for r in rows])
 
 
+# ── Story pages ──────────────────────────────────────────────────────────────
+@app.route('/api/stories')
+def get_stories():
+    conn = get_db()
+    stories = conn.execute('''
+        SELECT s.*, COUNT(b.id) as brand_count
+        FROM story_pages s
+        LEFT JOIN brands b ON (
+            b.story_tags IS NOT NULL AND
+            b.story_tags LIKE '%' || s.slug || '%'
+        )
+        GROUP BY s.slug
+        ORDER BY s.sort_order
+    ''').fetchall()
+    conn.close()
+    return jsonify([dict(s) for s in stories])
+
+
+@app.route('/api/stories/<slug>')
+def get_story(slug):
+    conn = get_db()
+    story = conn.execute('SELECT * FROM story_pages WHERE slug = ?', (slug,)).fetchone()
+    if not story:
+        conn.close()
+        return jsonify({'error': 'Story not found'}), 404
+    brands = conn.execute('''
+        SELECT id, name, slug, overall_zone, category, parent_company_id,
+               acquired_year, acquisition_price, headline_finding,
+               ingredient_drift_note, brand_fate, independence_story,
+               legal_actions, founder_notes, story_tags
+        FROM brands
+        WHERE story_tags LIKE ?
+        ORDER BY overall_zone, name
+    ''', (f'%{slug}%',)).fetchall()
+    conn.close()
+    return jsonify({
+        'story': dict(story),
+        'brands': [dict(b) for b in brands]
+    })
+
+
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 5001))
